@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"io"
 	"log"
 	"os"
@@ -81,14 +82,20 @@ func (s *scheduler) run() {
 }
 
 func main() {
-	f, err := os.OpenFile("/var/log/marvin.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-	log.SetOutput(f)
+	config := flag.String("config", "/etc/marvin.json", "file path to configuration file")
+	logfile := flag.String("logfile", "", "file path to logfile")
+	flag.Parse()
 
-	j, err := os.OpenFile("marvin.json", os.O_RDONLY, 0666)
+	if *logfile != "" {
+		f, err := os.OpenFile("/var/log/marvin.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+		log.SetOutput(f)
+	}
+
+	j, err := os.OpenFile(*config, os.O_RDONLY, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}
