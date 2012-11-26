@@ -43,8 +43,10 @@ func NewSchedulerFromReader(j io.Reader) *scheduler {
 }
 
 func (s *scheduler) schedule(name string, e schedule) {
-	zone, _ := time.Now().Zone()
-	on, err := time.Parse(time.Kitchen+" MST", e.When+" "+zone)
+	now := time.Now()
+	zone, _ := now.Zone()
+	on, err := time.Parse("2006-01-02 "+time.Kitchen+" MST",
+		now.Format("2006-01-02 ")+e.When+" "+zone)
 	if err != nil {
 		log.Fatal(err)
 	}
