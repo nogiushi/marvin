@@ -92,7 +92,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	s := NewSchedulerFromReader(j)
 	j.Close()
 	s.run()
