@@ -1,0 +1,109 @@
+{
+    "hue": {
+	"host": "10.0.1.8",
+	"key": "334b473e8c2555d5eb722e0c932df793",
+	"states": {
+	    "on": {"on": true},
+	    "off": {"on": false},
+	    "alert": {"alert": "lselect"},
+	    "blink": {"alert": "select"},
+
+	    "sun": {
+		"on": true, "bri": 254, "hue": 8569,
+		"sat": 245, "xy": [0.5787, 0.3872], "ct": 500,
+		"alert": "none", "effect": "none", "colormode": "xy"},
+
+	    "nightlight": {
+		"on": true, "bri": 1, "hue": 733,
+		"sat": 237, "xy": [0.6482, 0.3309], "ct": 469,
+		"alert": "none", "effect": "none", "colormode": "ct"},
+
+	    "deepBlue": {
+		"on": true, "bri": 254, "hue": 47103,
+		"sat": 254, "xy": [0.167, 0.04], "ct": 500,
+		"alert": "none", "effect": "none", "colormode": "xy"},
+
+	    "redAlert": {
+		"on": true, "bri": 16, "hue": 733,
+		"sat": 237, "xy": [0.6484, 0.3309], "ct": 500,
+		"alert": "none", "effect": "none", "colormode": "xy"}
+	}
+    },
+
+    "schedules": {
+
+	"chime": {
+	    "when": "12:00AM",
+	    "interval": "1h",
+	    "what": [
+		{"address": "/groups/0/action", "state": "blink"}
+	    ]
+	},
+
+	"sunrise": {
+	    "when": "7:00AM",
+	    "interval": "24h",
+	    "transitiontime": 1800,
+	    "what": [
+		{"address": "/lights/1/state", "state": "sun"},
+		{"address": "/lights/2/state", "state": "sun"},
+		{"address": "/lights/3/state", "state": "sun"}
+	    ]
+	},
+
+	"daytime": {
+	    "when": "9:00AM",
+	    "interval": "24h",
+	    "what": [
+		{"address": "/groups/0/action", "state": "off"}
+	    ]
+	},
+
+	"sunset": {
+	    "when": "4:30PM",
+	    "interval": "24h",
+	    "what": [
+		{"address": "/lights/1/state", "state": "sun"},
+		{"address": "/lights/2/state", "state": "sun"},
+		{"address": "/lights/3/state", "state": "sun"}
+	    ]
+	},
+
+	"evening": {
+	    "when": "7:30PM",
+	    "interval": "24h",
+	    "what": [
+		{"address": "/groups/0/action", "state": "alert"}
+	    ]
+	},
+
+	"teatime": {
+	    "when": "9:30PM",
+	    "interval": "24h",
+	    "transitiontime": 1800,
+	    "what": [
+		{"address": "/lights/1/state", "state": "deepBlue"},
+		{"address": "/lights/2/state", "state": "deepBlue"},
+		{"address": "/lights/3/state", "state": "redAlert"}
+	    ]
+	},
+
+	"bedtime": {
+	    "when": "10:00PM",
+	    "interval": "24h",
+	    "what": [
+		{"address": "/lights/1/state", "state": "nightlight"},
+		{"address": "/lights/2/state", "state": "nightlight"},
+		{"address": "/lights/3/state", "state": "nightlight"}
+	    ]
+	},
+
+	"lights off": {
+	    "when": "11:00PM",
+	    "interval": "24h",
+	    "what": [
+		{"address": "/groups/0/action", "state": "off"}
+	    ]
+	}
+    }
+}
