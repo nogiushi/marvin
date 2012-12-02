@@ -13,6 +13,7 @@ type schedule struct {
 	When     string
 	Interval string
 	What     []command
+	Days     map[string]string
 }
 
 type event struct {
@@ -63,13 +64,23 @@ func (s *scheduler) schedule(name string, e schedule) {
 		}
 		log.Println("waiting for " + wait.String())
 		time.Sleep(wait)
-		t := time.NewTicker(duration)
-		s.c <- event{time.Now(), e.What}
-		for t := range t.C {
-			s.c <- event{t, e.What}
+		s.maybeRun(time.Now(), e)
+		for t := range time.NewTicker(duration).C {
+			s.maybeRun(t, e)
 		}
 	}()
 }
+
+func (s *scheduler)maybeRun(t time.Time, sched schedule) {
+	day, ok := sched.Days[t.Weekday().String()]
+	if ok {
+		if day=="off" {
+			return
+		}
+	}
+	s.c <- event{t, sched.What}
+}
+
 
 func (s *scheduler) run() {
 	log.Println("scheduler started on:" + time.Now().In(time.Local).String())
