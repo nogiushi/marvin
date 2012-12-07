@@ -72,7 +72,7 @@ func (s *scheduler) schedule(name string, e schedule) {
 }
 
 func (s *scheduler)maybeRun(t time.Time, sched schedule) {
-	day, ok := sched.Days[t.Weekday().String()]
+	day, ok := sched.Days[t.In(time.Local).Weekday().String()]
 	if ok {
 		if day=="off" {
 			return
