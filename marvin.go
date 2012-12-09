@@ -10,6 +10,7 @@ import (
 )
 
 type schedule struct {
+	Name     string
 	When     string
 	Interval string
 	What     []command
@@ -23,37 +24,37 @@ type event struct {
 
 type scheduler struct {
 	Hue       hue
-	Schedules map[string]schedule
+	Schedules []schedule
 	c         chan event
 }
 
-func NewSchedulerFromReader(j io.Reader) *scheduler {
-	s := &scheduler{}
+func NewSchedulerFromJSON(j io.Reader) (err error, s *scheduler) {
+	s = &scheduler{}
 	dec := json.NewDecoder(j)
-	if err := dec.Decode(s); err != io.EOF {
-		log.Println("incomplete decode")
-	} else if err != nil {
-		log.Fatal(err)
+	if err = dec.Decode(s); err == nil {
+		for _, value := range s.Schedules {
+			if err = s.schedule(value); err != nil {
+				return err, nil
+			}
+		}
 	}
 	s.c = make(chan event, 1)
-
-	for name, value := range s.Schedules {
-		s.schedule(name, value)
-	}
-	return s
+	return err, s
 }
 
-func (s *scheduler) schedule(name string, e schedule) {
+func (s *scheduler) schedule(e schedule) (err error) {
+	var on time.Time
+	var duration time.Duration
+	name := e.Name
 	now := time.Now()
 	zone, _ := now.Zone()
-	on, err := time.Parse("2006-01-02 "+time.Kitchen+" MST",
-		now.Format("2006-01-02 ")+e.When+" "+zone)
-	if err != nil {
-		log.Fatal(err)
+	if on, err = time.Parse("2006-01-02 "+time.Kitchen+" MST", now.Format("2006-01-02 ")+e.When+" "+zone); err != nil {
+		log.Println("could not parse when of '" + e.When + "' for " + name)
+		return
 	}
-	duration, err := time.ParseDuration(e.Interval)
-	if err != nil {
-		log.Fatal(err)
+	if duration, err = time.ParseDuration(e.Interval); err != nil {
+		log.Println("could not parse interval of '" + e.Interval + "' for " + name)
+		return
 	}
 
 	go func() {
@@ -62,31 +63,26 @@ func (s *scheduler) schedule(name string, e schedule) {
 		if wait < 0 {
 			wait += duration
 		}
-		log.Println("waiting for " + wait.String())
 		time.Sleep(wait)
 		s.maybeRun(time.Now(), e)
 		for t := range time.NewTicker(duration).C {
 			s.maybeRun(t, e)
 		}
 	}()
+	return
 }
 
-func (s *scheduler)maybeRun(t time.Time, sched schedule) {
+func (s *scheduler) maybeRun(t time.Time, sched schedule) {
 	day, ok := sched.Days[t.In(time.Local).Weekday().String()]
 	if ok {
-		if day=="off" {
+		if day == "off" {
 			return
 		}
 	}
 	s.c <- event{t, sched.What}
 }
 
-
 func (s *scheduler) run() {
-	log.Println("scheduler started on:" + time.Now().In(time.Local).String())
-	// visual display of scheduler starting
-	s.Hue.run(command{"/groups/0/action", "blink"})
-
 	for e := range s.c {
 		for _, command := range e.commands {
 			s.Hue.run(command)
@@ -94,26 +90,34 @@ func (s *scheduler) run() {
 	}
 }
 
+func NewSchedulerFromJSONPath(p string) (err error, s *scheduler) {
+	if j, err := os.OpenFile(p, os.O_RDONLY, 0666); err == nil {
+		defer j.Close()
+		err, s = NewSchedulerFromJSON(j)
+	}
+	return err, s
+}
+
 func main() {
+	log.Println("starting marvin")
+
 	config := flag.String("config", "/etc/marvin.json", "file path to configuration file")
-	logfile := flag.String("logfile", "", "file path to logfile")
+	logfile := flag.String("logfile", "", "file path to logfile (defaults to stderr)")
 	flag.Parse()
 
 	if *logfile != "" {
-		f, err := os.OpenFile("/var/log/marvin.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
-		if err != nil {
+		if f, err := os.OpenFile(*logfile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666); err == nil {
+			defer f.Close()
+			log.SetOutput(f)
+		} else {
 			log.Fatal(err)
 		}
-		defer f.Close()
-		log.SetOutput(f)
 	}
 
-	j, err := os.OpenFile(*config, os.O_RDONLY, 0666)
-	if err != nil {
+	if err, s := NewSchedulerFromJSONPath(*config); err == nil {
+		s.Hue.run(command{"/groups/0/action", "blink"}) // visual display of scheduler starting
+		s.run()
+	} else {
 		log.Fatal(err)
 	}
-
-	s := NewSchedulerFromReader(j)
-	j.Close()
-	s.run()
 }

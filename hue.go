@@ -26,19 +26,19 @@ func (h *hue) state(name string) string {
 	return string(b)
 }
 
-func (h *hue) run(command command) {
+func (h *hue) run(command command) (err error) {
 	state := h.state(command.State)
 	client := &http.Client{}
 	url := "http://" + h.Host + "/api/" + h.Key + command.Address
-	log.Println("put: " + url + " body:" + state)
 	body := strings.NewReader(state)
-	r, err := http.NewRequest("PUT", url, body)
-	if err != nil {
-		log.Fatal(err)
+	if r, err := http.NewRequest("PUT", url, body); err == nil {
+		if response, err := client.Do(r); err == nil {
+			response.Body.Close()
+		} else {
+			log.Println("ERROR: client.Do: " + err.Error())
+		}
+	} else {
+		log.Println("ERROR: NewRequest: " + err.Error())
 	}
-	response, err := client.Do(r)
-	if err != nil {
-		log.Println(err)
-	}
-	defer response.Body.Close()
+	return err
 }
