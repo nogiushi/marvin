@@ -9,31 +9,26 @@ import (
 	"time"
 )
 
-type schedule struct {
-	Name     string
+type event struct {
 	When     string
 	Interval string
-	What     []command
+	What     string
 	Days     map[string]string
-}
-
-type event struct {
-	t        time.Time
-	commands []command
+	time     time.Time
 }
 
 type scheduler struct {
-	Hue       hue
-	Schedules []schedule
-	c         chan event
+	Hue      hue
+	Schedule []event
+	c        chan event
 }
 
 func NewSchedulerFromJSON(j io.Reader) (err error, s *scheduler) {
 	s = &scheduler{}
 	dec := json.NewDecoder(j)
 	if err = dec.Decode(s); err == nil {
-		for _, value := range s.Schedules {
-			if err = s.schedule(value); err != nil {
+		for _, item := range s.Schedule {
+			if err = s.schedule(item); err != nil {
 				return err, nil
 			}
 		}
@@ -42,23 +37,22 @@ func NewSchedulerFromJSON(j io.Reader) (err error, s *scheduler) {
 	return err, s
 }
 
-func (s *scheduler) schedule(e schedule) (err error) {
+func (s *scheduler) schedule(e event) (err error) {
 	var on time.Time
 	var duration time.Duration
-	name := e.Name
 	now := time.Now()
 	zone, _ := now.Zone()
 	if on, err = time.Parse("2006-01-02 "+time.Kitchen+" MST", now.Format("2006-01-02 ")+e.When+" "+zone); err != nil {
-		log.Println("could not parse when of '" + e.When + "' for " + name)
+		log.Println("could not parse when of '" + e.When + "' for " + e.What)
 		return
 	}
 	if duration, err = time.ParseDuration(e.Interval); err != nil {
-		log.Println("could not parse interval of '" + e.Interval + "' for " + name)
+		log.Println("could not parse interval of '" + e.Interval + "' for " + e.What)
 		return
 	}
 
 	go func() {
-		log.Println("scheduled '" + name + "' for: " + on.String())
+		log.Println("scheduled '" + e.What + "' for: " + on.String())
 		wait := time.Duration((on.UnixNano() - time.Now().UnixNano()) % int64(duration))
 		if wait < 0 {
 			wait += duration
@@ -72,21 +66,23 @@ func (s *scheduler) schedule(e schedule) (err error) {
 	return
 }
 
-func (s *scheduler) maybeRun(t time.Time, sched schedule) {
-	day, ok := sched.Days[t.In(time.Local).Weekday().String()]
+func (s *scheduler) maybeRun(t time.Time, e event) {
+	t = t.In(time.Local)
+	day, ok := e.Days[t.Weekday().String()]
 	if ok {
 		if day == "off" {
+			log.Println(e.What + " at " + t.String() + " (marked as off for day)")
 			return
 		}
 	}
-	s.c <- event{t, sched.What}
+	log.Println(e.What + " at " + t.String())
+	e.time = t
+	s.c <- e
 }
 
 func (s *scheduler) run() {
 	for e := range s.c {
-		for _, command := range e.commands {
-			s.Hue.run(command)
-		}
+		s.Hue.Do(e.What)
 	}
 }
 
@@ -115,8 +111,14 @@ func main() {
 	}
 
 	if err, s := NewSchedulerFromJSONPath(*config); err == nil {
-		s.Hue.run(command{"/groups/0/action", "blink"}) // visual display of scheduler starting
-		s.run()
+
+		if flag.NArg() == 0 {
+			s.Hue.Do("chime") // visual display of scheduler starting
+			s.run()
+		} else {
+			transition := flag.Arg(0)
+			s.Hue.Do(transition)
+		}
 	} else {
 		log.Fatal(err)
 	}

@@ -13,9 +13,16 @@ type command struct {
 }
 
 type hue struct {
-	Host   string
-	Key    string
-	States map[string]interface{}
+	Host        string
+	Key         string
+	States      map[string]interface{}
+	Transitions map[string][]command
+}
+
+func (h *hue) Do(transition string) {
+	for _, command := range h.Transitions[transition] {
+		h.run(command)
+	}
 }
 
 func (h *hue) state(name string) string {

@@ -11,11 +11,19 @@
 	    "sun": {
 		"on": true, "bri": 254, "hue": 8569,
 		"sat": 245, "xy": [0.5787, 0.3872], "ct": 500,
+		"transitiontime": 300,
+		"alert": "none", "effect": "none", "colormode": "xy"},
+
+	    "sunoff": {
+		"on": true, "bri": 1, "hue": 8569,
+		"sat": 245, "xy": [0.5787, 0.3872], "ct": 500,
+		"transitiontime": 1800,
 		"alert": "none", "effect": "none", "colormode": "xy"},
 
 	    "nightlight": {
-		"on": true, "bri": 1, "hue": 733,
-		"sat": 237, "xy": [0.6482, 0.3309], "ct": 469,
+		"on": true, "bri": 1, "hue": 8566,
+		"sat": 244, "xy": [0.5779, 0.3872], "ct": 469,
+		"transitiontime": 10,
 		"alert": "none", "effect": "none", "colormode": "ct"},
 
 	    "deepBlue": {
@@ -26,92 +34,67 @@
 	    "redAlert": {
 		"on": true, "bri": 16, "hue": 733,
 		"sat": 237, "xy": [0.6484, 0.3309], "ct": 500,
+		"transitiontime": 1800,
 		"alert": "none", "effect": "none", "colormode": "xy"}
-	}
-    },
+	},
+	"transitions": {
 
-    "schedules": [
-
-	{
-	    "name": "chime",
-	    "when": "12:00AM",
-	    "interval": "1h",
-	    "what": [
+	    "chime": [
 		{"address": "/groups/0/action", "state": "blink"}
-	    ]
-	},
+	    ],
 
-	{
-	    "name": "sunrise",
-	    "when": "7:00AM",
-	    "interval": "24h",
-	    "transitiontime": 1800,
-	    "what": [
+	    "sunrise": [
 		{"address": "/lights/1/state", "state": "sun"},
 		{"address": "/lights/2/state", "state": "sun"},
-		{"address": "/lights/3/state", "state": "sun"}
-	    ]
-	},
+		{"address": "/lights/3/state", "state": "sun"},
+		{"address": "/lights/4/state", "state": "sun"},
+		{"address": "/lights/5/state", "state": "sun"}
+	    ],
 
-	{
-	    "name": "daytime",
-	    "when": "9:00AM",
-	    "interval": "24h",
-	    "what": [
-		{"address": "/groups/0/action", "state": "off"}
-	    ]
-	},
-
-	{
-	    "name": "sunset",
-	    "when": "4:30PM",
-	    "interval": "24h",
-	    "what": [
+	    "daytime": [
 		{"address": "/lights/1/state", "state": "sun"},
 		{"address": "/lights/2/state", "state": "sun"},
-		{"address": "/lights/3/state", "state": "sun"}
-	    ]
-	},
+		{"address": "/lights/3/state", "state": "sun"},
+		{"address": "/lights/4/state", "state": "sun"},
+		{"address": "/lights/5/state", "state": "sun"}
+	    ],
 
-	{
-	    "name": "evening",
-	    "when": "7:30PM",
-	    "interval": "24h",
-	    "what": [
-		{"address": "/groups/0/action", "state": "alert"}
-	    ]
-	},
+	    "sunset": [
+		{"address": "/lights/1/state", "state": "sun"},
+		{"address": "/lights/2/state", "state": "sun"},
+		{"address": "/lights/3/state", "state": "sun"},
+		{"address": "/lights/5/state", "state": "sun"}
+	    ],
 
-	{
-	    "name": "teatime",
-	    "when": "9:30PM",
-	    "interval": "24h",
-	    "transitiontime": 1800,
-	    "what": [
+	    "teatime": [
 		{"address": "/lights/1/state", "state": "deepBlue"},
 		{"address": "/lights/2/state", "state": "deepBlue"},
 		{"address": "/lights/3/state", "state": "redAlert"}
-	    ]
-	},
+	    ],
 
-	{
-	    "name": "bedtime",
-	    "when": "10:00PM",
-	    "interval": "24h",
-	    "what": [
+	    "bedtime": [
 		{"address": "/lights/1/state", "state": "nightlight"},
 		{"address": "/lights/2/state", "state": "nightlight"},
-		{"address": "/lights/3/state", "state": "nightlight"}
-	    ]
-	},
+		{"address": "/lights/3/state", "state": "nightlight"},
+		{"address": "/lights/4/state", "state": "nightlight"},
+		{"address": "/lights/5/state", "state": "nightlight"}
+	    ],
 
-	{
-	    "name": "lights off",
-	    "when": "11:00PM",
-	    "interval": "24h",
-	    "what": [
+	    "lights off": [
 		{"address": "/groups/0/action", "state": "off"}
 	    ]
+
 	}
+    },
+
+    "schedule": [
+	{"what": "chime", "when": "12:00AM", "interval": "1h"},
+	{"what": "sunrise", "when": "7:00AM", "interval": "24h"},
+	{"what": "daytime", "when": "9:00AM", "interval": "24h"},
+	{"what": "sunset", "when": "4:30PM", "interval": "24h"},
+	{"what": "chime", "when": "7:30PM", "interval": "24h"},
+	{"what": "teatime", "when": "9:30PM", "interval": "24h"},
+	{"what": "bedtime", "when": "10:00PM", "interval": "24h"},
+	{"what": "lights off", "when": "11:00PM", "interval": "24h"}
     ]
 }
