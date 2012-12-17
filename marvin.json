@@ -8,93 +8,200 @@
 	    "alert": {"alert": "lselect"},
 	    "blink": {"alert": "select"},
 
+	    "sunrise": {
+		"on": true, "bri": 254, "hue": 8569,
+		"sat": 245, "xy": [0.5787, 0.3872], "ct": 500,
+		"transitiontime": 3600,
+		"alert": "none", "effect": "none", "colormode": "xy"},
+
+	    "sunset": {
+		"on": true, "bri": 0, "hue": 8569,
+		"sat": 245, "xy": [0.5787, 0.3872], "ct": 500,
+		"transitiontime": 3600,
+		"alert": "none", "effect": "none", "colormode": "xy"},
+
 	    "sun": {
 		"on": true, "bri": 254, "hue": 8569,
 		"sat": 245, "xy": [0.5787, 0.3872], "ct": 500,
-		"transitiontime": 300,
+		"transitiontime": 10,
 		"alert": "none", "effect": "none", "colormode": "xy"},
 
-	    "sunoff": {
+	    "sun-dim": {
 		"on": true, "bri": 1, "hue": 8569,
 		"sat": 245, "xy": [0.5787, 0.3872], "ct": 500,
-		"transitiontime": 1800,
+		"transitiontime": 300,
 		"alert": "none", "effect": "none", "colormode": "xy"},
 
 	    "nightlight": {
 		"on": true, "bri": 1, "hue": 8566,
 		"sat": 244, "xy": [0.5779, 0.3872], "ct": 469,
-		"transitiontime": 10,
+		"transitiontime": 300,
 		"alert": "none", "effect": "none", "colormode": "ct"},
 
 	    "deepBlue": {
 		"on": true, "bri": 254, "hue": 47103,
 		"sat": 254, "xy": [0.167, 0.04], "ct": 500,
+		"transitiontime": 10,
+		"alert": "none", "effect": "none", "colormode": "xy"},
+
+	    "deepBlueDim": {
+		"on": true, "bri": 1, "hue": 47103,
+		"sat": 254, "xy": [0.167, 0.04], "ct": 500,
+		"transitiontime": 30,
 		"alert": "none", "effect": "none", "colormode": "xy"},
 
 	    "redAlert": {
 		"on": true, "bri": 16, "hue": 733,
 		"sat": 237, "xy": [0.6484, 0.3309], "ct": 500,
-		"transitiontime": 1800,
+		"transitiontime": 30,
+		"alert": "none", "effect": "none", "colormode": "xy"},
+
+	    "pinkAlert": {
+		"on": true, "bri": 1, "hue": 733,
+		"sat": 137, "xy": [0.6484, 0.3309], "ct": 500,
+		"transitiontime": 10,
+		"alert": "none", "effect": "none", "colormode": "xy"},
+
+	    "green": {
+		"on": true, "bri": 254, "hue": 26214,
+		"sat": 253, "xy": [0.402, 0.5038], "ct": 278,
+		"transitiontime": 10,
+		"alert": "none", "effect": "none", "colormode": "xy"},
+
+	    "pink": {
+		"on": true, "bri": 254, "hue": 53558,
+		"sat": 214, "xy": [0.3505, 0.1762], "ct": 206,
+		"transitiontime": 300,
 		"alert": "none", "effect": "none", "colormode": "xy"}
+
 	},
+
 	"transitions": {
 
 	    "chime": [
 		{"address": "/groups/0/action", "state": "blink"}
 	    ],
 
-	    "sunrise": [
+	    "allgreen": [
+		{"address": "/lights/1/state", "state": "green"},
+		{"address": "/lights/2/state", "state": "green"},
+		{"address": "/lights/3/state", "state": "green"},
+		{"address": "/lights/4/state", "state": "green"},
+		{"address": "/lights/5/state", "state": "green"}
+	    ],
+
+	    "jazz": [
+		{"address": "/lights/1/state", "state": "deepBlueDim"},
+		{"address": "/lights/2/state", "state": "deepBlueDim"},
+		{"address": "/lights/3/state", "state": "deepBlueDim"},
+		{"address": "/lights/4/state", "state": "deepBlueDim"},
+		{"address": "/lights/5/state", "state": "deepBlueDim"}
+	    ],
+
+	    "hack": [
+		{"address": "/lights/2/state", "state": "deepBlueDim"},
+		{"address": "/lights/5/state", "state": "deepBlueDim"}
+	    ],
+
+	    "dawn": [
+		{"address": "/lights/1/state", "state": "sunrise"},
+		{"address": "/lights/3/state", "state": "sunrise"},
+		{"address": "/lights/4/state", "state": "sunrise"}
+	    ],
+
+	    "daylight nearing": [
+		{"address": "/lights/1/state", "state": "off"},
+		{"address": "/lights/3/state", "state": "nightlight"}
+	    ],
+
+	    "daylight": [
+		{"address": "/groups/0/action", "state": "off"}
+	    ],
+
+	    "I": [
 		{"address": "/lights/1/state", "state": "sun"},
+		{"address": "/lights/3/state", "state": "sun"}
+	    ],
+
+	    "II": [
+		{"address": "/lights/4/state", "state": "sun"}
+	    ],
+
+	    "III": [
 		{"address": "/lights/2/state", "state": "sun"},
-		{"address": "/lights/3/state", "state": "sun"},
 		{"address": "/lights/4/state", "state": "sun"},
 		{"address": "/lights/5/state", "state": "sun"}
 	    ],
 
-	    "daytime": [
+	    "dinner": [
 		{"address": "/lights/1/state", "state": "sun"},
-		{"address": "/lights/2/state", "state": "sun"},
-		{"address": "/lights/3/state", "state": "sun"},
+		{"address": "/lights/2/state", "state": "sun-dim"},
+		{"address": "/lights/3/state", "state": "sun-dim"},
 		{"address": "/lights/4/state", "state": "sun"},
-		{"address": "/lights/5/state", "state": "sun"}
+		{"address": "/lights/5/state", "state": "sun-dim"}
+	    ],
+
+	    "meditation": [
+		{"address": "/lights/1/state", "state": "deepBlue"},
+		{"address": "/lights/2/state", "state": "deepBlue"},
+		{"address": "/lights/3/state", "state": "redAlert"},
+		{"address": "/lights/4/state", "state": "sun-dim"},
+		{"address": "/lights/5/state", "state": "deepBlue"}
 	    ],
 
 	    "sunset": [
 		{"address": "/lights/1/state", "state": "sun"},
-		{"address": "/lights/2/state", "state": "sun"},
-		{"address": "/lights/3/state", "state": "sun"},
-		{"address": "/lights/5/state", "state": "sun"}
+		{"address": "/lights/2/state", "state": "sun-dim"},
+		{"address": "/lights/4/state", "state": "sun"},
+		{"address": "/lights/5/state", "state": "sun-dim"}
 	    ],
 
-	    "teatime": [
-		{"address": "/lights/1/state", "state": "deepBlue"},
-		{"address": "/lights/2/state", "state": "deepBlue"},
-		{"address": "/lights/3/state", "state": "redAlert"}
+	    "twilight": [
+		{"address": "/lights/1/state", "state": "sun-dim"},
+		{"address": "/lights/2/state", "state": "deepBlueDim"},
+		{"address": "/lights/3/state", "state": "sun-dim"},
+		{"address": "/lights/4/state", "state": "sun"},
+		{"address": "/lights/5/state", "state": "deepBlueDim"}
 	    ],
 
-	    "bedtime": [
-		{"address": "/lights/1/state", "state": "nightlight"},
-		{"address": "/lights/2/state", "state": "nightlight"},
-		{"address": "/lights/3/state", "state": "nightlight"},
-		{"address": "/lights/4/state", "state": "nightlight"},
-		{"address": "/lights/5/state", "state": "nightlight"}
+	    "dusk": [
+		{"address": "/lights/1/state", "state": "sun-dim"},
+		{"address": "/lights/2/state", "state": "off"},
+		{"address": "/lights/3/state", "state": "sun-dim"},
+		{"address": "/lights/4/state", "state": "sun"},
+		{"address": "/lights/5/state", "state": "off"}
 	    ],
 
-	    "lights off": [
+	    "dusk2": [
+		{"address": "/lights/4/state", "state": "sun-dim"}
+	    ],
+
+	    "darkness": [
 		{"address": "/groups/0/action", "state": "off"}
 	    ]
-
 	}
     },
 
     "schedule": [
-	{"what": "chime", "when": "12:00AM", "interval": "1h"},
-	{"what": "sunrise", "when": "7:00AM", "interval": "24h"},
-	{"what": "daytime", "when": "9:00AM", "interval": "24h"},
-	{"what": "sunset", "when": "4:30PM", "interval": "24h"},
-	{"what": "chime", "when": "7:30PM", "interval": "24h"},
-	{"what": "teatime", "when": "9:30PM", "interval": "24h"},
-	{"what": "bedtime", "when": "10:00PM", "interval": "24h"},
-	{"what": "lights off", "when": "11:00PM", "interval": "24h"}
+	{"when": "7:15AM", "what": "dawn",
+	 "interval": "24h", "days": {"Saturday": "off", "Sunday": "off"}},
+	{"when": "8:00AM", "what": "dawn",
+	 "interval": "24h",
+	 "days": {"Monday": "off", "Tuesday": "off", "Wednesday": "off", "Thursday": "off", "Friday": "off"}},
+	{"when": "8:45AM", "what": "daylight nearing", "interval": "24h"},
+	{"when": "9:00AM", "what": "daylight", "interval": "24h"},
+	{"when": "4:30PM", "what": "I", "interval": "24h"},
+	{"when": "5:00PM", "what": "II",
+	 "interval": "24h",
+	 "days": {"Monday": "off", "Tuesday": "off", "Wednesday": "off", "Thursday": "off", "Friday": "off"}},
+	{"when": "5:30PM", "what": "II", "interval": "24h"},
+	{"when": "6:00PM", "what": "III", "interval": "24h"},
+	{"when": "7:30PM", "what": "dinner", "interval": "24h"},
+	{"when": "9:00PM", "what": "meditation", "interval": "24h"},
+	{"when": "9:30PM", "what": "sunset", "interval": "24h"},
+	{"when": "10:15PM", "what": "twilight", "interval": "24h"},
+	{"when": "10:45PM", "what": "dusk", "interval": "24h"},
+	{"when": "10:55PM", "what": "dusk2", "interval": "24h"},
+	{"when": "11:00PM", "what": "darkness", "interval": "24h"}
     ]
 }

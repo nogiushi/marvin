@@ -1,0 +1,14 @@
+{{define "content"}}
+      {{with .Scheduler.Hue}}
+
+      <form action="" method="post">
+	<div class="input-append">
+	  <select name="do_transition">{{range $k,$v := .Transitions}}
+	    <option>{{$k}}</option>{{end}}
+	  </select>
+	  <button type="submit" class="btn">Transition</button>	
+	</div>
+      </form>
+
+      {{end}}
+{{end}}

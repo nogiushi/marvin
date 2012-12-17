@@ -1,0 +1,12 @@
+{{define "content"}}
+      {{with .Scheduler}}
+
+      <h2>Schedule</h2>
+      <div class="span12">
+      <dl class="dl-horizontal">{{range .Schedule}}
+	<dt>{{.When}}</dt> <dd><a href="#" rel="tooltip" title="{{.}}">{{.What}}</a></dd>{{end}}
+      </dl>
+      </div>
+
+      {{end}}
+{{end}}

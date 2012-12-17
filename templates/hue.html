@@ -1,0 +1,23 @@
+{{define "content"}}
+      {{with .Scheduler}}
+      {{with .Hue}}
+
+      <h2>Hue</h2>
+      <dl class="dl-horizontal">
+	<dt>Host</dt>
+	<dd>{{.Host}}</dd>
+      </dl>
+ 
+      <h3>States</h3>
+      <dl class="dl-horizontal">{{range $k,$v := .States}}
+	<dt>{{$k}}</dt> <dd>{{$v}}</dd>{{end}}
+      </dl>
+
+      <h3>Transitions</h3>
+      <dl class="dl-horizontal">{{range $k,$v := .Transitions}}
+	<dt>{{$k}}</dt> <dd>{{$v}}</dd>{{end}}
+      </dl>
+
+      {{end}}
+      {{end}}
+{{end}}
