@@ -1,14 +1,25 @@
 {{define "content"}}
       {{with .Scheduler.Hue}}
 
-      <form action="" method="post">
+<div class="row">
+  <div class="span4">
+      <form id="transition" action="" method="post">
 	<div class="input-append">
-	  <select name="do_transition">{{range $k,$v := .Transitions}}
-	    <option>{{$k}}</option>{{end}}
+	  <select name="do_transition">
+	    <option>select transition</option>
+	    {{range $k,$v := .Transitions}}<option value="{{$k}}">{{$k}}</option>{{end}}
 	  </select>
-	  <button type="submit" class="btn">Transition</button>	
 	</div>
       </form>
+  </div>
+</div>
 
       {{end}}
+{{end}}
+
+
+{{define "javascript"}}
+
+$('#transition').on('change', function (e) { $(this).submit() })
+
 {{end}}

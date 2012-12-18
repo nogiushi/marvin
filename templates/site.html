@@ -48,11 +48,7 @@
       </div>
     </div>
 
-    <div class="container">
-
-      {{template "content" .}}
-
-    </div>
+    {{template "content" .}}
 
     <script src="/jquery-1.8.3.min.js"></script>
     <script src="/bootstrap/js/bootstrap.min.js"></script>
@@ -63,8 +59,13 @@
         $('a').tooltip()
     }
     $(initPage);
+
 })(jQuery)
+
+{{template "javascript" .}}
 
     </script>
   </body>
 </html>
+
+{{define "javascript"}}{{end}}
