@@ -91,22 +91,20 @@ func makePageHandler(s *scheduler) func(http.ResponseWriter, *http.Request) {
 					name := req.Form["do_transition"]
 					s.Hue.Do(name[0])
 				}
+				w.Header().Set("Cache-Control", "max-age=0, must-revalidate")
 			}
-			setCacheControl(w, req)
 			page := newPage("")
 			page.Name = "home"
 			page.Scheduler = s
 			page.Write(w, req)
 			return
 		} else if req.URL.Path == "/hue/" {
-			setCacheControl(w, req)
 			page := newPage("")
 			page.Name = "hue"
 			page.Scheduler = s
 			page.Write(w, req)
 			return
 		} else if req.URL.Path == "/schedule/" {
-			setCacheControl(w, req)
 			page := newPage("")
 			page.Name = "schedule"
 			page.Scheduler = s

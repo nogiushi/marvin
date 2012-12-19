@@ -1,25 +1,45 @@
 {{define "content"}}
-      {{with .Scheduler.Hue}}
 
-<div class="row">
-  <div class="span4">
-      <form id="transition" action="" method="post">
-	<div class="input-append">
-	  <select name="do_transition">
-	    <option>select transition</option>
-	    {{range $k,$v := .Transitions}}<option value="{{$k}}">{{$k}}</option>{{end}}
-	  </select>
-	</div>
-      </form>
+{{with .Scheduler.Hue}}
+
+<div class="content">
+  <div class="span12">
+    <h1>Transitions</h1>
+    {{range $k,$v := .Transitions}}
+    <h2 href="#{{$k}}" data-toggle="tab">{{$k}}
+      <small>
+	<a class="transition" data-transition="{{$k}}"><i class="icon-play"></i></a>
+      </small>
+    </h2>
+    <dl class="dl-horizontal">{{range $v}}
+      <dt>{{.Light}}</dt><dd>{{.State}} {{.Action}}</dd>{{end}}
+    </dl>
+    {{end}}
   </div>
 </div>
 
-      {{end}}
+{{end}}
+
 {{end}}
 
 
 {{define "javascript"}}
 
-$('#transition').on('change', function (e) { $(this).submit() })
+$('.transition').on('tap click', function (e) {
+    var transition = $(this).data("transition")
+    $.ajax({
+	url: "/?" + $.now(),
+	type: "POST",
+	cache: false,
+	data: {"do_transition": transition},
+	statusCode: {
+	    404: function() {
+	    },
+	    200: function() {
+	    }
+	},
+	dataType: "html"
+    });
+});
 
 {{end}}
