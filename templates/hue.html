@@ -2,6 +2,8 @@
       {{with .Scheduler}}
       {{with .Hue}}
 
+<div class="row-fluid">
+  <div class="span10">
       <h2>Hue</h2>
       <dl class="dl-horizontal">
 	<dt>Host</dt>
@@ -12,7 +14,8 @@
       <dl class="dl-horizontal">{{range $k,$v := .States}}
 	<dt>{{$k}}</dt> <dd>{{$v}}</dd>{{end}}
       </dl>
-
+  </div>
+</div>
       {{end}}
       {{end}}
 {{end}}

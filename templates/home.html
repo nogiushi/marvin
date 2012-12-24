@@ -2,8 +2,7 @@
 
 {{with .Scheduler.Hue}}
 
-<div class="content">
-  <div class="span12">
+
     <h1>Transitions</h1>
     {{range $k,$v := .Transitions}}
     <h2 href="#{{$k}}" data-toggle="tab">{{$k}}
@@ -15,8 +14,6 @@
       <dt>{{.Light}}</dt><dd>{{.State}} {{.Action}}</dd>{{end}}
     </dl>
     {{end}}
-  </div>
-</div>
 
 {{end}}
 
