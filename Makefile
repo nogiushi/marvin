@@ -9,10 +9,10 @@ clean:
 
 bootstrap:
 	mkdir -p static
-	cp -r components/bootstrap/bootstrap/ static/bootstrap/
+	cp -r components/bootstrap/bootstrap static/
 
 jquery:
 	mkdir -p static
-	cp -r components/jquery/ static/jquery/
+	cp -r components/jquery static/
 
 
