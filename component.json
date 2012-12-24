@@ -1,0 +1,7 @@
+{
+  "name": "marvin",
+  "version": "0.0.0",
+  "dependencies": {
+    "bootstrap": "~2.2.2"
+  }
+}
