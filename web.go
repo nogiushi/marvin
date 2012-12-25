@@ -110,6 +110,12 @@ func makePageHandler(s *scheduler) func(http.ResponseWriter, *http.Request) {
 			page.Scheduler = s
 			page.Write(w, req)
 			return
+		} else if req.URL.Path == "/transition/" {
+			page := newPage("")
+			page.Name = "transition"
+			page.Scheduler = s
+			page.Write(w, req)
+			return
 		}
 		StaticHandler(w, req)
 	}

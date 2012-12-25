@@ -46,6 +46,7 @@
             <ul class="nav">
               <li><a href="/">Home</a></li>
               <li><a href="/schedule/">Schedule</a></li>
+              <li><a href="/transition/">Transition</a></li>
               <li><a href="/hue/">Hue</a></li>
             </ul>
           </div><!--/.nav-collapse -->
@@ -68,6 +69,23 @@
     $(initPage);
 
 })(jQuery)
+
+$('.transition').on('tap click', function (e) {
+    var transition = $(this).data("transition")
+    $.ajax({
+	url: "/?" + $.now(),
+	type: "POST",
+	cache: false,
+	data: {"do_transition": transition},
+	statusCode: {
+	    404: function() {
+	    },
+	    200: function() {
+	    }
+	},
+	dataType: "html"
+    });
+});
 
 {{template "javascript" .}}
 

@@ -3,10 +3,25 @@
 
 <div class="row-fluid">
   <div class="span10">
-      <h2>Schedule</h2>
-      <dl class="dl-horizontal">{{range .Schedule}}
-	<dt>{{.When}}</dt> <dd><a href="#" rel="tooltip" title="{{.}}">{{.What}}</a></dd>{{end}}
-      </dl>
+    <h2>Schedule</h2>
+    <table class="table table-condensed table-striped">
+      <thead>
+	<tr>
+	  <th scope="col">Time</th>
+	  <th scope="col">On</th>
+	  <th scope="col">Except</th>
+	  <th scope="col">Transition</th>
+	</tr>
+      </thead>
+      <tbody>{{range .Schedule}}
+	<tr>
+	  <td>{{.When}}</td>
+	  <td>{{if .On}}{{.On}}{{end}}</td>
+	  <td>{{if .ExceptOn}}{{.ExceptOn}}{{end}}</td>
+	  <td>{{.What}}<a class="transition" data-transition="{{.What}}"><i class="icon-play"></i></a></td>
+	</tr>{{end}}
+      </tbody>
+    </table>
   </div>
 </div>
 
