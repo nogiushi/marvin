@@ -190,8 +190,6 @@
     },
 
     "schedule": [
-	{"when": "7:15AM", "what": "chime",
-	 "on": "weekdays", "exceptOn": "holidays", "interval": "10s"},
 	{"when": "7:15AM", "what": "dawn",
 	 "on": "weekdays", "exceptOn": "holidays", "interval": "24h"},
 	{"when": "8:00AM", "what": "dawn", "on": "weekends", "interval": "24h"},
