@@ -86,6 +86,10 @@
 
 	"transitions": {
 
+	    "alert": [
+		{"light": "all", "action": "alert"}
+	    ],
+
 	    "chime": [
 		{"light": "all", "action": "blink"}
 	    ],
