@@ -69,8 +69,7 @@ func (s *scheduler) schedule(e event) (err error) {
 
 var WEEKDAYS = []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"}
 
-var HOLIDAYS = map[string]string{"Christmas Day": "2012-12-25",	"New Year's Day": "2013-01-01",	"Birthday of Martin Luther King, Jr.": "2013-01-21", "Washington's Birthday": "2013-02-18", "Memorial Day": "2013-05-27", "Independence Day": "2013-07-04", "Labor Day": "2013-09-02", "Columbus Day": "2013-10-14", "Veterans Day": "2013-11-11", "Thanksgiving Day": "2013-11-28", "Christmas Day 2013": "2013-12-25"}
-
+var HOLIDAYS = map[string]string{"Christmas Day": "2012-12-25", "New Year's Day": "2013-01-01", "Birthday of Martin Luther King, Jr.": "2013-01-21", "Washington's Birthday": "2013-02-18", "Memorial Day": "2013-05-27", "Independence Day": "2013-07-04", "Labor Day": "2013-09-02", "Columbus Day": "2013-10-14", "Veterans Day": "2013-11-11", "Thanksgiving Day": "2013-11-28", "Christmas Day 2013": "2013-12-25"}
 
 func (s *scheduler) maybeRun(t time.Time, e event) {
 	t = t.In(time.Local)
@@ -79,7 +78,7 @@ func (s *scheduler) maybeRun(t time.Time, e event) {
 		run = true
 	} else if e.On == "weekdays" {
 		d := t.Weekday().String()
-		for _, wd := range WEEKDAYS  {
+		for _, wd := range WEEKDAYS {
 			if d == wd {
 				run = true
 				break
@@ -87,7 +86,7 @@ func (s *scheduler) maybeRun(t time.Time, e event) {
 		}
 	} else if e.On == "weekends" {
 		d := t.Weekday().String()
-		for _, wd := range []string{"Saturday", "Sunday"}  {
+		for _, wd := range []string{"Saturday", "Sunday"} {
 			if d == wd {
 				run = true
 				break
@@ -98,7 +97,7 @@ func (s *scheduler) maybeRun(t time.Time, e event) {
 
 	} else if e.ExceptOn == "holidays" {
 		s := t.Format("2006-01-02")
-		for _, v := range HOLIDAYS  {
+		for _, v := range HOLIDAYS {
 			if s == v {
 				log.Println("not running due to holiday:", e)
 				run = false
