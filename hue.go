@@ -1,60 +1,49 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"log"
 	"net/http"
-	"strings"
 )
-
-type command struct {
-	Light  string
-	State  string
-	Action string
-}
 
 type hue struct {
 	Host        string
 	Key         string
 	Addresses   map[string]string
 	States      map[string]interface{}
-	Transitions map[string][]command
+	Transitions map[string][]struct {
+		Light  string
+		State  string
+		Action string
+	}
 }
 
 func (h *hue) Do(transition string) {
 	for _, command := range h.Transitions[transition] {
-		h.run(command)
-	}
-}
-
-func (h *hue) state(name string) string {
-	b, err := json.Marshal(h.States[name])
-	if err != nil {
-		log.Fatal(err)
-	}
-	return string(b)
-}
-
-func (h *hue) run(command command) (err error) {
-	address := h.Addresses[command.Light]
-	var body string
-	if command.State != "" {
-		body = h.state(command.State)
-		address += "/state"
-	}
-	if command.Action != "" {
-		body = h.state(command.Action)
-		address += "/action"
-	}
-	url := "http://" + h.Host + "/api/" + h.Key + address
-	if r, err := http.NewRequest("PUT", url, strings.NewReader(body)); err == nil {
-		if response, err := http.DefaultClient.Do(r); err == nil {
-			response.Body.Close()
-		} else {
-			log.Println("ERROR: client.Do: " + err.Error())
+		address := h.Addresses[command.Light]
+		var name string
+		if command.State != "" {
+			name = command.State
+			address += "/state"
+		} else if command.Action != "" {
+			name = command.Action
+			address += "/action"
 		}
-	} else {
-		log.Println("ERROR: NewRequest: " + err.Error())
+		url := "http://" + h.Host + "/api/" + h.Key + address
+		b, err := json.Marshal(h.States[name])
+		if err != nil {
+			log.Println("ERROR: json.Marshal: " + err.Error())
+			continue
+		}
+		if r, err := http.NewRequest("PUT", url, bytes.NewReader(b)); err == nil {
+			if response, err := http.DefaultClient.Do(r); err == nil {
+				response.Body.Close()
+			} else {
+				log.Println("ERROR: client.Do: " + err.Error())
+			}
+		} else {
+			log.Println("ERROR: NewRequest: " + err.Error())
+		}
 	}
-	return err
 }
