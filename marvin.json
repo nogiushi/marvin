@@ -134,8 +134,7 @@
 		{"light": "kitchen", "state": "sun"}
 	    ],
 
-	    "kitchen and couch sun": [
-		{"light": "kitchen", "state": "sun"},
+	    "couch sun": [
 		{"light": "couch 1", "state": "sun"},
 		{"light": "couch 2", "state": "sun"}
 	    ],
@@ -154,6 +153,14 @@
 		{"light": "kitchen", "state": "sun (dim)"},
 		{"light": "couch 1", "state": "deep blue"},
 		{"light": "couch 2", "state": "deep blue"}
+	    ],
+
+	    "green": [
+		{"light": "corner", "state": "green"},
+		{"light": "bedroom", "state": "green"},
+		{"light": "kitchen", "state": "green"},
+		{"light": "couch 1", "state": "green"},
+		{"light": "couch 2", "state": "green"}
 	    ],
 
 	    "sunset": [
@@ -200,6 +207,7 @@
 	{"when": "5:30PM", "what": "kitchen sun", "interval": "24h"},
 	{"when": "6:00PM", "what": "couch sun", "interval": "24h"},
 	{"when": "7:30PM", "what": "dinner", "interval": "24h"},
+	{"when": "8:45PM", "what": "green", "interval": "24h"},
 	{"when": "9:00PM", "what": "meditation", "interval": "24h"},
 	{"when": "9:30PM", "what": "sunset", "interval": "24h"},
 	{"when": "10:15PM", "what": "twilight", "interval": "24h"},
