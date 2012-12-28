@@ -46,10 +46,9 @@ func (h *hue) run(command command) (err error) {
 		body = h.state(command.Action)
 		address += "/action"
 	}
-	client := &http.Client{}
 	url := "http://" + h.Host + "/api/" + h.Key + address
 	if r, err := http.NewRequest("PUT", url, strings.NewReader(body)); err == nil {
-		if response, err := client.Do(r); err == nil {
+		if response, err := http.DefaultClient.Do(r); err == nil {
 			response.Body.Close()
 		} else {
 			log.Println("ERROR: client.Do: " + err.Error())
