@@ -79,7 +79,7 @@ func add(view View) {
 }
 
 func ListenAndServe(address string, scheduler *scheduler) {
-	add(&view{prefix: "/", name: "home"})
+	add(&view{prefix: "/", name: "home", data: Data{"Scheduler": scheduler}})
 	add(&view{prefix: "/hue/", name: "hue", data: Data{"Scheduler": scheduler}})
 	add(&view{prefix: "/schedule/", name: "schedule", data: Data{"Scheduler": scheduler}})
 	add(&view{prefix: "/transition/", name: "transition", data: Data{"Scheduler": scheduler}})
