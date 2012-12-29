@@ -2,7 +2,6 @@
 
 {{with .Scheduler.Hue}}
 
-
     <h1>Transitions</h1>
     {{range $k,$v := .Transitions}}
     <h2 href="#{{$k}}" data-toggle="tab">{{$k}}
@@ -16,11 +15,5 @@
     {{end}}
 
 {{end}}
-
-{{end}}
-
-
-{{define "javascript"}}
-
 
 {{end}}

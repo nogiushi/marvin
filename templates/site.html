@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+{{define "html"}}<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>{{with .Title}}{{.}} « {{end}}Marvin</title>
+    <title>{{if .}}{{with .Title}}{{.}} « {{end}}Marvin{{else}}Not Found{{end}}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -33,7 +33,6 @@
   </head>
 
   <body>
-
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
@@ -53,11 +52,9 @@
         </div>
       </div>
     </div>
-
     <div class="container-fluid">
-      {{template "content" .}}
+      {{if .}}{{template "content" .}}{{else}}<h1>Not Found</h1>{{end}}
     </div>
-
     <script src="/jquery/jquery.min.js"></script>
     <script src="/bootstrap/js/bootstrap.min.js"></script>
     <script>
@@ -73,7 +70,7 @@
 $('.transition').on('tap click', function (e) {
     var transition = $(this).data("transition")
     $.ajax({
-	url: "/?" + $.now(),
+	url: "/post?" + $.now(),
 	type: "POST",
 	cache: false,
 	data: {"do_transition": transition},
@@ -86,11 +83,6 @@ $('.transition').on('tap click', function (e) {
 	dataType: "html"
     });
 });
-
-{{template "javascript" .}}
-
     </script>
   </body>
-</html>
-
-{{define "javascript"}}{{end}}
+</html>{{end}}
