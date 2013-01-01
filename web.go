@@ -17,7 +17,7 @@ func makeTemplate(names ...string) *template.Template {
 	if err != nil {
 		log.Fatal("cloning site: ", err)
 	}
-	return template.Must(t.ParseFiles(names...)) // TODO: allow overriding?
+	return template.Must(t.ParseFiles(names...))
 }
 
 type View interface {
