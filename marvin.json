@@ -94,6 +94,29 @@
 		{"light": "all", "action": "blink"}
 	    ],
 
+	    "Lynx": [
+		{"light": "all", "action": "blink"}
+	    ],
+
+	    "Siri-Dells-iPhone":  [
+		{"light": "all", "action": "blink"}
+	    ],
+
+	    "gato": [
+		{"light": "couch 1", "state": "deep blue"},
+		{"light": "couch 2", "state": "deep blue"}
+	    ],
+
+	    "chatte on": [
+		{"light": "couch 1", "state": "deep blue"},
+		{"light": "couch 2", "state": "deep blue"}
+	    ],
+
+	    "chatte off": [
+		{"light": "couch 1", "state": "green"},
+		{"light": "couch 2", "state": "green"}
+	    ],
+
 	    "noon": [
 		{"light": "corner", "state": "sun"},
 		{"light": "bedroom", "state": "sun"},

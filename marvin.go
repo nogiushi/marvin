@@ -17,6 +17,7 @@ func main() {
 
 	if err, s := NewSchedulerFromJSONPath(*config); err == nil {
 		go ListenAndServe(*Address, s)
+		go listen(s)
 
 		if flag.NArg() == 0 {
 			s.Hue.Do("chime") // visual display of scheduler starting
