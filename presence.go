@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/eikeon/hu"
 	"github.com/miekg/dns"
 )
 
@@ -29,13 +30,14 @@ func (h *host) ping() {
 		if h.present == false {
 			h.present = true
 			log.Println(h.name, "ON")
-			//scheduler.Hue.Do(h.name)
+			//scheduler.Hue.Do(h.name + " on")
 		}
 	} else {
 		log.Println("err:", err)
 		if h.present == true {
 			h.present = false
 			log.Println(h.name, "OFF")
+			//scheduler.Hue.Do(h.name + " off")
 		}
 	}
 }
@@ -54,7 +56,15 @@ func (h *host) watch(scheduler *scheduler) {
 	}
 }
 
-func listen(scheduler *scheduler) {
+func Listen(environment *hu.Environment, term hu.Term) hu.Term {
+	go _listen(environment)
+	return nil
+}
+
+func _listen(environment *hu.Environment) {
+	t := environment.Get(hu.Symbol("scheduler"))
+	scheduler := t.(*scheduler)
+
 	mcaddr, err := net.ResolveUDPAddr("udp", "224.0.0.251:5353") // mdns/bonjour
 	if err != nil {
 		log.Fatal(err)

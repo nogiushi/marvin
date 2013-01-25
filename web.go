@@ -8,6 +8,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/eikeon/hu"
 )
 
 var site = template.Must(template.ParseFiles("templates/site.html"))
@@ -78,7 +80,10 @@ func add(view View) {
 	})
 }
 
-func ListenAndServe(address string, scheduler *scheduler) {
+func ListenAndServe(environment *hu.Environment, term hu.Term) hu.Term {
+	t := environment.Get(hu.Symbol("scheduler"))
+	scheduler := t.(*scheduler)
+
 	add(&view{prefix: "/", name: "home", data: Data{"Scheduler": scheduler}})
 	add(&view{prefix: "/hue/", name: "hue", data: Data{"Scheduler": scheduler}})
 	add(&view{prefix: "/schedule/", name: "schedule", data: Data{"Scheduler": scheduler}})
@@ -96,8 +101,11 @@ func ListenAndServe(address string, scheduler *scheduler) {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
-	err := http.ListenAndServe(address, nil)
-	if err != nil {
-		log.Print("ListenAndServe:", err)
-	}
+	go func() {
+		err := http.ListenAndServe(*Address, nil)
+		if err != nil {
+			log.Print("ListenAndServe:", err)
+		}
+	}()
+	return nil
 }

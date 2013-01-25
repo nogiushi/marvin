@@ -19,6 +19,10 @@ type hue struct {
 	}
 }
 
+func (h *hue) String() string {
+	return "#<hue>"
+}
+
 func (h *hue) Do(transition string) {
 	for _, command := range h.Transitions[transition] {
 		address := h.Addresses[command.Light]

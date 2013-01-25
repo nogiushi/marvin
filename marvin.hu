@@ -1,0 +1,17 @@
+§ init
+
+do_hue_transition "chime"
+listen_and_serve
+listen
+
+§ schedule
+
+at "7:15am" do_hue_transition dawn
+
+§ hue
+
+host: "10.0.1.8"
+key: "334b473e8c2555d5eb722e0c932df793"
+addresses:
+    all: "/groups/0"
+    corner: "/lights/1"

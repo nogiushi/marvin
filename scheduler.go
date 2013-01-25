@@ -118,6 +118,10 @@ func (s *scheduler) run() {
 	}
 }
 
+func (s *scheduler) String() string {
+	return "#<scheduler>"
+}
+
 func NewSchedulerFromJSONPath(p string) (err error, s *scheduler) {
 	if j, err := os.OpenFile(p, os.O_RDONLY, 0666); err == nil {
 		defer j.Close()

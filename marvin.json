@@ -90,7 +90,7 @@
 		{"light": "all", "action": "alert"}
 	    ],
 
-	    "chime": [
+	    "tmpchime": [
 		{"light": "all", "action": "blink"}
 	    ],
 
@@ -184,6 +184,14 @@
 		{"light": "kitchen", "state": "green"},
 		{"light": "couch 1", "state": "green"},
 		{"light": "couch 2", "state": "green"}
+	    ],
+
+	    "all nightlight": [
+		{"light": "corner", "state": "nightlight"},
+		{"light": "bedroom", "state": "nightlight"},
+		{"light": "kitchen", "state": "nightlight"},
+		{"light": "couch 1", "state": "nightlight"},
+		{"light": "couch 2", "state": "nightlight"}
 	    ],
 
 	    "sunset": [
