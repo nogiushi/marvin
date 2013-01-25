@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/eikeon/hu"
 )
@@ -93,8 +94,17 @@ func ListenAndServe(environment *hu.Environment, term hu.Term) hu.Term {
 	http.HandleFunc("/post", func(w http.ResponseWriter, req *http.Request) {
 		if req.Method == "POST" {
 			if err := req.ParseForm(); err == nil {
-				name := req.Form["do_transition"]
-				scheduler.Hue.Do(name[0])
+				name, ok := req.Form["do_transition"]
+				if ok {
+					scheduler.Hue.Do(name[0])
+				}
+				state, ok := req.Form["do_not_disturb"]
+				if ok {
+					v, err := strconv.ParseBool(state[0])
+					if err == nil {
+						scheduler.DoNotDisturb = v
+					}
+				}
 			}
 			// TODO: write a response
 		} else {
