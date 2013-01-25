@@ -18,7 +18,7 @@ type host struct {
 	present   bool
 }
 
-func (h *host) ping() {
+func (h *host) ping(scheduler *scheduler) {
 	port := "62078"
 	if h.name == "chatte" || h.name == "gato" {
 		port = "22"
@@ -29,13 +29,14 @@ func (h *host) ping() {
 		if h.present == false {
 			h.present = true
 			log.Println(h.name, "ON")
-			//scheduler.Hue.Do(h.name)
+			scheduler.Hue.Do(h.name + " on")
 		}
 	} else {
 		log.Println("err:", err)
 		if h.present == true {
 			h.present = false
 			log.Println(h.name, "OFF")
+			scheduler.Hue.Do(h.name + " off")
 		}
 	}
 }
@@ -46,10 +47,10 @@ func (h *host) watch(scheduler *scheduler) {
 		select {
 		case a := <-h.addressIn:
 			h.address = a
-			h.ping()
+			h.ping(scheduler)
 			time.Sleep(10)
 		case <-c:
-			h.ping()
+			h.ping(scheduler)
 		}
 	}
 }
