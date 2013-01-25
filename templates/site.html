@@ -83,6 +83,24 @@ $('.transition').on('tap click', function (e) {
 	dataType: "html"
     });
 });
+
+$('.do_not_disturb').on('tap click', function (e) {
+    var do_not_disturb = this.checked
+    $.ajax({
+	url: "/post?" + $.now(),
+	type: "POST",
+	cache: false,
+	data: {"do_not_disturb": do_not_disturb},
+	statusCode: {
+	    404: function() {
+	    },
+	    200: function() {
+	    }
+	},
+	dataType: "html"
+    });
+});
+
     </script>
   </body>
 </html>{{end}}
@@ -111,6 +129,13 @@ $('.transition').on('tap click', function (e) {
 	</tr>{{end}}
       </tbody>
     </table>
+
+    <form class="form-inline">
+      <label class="checkbox">
+        <input type="checkbox" class="do_not_disturb"{{if .DoNotDisturb}} checked=""{{end}}> Do not disturb
+      </label>
+    </form>
+
   </div>
 </div>
 

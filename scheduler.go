@@ -19,9 +19,10 @@ type event struct {
 }
 
 type scheduler struct {
-	Hue      hue
-	Schedule []event
-	c        chan event
+	Hue          hue
+	Schedule     []event
+	DoNotDisturb bool
+	c            chan event
 }
 
 func NewSchedulerFromJSON(j io.Reader) (err error, s *scheduler) {
@@ -72,6 +73,9 @@ var WEEKDAYS = []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"}
 var HOLIDAYS = map[string]string{"Christmas Day": "2012-12-25", "New Year's Day": "2013-01-01", "Birthday of Martin Luther King, Jr.": "2013-01-21", "Washington's Birthday": "2013-02-18", "Memorial Day": "2013-05-27", "Independence Day": "2013-07-04", "Labor Day": "2013-09-02", "Columbus Day": "2013-10-14", "Veterans Day": "2013-11-11", "Thanksgiving Day": "2013-11-28", "Christmas Day 2013": "2013-12-25"}
 
 func (s *scheduler) maybeRun(t time.Time, e event) {
+	if s.DoNotDisturb {
+		return
+	}
 	t = t.In(time.Local)
 	run := false
 	if e.On == "" {
