@@ -15,10 +15,29 @@ var StaticRoot *string
 var Address *string
 
 func do_hue_transition(environment *hu.Environment, term hu.Term) hu.Term {
-	transition := term.(hu.Tuple)[0].(hu.String)
+	var terms []string
+	for _, t := range term.(hu.Tuple) {
+		terms = append(terms, t.String())
+	}
+	name := strings.Join(terms, " ")
 	h := environment.Get(hu.Symbol("hue"))
-	h.(*hue).Do(transition.String())
-	return nil
+	h.(*hue).Do(name)
+	return hu.String("done")
+}
+
+func turn_scheduler(environment *hu.Environment, term hu.Term) (response hu.Term) {
+	scheduler := environment.Get(hu.Symbol("scheduler")).(*scheduler)
+	terms := term.(hu.Tuple)
+	if len(terms) > 0 {
+		v := terms[0].String() == "on"
+		scheduler.DoNotDisturb = !v
+	}
+	if scheduler.DoNotDisturb {
+		response = hu.String("scheduler is now off")
+	} else {
+		response = hu.String("scheduler is now on")
+	}
+	return
 }
 
 func main() {
@@ -38,45 +57,24 @@ func main() {
 	} else {
 		log.Fatal(err)
 	}
-	environment.AddPrimitive("do_hue_transition", do_hue_transition)
-	environment.AddPrimitive("listen_and_serve", ListenAndServe)
-	environment.AddPrimitive("listen", Listen)
+	environment.AddPrimitive("do_hue", do_hue_transition)
+	environment.AddPrimitive("turn_scheduler", turn_scheduler)
 
-	if f, err := os.Open(flag.Arg(0)); err == nil {
-		d := hu.ReadDocument(bufio.NewReader(f))
-
-		for _, p := range d {
-			if strings.HasPrefix(p.String(), "§ init") {
-				for _, e := range p.(hu.Part)[1].(hu.Part) {
-					if e, ok := e.(hu.Part); ok {
-						a := hu.Application(e[0 : len(e)-1])
-						environment.Evaluate(a)
-					}
-				}
-			} else {
-				log.Printf("part: %t %v\n", p, p)
-			}
-		}
-	} else {
-		log.Fatal("err:", err)
-	}
+	ListenAndServe(environment, nil)
+	Listen(environment, nil)
 
 	reader := bufio.NewReader(os.Stdin)
 
 	var result hu.Term
 	fmt.Printf("marvin> ")
 	for {
-		expression := hu.Read(reader)
+		expression := hu.ReadSentence(reader)
 		if expression != nil {
-			if expression == hu.Symbol("\n") {
-				if result != nil {
-					fmt.Fprintf(os.Stdout, "%v\n", result)
-				}
-				fmt.Printf("marvin> ")
-				continue
-			} else {
-				result = environment.Evaluate(expression)
-			}
+			log.Println("expression:", expression)
+			a := hu.Application(expression)
+			result = environment.Evaluate(a)
+			fmt.Fprintf(os.Stdout, "%v\n", result)
+			fmt.Printf("marvin> ")
 		} else {
 			fmt.Fprintf(os.Stdout, "Goodbye!\n")
 			break

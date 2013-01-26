@@ -73,7 +73,7 @@ $('.transition').on('tap click', function (e) {
 	url: "/post?" + $.now(),
 	type: "POST",
 	cache: false,
-	data: {"do_transition": transition},
+	data: {"sentence": "do_hue " + transition + "."},
 	statusCode: {
 	    404: function() {
 	    },
@@ -85,12 +85,17 @@ $('.transition').on('tap click', function (e) {
 });
 
 $('.do_not_disturb').on('tap click', function (e) {
-    var do_not_disturb = this.checked
+    var state;
+    if (this.checked) {
+        state = "off";
+    } else {
+        state = "on";
+    }
     $.ajax({
 	url: "/post?" + $.now(),
 	type: "POST",
 	cache: false,
-	data: {"do_not_disturb": do_not_disturb},
+	data: {"sentence": "turn_scheduler " + state + "."},
 	statusCode: {
 	    404: function() {
 	    },
