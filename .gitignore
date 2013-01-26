@@ -21,3 +21,10 @@ _cgo_export.*
 _testmain.go
 
 *.exe
+/static/.DS_Store
+/static/ace/*
+/static/bootstrap/*
+/static/jquery/*
+/NOTES
+/.DS_Store
+/templates/editor.html
