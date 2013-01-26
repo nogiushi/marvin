@@ -76,7 +76,7 @@ func main() {
 			fmt.Fprintf(os.Stdout, "%v\n", result)
 			fmt.Printf("marvin> ")
 		} else {
-			fmt.Fprintf(os.Stdout, "Goodbye!\n")
+			fmt.Fprintf(os.Stdout, "So long and thanks for all the fish!\n")
 			break
 		}
 	}
