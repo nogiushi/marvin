@@ -7,9 +7,4 @@ Marvin is a home automation program. Currently Marvin is executing our light sce
     sudo npm install bower -g
     sudo npm install recess connect uglify-js jshint -g
 
-    bower install
-    cd components/bootstrap/
-    make
-    make bootstrap
-    cd ../..
     make

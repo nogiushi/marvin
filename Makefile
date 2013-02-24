@@ -1,11 +1,15 @@
 MARVIN_LESS = ./less/marvin.less
 
 
-all:  bootstrap jquery
+all:  bower bootstrap jquery
 
 clean:
 	rm -r static/bootstrap
 	rm -r static/jquery
+
+bower:
+	bower install
+	cd components/bootstrap/; make; make bootstrap
 
 bootstrap:
 	mkdir -p static
