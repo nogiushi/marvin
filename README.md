@@ -9,6 +9,7 @@ Marvin is a home automation program. Currently Marvin is executing our light sce
 
     bower install
     cd components/bootstrap/
+    npm install
     make
     make bootstrap
     cd ../..
