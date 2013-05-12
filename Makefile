@@ -1,6 +1,3 @@
-MARVIN_LESS = ./less/marvin.less
-
-
 all:  bootstrap jquery
 
 clean:
