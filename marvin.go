@@ -23,6 +23,7 @@ func main() {
 	Address := flag.String("address", ":9999", "http service address")
 	StaticRoot = flag.String("root", "static", "...")
 	config := flag.String("config", "/etc/marvin.json", "file path to configuration file")
+	verbose := flag.Bool("verbose", false, "verbose output")
 	flag.Parse()
 
 	if err, s := NewSchedulerFromJSONPath(*config); err == nil {
@@ -58,13 +59,17 @@ func main() {
 				time.Sleep(t.IntegrationDuration())
 
 				if value, err := t.GetBroadband(); err == nil {
-					log.Println("broadband:", value)
+					if *verbose {
+						log.Println("broadband:", value)
+					}
 					go postStat("light broadband", float64(value))
 				} else {
 					log.Println("error getting broadband value:", err)
 				}
 				if value, err := t.GetInfrared(); err == nil {
-					log.Println("infrared:", value)
+					if *verbose {
+						log.Println("infrared:", value)
+					}
 					go postStat("light infrared", float64(value))
 				} else {
 					log.Println("error getting infrared value:", err)
