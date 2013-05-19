@@ -26,7 +26,8 @@ func main() {
 	verbose := flag.Bool("verbose", false, "verbose output")
 	flag.Parse()
 
-	if err, s := NewSchedulerFromJSONPath(*config); err == nil {
+	err, s := NewSchedulerFromJSONPath(*config)
+	if err == nil {
 		go ListenAndServe(*Address, s)
 		go listen(s)
 
@@ -49,8 +50,20 @@ func main() {
 	notifyChannel := make(chan os.Signal, 1)
 	signal.Notify(notifyChannel, os.Interrupt)
 	ticker := time.NewTicker(1 * time.Second)
+
+	dayLight := make(chan bool, 10)
+	var lastDayLight interface{}
+	lastDayLightTime := time.Now()
 	for {
 		select {
+		case value := <-dayLight:
+			if value {
+				s.Hue.Do("daylight")
+				log.Println("daylight")
+			} else {
+				s.Hue.Do("daylight off")
+				log.Println("daylight off")
+			}
 		case <-ticker.C:
 			if t != nil {
 				if err = t.On(); err != nil {
@@ -59,6 +72,21 @@ func main() {
 				time.Sleep(t.IntegrationDuration())
 
 				if value, err := t.GetBroadband(); err == nil {
+					dl := value > 5000
+					if lastDayLight == nil {
+						lastDayLight = dl
+						lastDayLightTime = time.Now()
+					} else if time.Since(lastDayLightTime) > time.Duration(60*time.Second) {
+						if value > 5000 && lastDayLight == false {
+							lastDayLight = true
+							lastDayLightTime = time.Now()
+							dayLight <- true
+						} else if value < 4900 && lastDayLight == true {
+							lastDayLight = false
+							lastDayLightTime = time.Now()
+							dayLight <- false
+						}
+					}
 					if *verbose {
 						log.Println("broadband:", value)
 					}
