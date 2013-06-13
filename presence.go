@@ -18,7 +18,7 @@ type host struct {
 	present   bool
 }
 
-func (h *host) ping(scheduler *scheduler) {
+func (h *host) ping() {
 	port := "62078"
 	if h.name == "chatte" || h.name == "gato" {
 		port = "22"
@@ -29,33 +29,33 @@ func (h *host) ping(scheduler *scheduler) {
 		if h.present == false {
 			h.present = true
 			log.Println(h.name, "ON")
-			scheduler.Hue.Do(h.name + " on")
+			marvin.Do(h.name + " on")
 		}
 	} else {
 		log.Println("err:", err)
 		if h.present == true {
 			h.present = false
 			log.Println(h.name, "OFF")
-			scheduler.Hue.Do(h.name + " off")
+			marvin.Do(h.name + " off")
 		}
 	}
 }
 
-func (h *host) watch(scheduler *scheduler) {
+func (h *host) watch() {
 	c := time.Tick(60 * time.Second)
 	for {
 		select {
 		case a := <-h.addressIn:
 			h.address = a
-			h.ping(scheduler)
+			h.ping()
 			time.Sleep(10)
 		case <-c:
-			h.ping(scheduler)
+			h.ping()
 		}
 	}
 }
 
-func listen(scheduler *scheduler) {
+func listen() {
 	mcaddr, err := net.ResolveUDPAddr("udp", "224.0.0.251:5353") // mdns/bonjour
 	if err != nil {
 		log.Fatal(err)
@@ -100,7 +100,7 @@ func listen(scheduler *scheduler) {
 							ch := make(chan net.IP)
 							h = &host{name: name, address: rr.(*dns.A).A, addressIn: ch}
 							hosts[name] = h
-							go h.watch(scheduler)
+							go h.watch()
 						}
 						h.addressIn <- rr.(*dns.A).A
 					}

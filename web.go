@@ -79,11 +79,11 @@ func add(view View) {
 	})
 }
 
-func ListenAndServe(address string, scheduler *scheduler) {
-	add(&view{prefix: "/", name: "home", data: Data{"Scheduler": scheduler}})
-	add(&view{prefix: "/hue/", name: "hue", data: Data{"Scheduler": scheduler}})
-	add(&view{prefix: "/schedule/", name: "schedule", data: Data{"Scheduler": scheduler}})
-	add(&view{prefix: "/transition/", name: "transition", data: Data{"Scheduler": scheduler}})
+func ListenAndServe(address string, marvin *Marvin) {
+	add(&view{prefix: "/", name: "home", data: Data{"Marvin": marvin}})
+	add(&view{prefix: "/hue/", name: "hue", data: Data{"Marvin": marvin}})
+	add(&view{prefix: "/schedule/", name: "schedule", data: Data{"Marvin": marvin}})
+	add(&view{prefix: "/transition/", name: "transition", data: Data{"Marvin": marvin}})
 	http.HandleFunc("/bootstrap/", StaticHandler)
 	http.HandleFunc("/jquery/", StaticHandler)
 	http.HandleFunc("/post", func(w http.ResponseWriter, req *http.Request) {
@@ -91,13 +91,13 @@ func ListenAndServe(address string, scheduler *scheduler) {
 			if err := req.ParseForm(); err == nil {
 				name, ok := req.Form["do_transition"]
 				if ok {
-					scheduler.Hue.Do(name[0])
+					marvin.Do(name[0])
 				}
 				state, ok := req.Form["do_not_disturb"]
 				if ok {
 					v, err := strconv.ParseBool(state[0])
 					if err == nil {
-						scheduler.DoNotDisturb = v
+						marvin.DoNotDisturb = v
 					}
 				}
 			}

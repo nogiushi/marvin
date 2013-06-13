@@ -106,7 +106,7 @@ $('.do_not_disturb').on('tap click', function (e) {
 </html>{{end}}
 
 {{define "schedule"}}
-      {{with .Scheduler}}
+      {{with .Marvin}}
 
 <div class="row-fluid">
   <div class="span12">
@@ -144,7 +144,7 @@ $('.do_not_disturb').on('tap click', function (e) {
 
 {{define "transitions"}}
 
-  {{with .Scheduler.Hue}}
+  {{with .Marvin.Hue}}
 
 <div class="row-fluid">
   <div class="span12">
