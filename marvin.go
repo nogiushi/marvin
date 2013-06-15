@@ -14,14 +14,16 @@ type Marvin struct {
 }
 
 func (m *Marvin) Do(what string) {
-	log.Println("Do:", what)
-	if what == "sleep" {
-		m.Sleeping = true
-		what = "all off"
-	} else if what == "dawn" {
-		m.Sleeping = false
+	if m.DoNotDisturb == false {
+		log.Println("Do:", what)
+		if what == "sleep" {
+			m.Sleeping = true
+			what = "all off"
+		} else if what == "dawn" {
+			m.Sleeping = false
+		}
+		m.Hue.Do(what)
 	}
-	m.Hue.Do(what)
 }
 
 func (m *Marvin) loop() {
@@ -53,9 +55,7 @@ func (m *Marvin) loop() {
 	for {
 		select {
 		case e := <-scheduledEventsChannel:
-			if m.DoNotDisturb == false {
-				m.Do(e.What)
-			}
+			m.Do(e.What)
 		case dayLight := <-dayLightChannel:
 			if m.Sleeping == false {
 				if dayLight {
