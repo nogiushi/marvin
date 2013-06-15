@@ -57,10 +57,12 @@ func (m *Marvin) loop() {
 				m.Do(e.What)
 			}
 		case dayLight := <-dayLightChannel:
-			if dayLight {
-				m.Do("daylight")
-			} else {
-				m.Do("daylight off")
+			if m.Sleeping == false {
+				if dayLight {
+					m.Do("daylight")
+				} else {
+					m.Do("daylight off")
+				}
 			}
 		case motion := <-motionChannel:
 			if motion {
