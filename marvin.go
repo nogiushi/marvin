@@ -6,28 +6,60 @@ import (
 )
 
 type Marvin struct {
-	Hue          hue
-	Schedule     schedule
-	DoNotDisturb bool
-	Sleeping     bool
-	c            chan event
+	Hue              hue
+	Schedule         schedule
+	ScheduleActive   bool
+	NightlightActive bool
+	DaylightActive   bool
+	Transitions      []string
+	dayLightSensor   *TSL2561
 }
 
 func (m *Marvin) Do(what string) {
-	if m.DoNotDisturb == false {
-		log.Println("Do:", what)
-		if what == "sleep" {
-			m.Sleeping = true
-			what = "all off"
-		} else if what == "dawn" {
-			m.Sleeping = false
+	log.Println("Do:", what)
+	if what == "sleep" {
+		m.ScheduleActive = true
+		m.DaylightActive = false
+		m.NightlightActive = true
+	} else if what == "sleep in" {
+		m.ScheduleActive = false
+		m.DaylightActive = false
+		m.NightlightActive = true
+		what = "sleep" // use the "sleep" hue transistion
+	} else if what == "wake" {
+		m.ScheduleActive = true
+		m.DaylightActive = false
+		m.NightlightActive = false
+	} else if what == "movie" {
+		m.ScheduleActive = false
+		m.DaylightActive = false
+		m.NightlightActive = false
+	} else if what == "day" {
+		m.ScheduleActive = true
+		m.DaylightActive = true
+		m.NightlightActive = false
+		if m.dayLightSensor != nil {
+			if value, err := m.dayLightSensor.DayLightSingle(); err == nil {
+				dayLight := value > 5000
+				if dayLight {
+					m.Do("daylight")
+				} else {
+					m.Do("daylight off")
+				}
+			} else {
+				log.Println("error getting broadband value:", err)
+			}
 		}
-		m.Hue.Do(what)
+	} else {
+		m.ScheduleActive = true
+		m.DaylightActive = false
+		m.NightlightActive = false
 	}
+	m.Hue.Do(what)
 }
 
 func (m *Marvin) loop() {
-	m.Do("chime") // visual display of marvin starting
+	m.Do("startup")
 
 	var scheduledEventsChannel <-chan event
 	if c, err := m.Schedule.Run(); err == nil {
@@ -38,6 +70,7 @@ func (m *Marvin) loop() {
 
 	var dayLightChannel <-chan bool
 	if t, err := NewTSL2561(1, ADDRESS_FLOAT); err == nil {
+		m.dayLightSensor = t
 		dayLightChannel = t.DayLight()
 	} else {
 		log.Println("Warning: Daylight sensor off: ", err)
@@ -55,9 +88,11 @@ func (m *Marvin) loop() {
 	for {
 		select {
 		case e := <-scheduledEventsChannel:
-			m.Do(e.What)
+			if m.ScheduleActive {
+				m.Do(e.What)
+			}
 		case dayLight := <-dayLightChannel:
-			if m.Sleeping == false {
+			if m.DaylightActive {
 				if dayLight {
 					m.Do("daylight")
 				} else {
@@ -66,9 +101,9 @@ func (m *Marvin) loop() {
 			}
 		case motion := <-motionChannel:
 			if motion {
-				if m.Sleeping {
+				if m.NightlightActive {
 					m.Do("all nightlight")
-					const duration = 30 * time.Second
+					const duration = 60 * time.Second
 					if motionTimer == nil {
 						motionTimer = time.NewTimer(duration)
 						motionTimeout = motionTimer.C // enable motionTimeout case
@@ -79,7 +114,7 @@ func (m *Marvin) loop() {
 				go postStatCount("motion", 1)
 			}
 		case <-motionTimeout:
-			if m.Sleeping {
+			if m.NightlightActive {
 				m.Do("all off")
 				motionTimer = nil
 				motionTimeout = nil
