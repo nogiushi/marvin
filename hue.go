@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 )
 
 type hue struct {
@@ -39,6 +40,7 @@ func (h *hue) Do(transition string) {
 		if r, err := http.NewRequest("PUT", url, bytes.NewReader(b)); err == nil {
 			if response, err := http.DefaultClient.Do(r); err == nil {
 				response.Body.Close()
+				time.Sleep(100 * time.Millisecond)
 			} else {
 				log.Println("ERROR: client.Do: " + err.Error())
 			}
