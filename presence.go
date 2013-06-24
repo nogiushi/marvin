@@ -19,25 +19,41 @@ type host struct {
 }
 
 func (h *host) ping() {
-	port := "62078"
-	if h.name == "chatte" || h.name == "gato" {
-		port = "22"
+	c := make(chan bool)
+
+	ports := []string{"22", "62078"}
+
+	for _, port := range ports {
+		go func(port string) {
+			conn, err := net.DialTimeout("tcp", h.address.String()+":"+port, 10*time.Second)
+			if err == nil {
+				c <- true
+				conn.Close()
+			} else {
+				c <- false
+			}
+		}(port)
 	}
-	conn, err := net.DialTimeout("tcp", h.address.String()+":"+port, 10*time.Second)
-	if err == nil {
-		conn.Close()
-		if h.present == false {
-			h.present = true
-			log.Println(h.name, "ON")
-			marvin.Do(h.name + " on")
+
+	timeout := time.After(10 * time.Second)
+
+	for i := 0; i < len(ports); i++ {
+		select {
+		case r := <-c:
+			if r == true {
+				if h.present == false {
+					h.present = true
+					marvin.Do(h.name + " on")
+				}
+				return
+			}
+		case <-timeout:
+			break
 		}
-	} else {
-		log.Println("err:", err)
-		if h.present == true {
-			h.present = false
-			log.Println(h.name, "OFF")
-			marvin.Do(h.name + " off")
-		}
+	}
+	if h.present == true {
+		h.present = false
+		marvin.Do(h.name + " off")
 	}
 }
 
@@ -64,25 +80,9 @@ func listen() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	ping := func(name string) {
-		m := new(dns.Msg)
-		m.SetQuestion(name, dns.TypeA)
-		out, err := m.Pack()
-		if err != nil {
-			log.Println("ERR?:", err)
-		}
-		if err != nil {
-			n, err := conn.WriteToUDP(out, mcaddr)
-			log.Println("n", n, "ERR?:", err)
-		}
-	}
-	go ping("Lynx.local.")
-	go ping("gato.local.")
-	go ping("chatte.local.")
-	go ping("Siri-Dells-iPhone.local.")
 
 	for {
-		buf := make([]byte, 1500)
+		buf := make([]byte, dns.MaxMsgSize)
 		read, _, err := conn.ReadFromUDP(buf)
 		if err != nil {
 			log.Println("err:", err)
