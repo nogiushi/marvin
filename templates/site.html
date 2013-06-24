@@ -45,7 +45,6 @@
             <ul class="nav">
               <li><a href="/">Home</a></li>
               <li><a href="/schedule/">Schedule</a></li>
-              <li><a href="/transition/">Transition</a></li>
               <li><a href="/hue/">Hue</a></li>
             </ul>
           </div><!--/.nav-collapse -->
@@ -106,7 +105,7 @@ $('.do_not_disturb').on('tap click', function (e) {
 </html>{{end}}
 
 {{define "schedule"}}
-      {{with .Scheduler}}
+      {{with .Marvin}}
 
 <div class="row-fluid">
   <div class="span12">
@@ -125,14 +124,14 @@ $('.do_not_disturb').on('tap click', function (e) {
 	  <td>{{.When}}</td>
 	  <td>{{if .On}}{{.On}}{{end}}</td>
 	  <td>{{if .ExceptOn}}{{.ExceptOn}}{{end}}</td>
-	  <td>{{.What}}<a class="transition" data-transition="{{.What}}"><i class="icon-play"></i></a></td>
+	  <td><a class="transition btn btn-block" data-transition="{{.What}}">{{.What}} <i class="icon-play"></i></a></td>
 	</tr>{{end}}
       </tbody>
     </table>
 
     <form class="form-inline">
       <label class="checkbox">
-        <input type="checkbox" class="do_not_disturb"{{if .DoNotDisturb}} checked=""{{end}}> Do not disturb
+        <input type="checkbox" class="do_not_disturb"{{if .ScheduleActive}} checked=""{{end}}> ScheduleActive
       </label>
     </form>
 
@@ -144,31 +143,8 @@ $('.do_not_disturb').on('tap click', function (e) {
 
 {{define "transitions"}}
 
-  {{with .Scheduler.Hue}}
+  {{with .Marvin.Hue}}
 
-<div class="row-fluid">
-  <div class="span12">
-    <h2>Transitions</h2>
-    <table class="table table-condensed table-striped">
-      <thead>
-	<tr>
-	  <th scope="col">Name</th>
-	  <th scope="col">Commands</th>
-	</tr>
-      </thead>
-      <tbody>{{range $k,$v := .Transitions}}
-	<tr>
-	  <td>{{$k}} <a class="transition" data-transition="{{$k}}"><i class="icon-play"></i></a></td>
-	  <td>
-	    <dl class="dl-horizontal">{{range $v}}
-	      <dt>{{.Light}}</dt><dd>{{.State}} {{.Action}}</dd>{{end}}
-	    </dl>
-	  </td>
-	</tr>{{end}}
-      </tbody>
-    </table>
-  </div>
-</div>
 
   {{end}}
 

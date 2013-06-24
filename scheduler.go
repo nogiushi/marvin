@@ -1,10 +1,7 @@
 package main
 
 import (
-	"encoding/json"
-	"io"
 	"log"
-	"os"
 	"time"
 )
 
@@ -16,30 +13,11 @@ type event struct {
 	ExceptOn string
 	Days     map[string]string
 	time     time.Time
+	c        chan event
 }
 
-type scheduler struct {
-	Hue          hue
-	Schedule     []event
-	DoNotDisturb bool
-	c            chan event
-}
-
-func NewSchedulerFromJSON(j io.Reader) (err error, s *scheduler) {
-	s = &scheduler{}
-	dec := json.NewDecoder(j)
-	if err = dec.Decode(s); err == nil {
-		for _, item := range s.Schedule {
-			if err = s.schedule(item); err != nil {
-				return err, nil
-			}
-		}
-	}
-	s.c = make(chan event, 1)
-	return err, s
-}
-
-func (s *scheduler) schedule(e event) (err error) {
+func (e event) schedule(c chan event) (err error) {
+	e.c = c
 	var on time.Time
 	var duration time.Duration
 	now := time.Now()
@@ -60,9 +38,9 @@ func (s *scheduler) schedule(e event) (err error) {
 			wait += duration
 		}
 		time.Sleep(wait)
-		s.maybeRun(time.Now(), e)
+		e.maybeRun(time.Now())
 		for t := range time.NewTicker(duration).C {
-			s.maybeRun(t, e)
+			e.maybeRun(t)
 		}
 	}()
 	return
@@ -72,10 +50,7 @@ var WEEKDAYS = []string{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"}
 
 var HOLIDAYS = map[string]string{"Christmas Day": "2012-12-25", "New Year's Day": "2013-01-01", "Birthday of Martin Luther King, Jr.": "2013-01-21", "Washington's Birthday": "2013-02-18", "Memorial Day": "2013-05-27", "Independence Day": "2013-07-04", "Labor Day": "2013-09-02", "Columbus Day": "2013-10-14", "Veterans Day": "2013-11-11", "Thanksgiving Day": "2013-11-28", "Christmas Day 2013": "2013-12-25"}
 
-func (s *scheduler) maybeRun(t time.Time, e event) {
-	if s.DoNotDisturb {
-		return
-	}
+func (e event) maybeRun(t time.Time) {
 	t = t.In(time.Local)
 	run := false
 	if e.On == "" {
@@ -112,20 +87,18 @@ func (s *scheduler) maybeRun(t time.Time, e event) {
 	if run {
 		log.Println(e.What + " at " + t.String())
 		e.time = t
-		s.c <- e
+		e.c <- e
 	}
 }
 
-func (s *scheduler) run() {
-	for e := range s.c {
-		s.Hue.Do(e.What)
-	}
-}
+type schedule []event
 
-func NewSchedulerFromJSONPath(p string) (err error, s *scheduler) {
-	if j, err := os.OpenFile(p, os.O_RDONLY, 0666); err == nil {
-		defer j.Close()
-		err, s = NewSchedulerFromJSON(j)
+func (s schedule) Run() (chan event, error) {
+	eventsCh := make(chan event, 1)
+	for _, e := range s {
+		if err := e.schedule(eventsCh); err != nil {
+			return nil, err
+		}
 	}
-	return err, s
+	return eventsCh, nil
 }

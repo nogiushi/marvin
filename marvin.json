@@ -1,4 +1,6 @@
 {
+    "transitions": [ "sleep", "sleep in", "awake", "energize", "sun", "movie"],
+
     "hue": {
 	"host": "10.0.1.8",
 	"key": "334b473e8c2555d5eb722e0c932df793",
@@ -8,13 +10,19 @@
 	    "bedroom": "/lights/3",
 	    "kitchen": "/lights/4",
 	    "couch 1": "/lights/2",
-	    "couch 2": "/lights/5"
+	    "couch 2": "/lights/5",
+	    "den": "/lights/6"
 	},
 	"states": {
 	    "on": {"on": true},
 	    "off": {"on": false},
 	    "alert": {"alert": "lselect"},
 	    "blink": {"alert": "select"},
+
+	    "energize": {
+		"on": true, "bri": 254, "hue": 34495,
+		"sat": 232, "xy": [0.3151, 0.3252], "ct": 155,
+		"alert": "none", "effect": "none", "colormode": "ct"},
 
 	    "sunrise": {
 		"on": true, "bri": 254, "hue": 8569,
@@ -40,10 +48,20 @@
 		"transitiontime": 300,
 		"alert": "none", "effect": "none", "colormode": "xy"},
 
+	    "day": {
+		"bri": 254, "hue": 8569,
+		"sat": 245, "xy": [0.5787, 0.3872], "ct": 500,
+		"transitiontime": 10,
+		"alert": "none", "effect": "none", "colormode": "xy"},
+
 	    "nightlight": {
-		"on": true, "bri": 1, "hue": 8566,
-		"sat": 244, "xy": [0.5779, 0.3872], "ct": 469,
-		"transitiontime": 300,
+		"on": true, "bri": 29, "hue": 13122,
+		"sat": 211, "xy": [0.5119, 0.4147], "ct": 467,
+		"alert": "none", "effect": "none", "colormode": "ct"},
+
+	    "nightlight (dim)": {
+		"on": true, "bri": 0, "hue": 13122,
+		"sat": 211, "xy": [0.5119, 0.4147], "ct": 467,
 		"alert": "none", "effect": "none", "colormode": "ct"},
 
 	    "deep blue": {
@@ -71,7 +89,7 @@
 		"alert": "none", "effect": "none", "colormode": "xy"},
 
 	    "green": {
-		"on": true, "bri": 254, "hue": 26214,
+		"bri": 254, "hue": 26214,
 		"sat": 253, "xy": [0.402, 0.5038], "ct": 278,
 		"transitiontime": 10,
 		"alert": "none", "effect": "none", "colormode": "xy"},
@@ -94,35 +112,25 @@
 		{"light": "all", "action": "blink"}
 	    ],
 
-	    "Lynx": [
+	    "startup": [
 		{"light": "all", "action": "blink"}
 	    ],
 
-	    "Siri-Dells-iPhone":  [
-		{"light": "all", "action": "blink"}
-	    ],
-
-	    "gato": [
-		{"light": "couch 1", "state": "deep blue"},
-		{"light": "couch 2", "state": "deep blue"}
-	    ],
-
-	    "chatte on": [
-		{"light": "couch 1", "state": "deep blue"},
-		{"light": "couch 2", "state": "deep blue"}
-	    ],
-
-	    "chatte off": [
-		{"light": "couch 1", "state": "green"},
-		{"light": "couch 2", "state": "green"}
-	    ],
-
-	    "noon": [
+ 	    "sun": [
 		{"light": "corner", "state": "sun"},
 		{"light": "bedroom", "state": "sun"},
 		{"light": "kitchen", "state": "sun"},
+		{"light": "den", "state": "sun"},
 		{"light": "couch 1", "state": "sun"},
 		{"light": "couch 2", "state": "sun"}
+	    ],
+
+	    "movie": [
+		{"light": "corner", "state": "off"},
+		{"light": "bedroom", "state": "off"},
+		{"light": "kitchen", "state": "sun (dim)"},
+		{"light": "couch 1", "state": "off"},
+		{"light": "couch 2", "state": "off"}
 	    ],
 
 	    "jazz": [
@@ -134,18 +142,44 @@
 	    ],
 
 	    "hack": [
-		{"light": "couch 1", "state": "deep blue (dim)"},
-		{"light": "couch 2", "state": "deep blue (dim)"}
+		{"light": "den", "state": "deep blue"}
 	    ],
 
-	    "dawn": [
+	    "wake": [
 		{"light": "corner", "state": "sunrise"},
 		{"light": "bedroom", "state": "sunrise"},
-		{"light": "kitchen", "state": "sunrise"}
+		{"light": "kitchen", "state": "sunrise"},
+		{"light": "den", "state": "sunrise"}
 	    ],
 
 	    "daylight": [
+		{"light": "corner", "state": "off"},
+		{"light": "bedroom", "state": "off"}
+	    ],
+
+	    "daylight off": [
+		{"light": "corner", "state": "on"},
+		{"light": "bedroom", "state": "on"}
+	    ],
+
+	    "sleep": [
 		{"light": "all", "action": "off"}
+	    ],
+
+	    "all off": [
+		{"light": "all", "action": "off"}
+	    ],
+
+	    "awake": [
+		{"light": "all", "action": "day"}
+	    ],
+
+	    "all green": [
+		{"light": "all", "action": "green"}
+	    ],
+
+	    "energize": [
+		{"light": "all", "action": "energize"}
 	    ],
 
 	    "floor lamps sun": [
@@ -153,8 +187,14 @@
 		{"light": "bedroom", "state": "sun"}
 	    ],
 
+	    "floor lamps green": [
+		{"light": "corner", "state": "green"},
+		{"light": "bedroom", "state": "green"}
+	    ],
+
 	    "kitchen sun": [
-		{"light": "kitchen", "state": "sun"}
+		{"light": "kitchen", "state": "sun"},
+		{"light": "den", "state": "sun"}
 	    ],
 
 	    "couch sun": [
@@ -167,15 +207,17 @@
 		{"light": "bedroom", "state": "sun (dim)"},
 		{"light": "kitchen", "state": "sun"},
 		{"light": "couch 1", "state": "sun (dim)"},
-		{"light": "couch 2", "state": "sun (dim)"}
+		{"light": "couch 2", "state": "sun (dim)"},
+		{"light": "den", "state": "sun (dim)"}
 	    ],
 
 	    "meditation": [
-		{"light": "corner", "state": "deep blue"},
+		{"light": "corner", "state": "sun"},
 		{"light": "bedroom", "state": "red alert"},
-		{"light": "kitchen", "state": "sun (dim)"},
-		{"light": "couch 1", "state": "deep blue"},
-		{"light": "couch 2", "state": "deep blue"}
+		{"light": "kitchen", "state": "sun"},
+		{"light": "couch 1", "state": "sun"},
+		{"light": "couch 2", "state": "sun"},
+		{"light": "den", "state": "deep blue"}
 	    ],
 
 	    "green": [
@@ -186,19 +228,29 @@
 		{"light": "couch 2", "state": "green"}
 	    ],
 
+	    "all nightlight": [
+		{"light": "corner", "state": "nightlight"},
+		{"light": "bedroom", "state": "nightlight (dim)"},
+		{"light": "kitchen", "state": "nightlight"},
+		{"light": "couch 1", "state": "nightlight"},
+		{"light": "couch 2", "state": "nightlight"},
+		{"light": "den", "state": "nightlight"}
+	    ],
+
 	    "sunset": [
 		{"light": "corner", "state": "sun"},
-		{"light": "couch 1", "state": "sun (dim)"},
 		{"light": "kitchen", "state": "sun"},
-		{"light": "couch 2", "state": "sun (dim)"}
+		{"light": "couch 1", "state": "sun (dim)"},
+		{"light": "couch 2", "state": "sun (dim)"},
+		{"light": "den", "state": "sun (dim)"}
 	    ],
 
 	    "twilight": [
 		{"light": "corner", "state": "sun (dim)"},
 		{"light": "bedroom", "state": "sun (dim)"},
 		{"light": "kitchen", "state": "sun"},
-		{"light": "couch 1", "state": "deep blue (dim)"},
-		{"light": "couch 2", "state": "deep blue (dim)"}
+		{"light": "couch 1", "state": "sun (dim)"},
+		{"light": "couch 2", "state": "sun (dim)"}
 	    ],
 
 	    "dusk": [
@@ -210,32 +262,24 @@
 	    ],
 
 	    "dusk corner": [
-		{"light": "kitchen", "state": "sun (dim)"}
-	    ],
-
-	    "darkness": [
-		{"light": "all", "action": "off"}
+		{"light": "kitchen", "state": "sun (dim)"},
+		{"light": "den", "state": "sun (dim)"}
 	    ]
 	}
     },
 
     "schedule": [
-	{"when": "7:15AM", "what": "dawn",
+	{"when": "6:15AM", "what": "wake",
 	 "on": "weekdays", "exceptOn": "holidays", "interval": "24h"},
-	{"when": "8:00AM", "what": "dawn", "on": "weekends", "interval": "24h"},
-	{"when": "8:45AM", "what": "chime", "interval": "24h"},
-	{"when": "9:00AM", "what": "daylight", "interval": "24h"},
-	{"when": "4:30PM", "what": "floor lamps sun", "interval": "24h"},
-	{"when": "5:00PM", "on": "weekends", "what": "kitchen sun", "interval": "24h"},
-	{"when": "5:30PM", "what": "kitchen sun", "interval": "24h"},
+	{"when": "8:00AM", "what": "wake", "on": "weekends", "interval": "24h"},
+	{"when": "7:45AM", "what": "chime", "interval": "24h"},
+	{"when": "8:45AM", "what": "daylights", "interval": "24h"},
 	{"when": "6:00PM", "what": "couch sun", "interval": "24h"},
-	{"when": "7:30PM", "what": "dinner", "interval": "24h"},
-	{"when": "8:45PM", "what": "green", "interval": "24h"},
-	{"when": "9:00PM", "what": "meditation", "interval": "24h"},
-	{"when": "9:30PM", "what": "sunset", "interval": "24h"},
-	{"when": "10:15PM", "what": "twilight", "interval": "24h"},
-	{"when": "10:45PM", "what": "dusk", "interval": "24h"},
-	{"when": "10:55PM", "what": "dusk2", "interval": "24h"},
-	{"when": "11:00PM", "what": "darkness", "interval": "24h"}
+	{"when": "6:30PM", "what": "dinner", "interval": "24h"},
+	{"when": "8:00PM", "what": "meditation", "interval": "24h"},
+	{"when": "8:30PM", "what": "sunset", "interval": "24h"},
+	{"when": "9:15PM", "what": "twilight", "interval": "24h"},
+	{"when": "9:45PM", "what": "dusk", "interval": "24h"},
+	{"when": "10:00PM", "what": "sleep", "interval": "24h"}
     ]
 }

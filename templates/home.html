@@ -1,4 +1,44 @@
 {{define "content"}}
-{{template "schedule" .}}
-{{template "transitions" .}}
+
+  {{with .Marvin}}
+
+<div class="row-fluid">
+  <div class="span3">
+    <p>
+      {{range $k := .Transitions}}
+      <a class="transition btn btn-large btn-block btn-primary" data-transition="{{$k}}">{{$k}} <i class="icon-play"></i></a>{{end}}
+    </p>
+  </div>
+
+  <div class="span3">
+    <p>
+      <a class="transition btn btn-large btn-block" data-transition="deactivate daylights">deactivate daylights <i class="icon-play"></i></a>
+      <a class="transition btn btn-large btn-block" data-transition="deactivate daylights">deactivate nightlights <i class="icon-play"></i></a>
+    </p>
+  </div>
+
+  <div class="span3">
+
+    <table class="table table-condensed table-striped">
+      <tbody>
+	<tr>
+	  <td>Schedule active</td>
+	  <td>{{.ScheduleActive}}</td>
+	</tr>
+	<tr>
+	  <td>Nightlight active</td>
+	  <td>{{.NightlightActive}}</td>
+	</tr>
+	<tr>
+	  <td>Daylight active</td>
+	  <td>{{.DaylightActive}}</td>
+	</tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+  {{end}}
+
 {{end}}

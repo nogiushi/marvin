@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"time"
 )
 
@@ -123,4 +124,76 @@ func (t *TSL2561) GetInfrared() (value int, err error) {
 	}
 	value = t.scale(int(high)*256 + int(low))
 	return
+}
+
+func (t *TSL2561) DayLightSingle() (value int, err error) {
+	if err := t.On(); err != nil {
+		log.Println("could not turn on:", err)
+		return 0, err
+	}
+	time.Sleep(t.IntegrationDuration())
+
+	value, err = t.GetBroadband()
+	if err == nil {
+		go postStat("light broadband", float64(value))
+	} else {
+		log.Println("error getting broadband value:", err)
+	}
+
+	if e := t.Off(); err != nil {
+		log.Println("Could not turn off:", e)
+	}
+	return value, err
+}
+
+func (t *TSL2561) DayLight() chan bool {
+	dayLight := make(chan bool, 1)
+
+	go func() {
+		var lastDayLight interface{}
+		lastDayLightTime := time.Now()
+		ticker := time.NewTicker(1 * time.Second)
+
+		for {
+			select {
+			case <-ticker.C:
+				if err := t.On(); err != nil {
+					log.Fatal("could not turn on:", err)
+				}
+				time.Sleep(t.IntegrationDuration())
+
+				if value, err := t.GetBroadband(); err == nil {
+					dl := value > 5000
+					if lastDayLight == nil {
+						lastDayLight = dl
+						lastDayLightTime = time.Now()
+						dayLight <- dl
+					} else if time.Since(lastDayLightTime) > time.Duration(60*time.Second) {
+						if value > 5000 && lastDayLight == false {
+							lastDayLight = true
+							lastDayLightTime = time.Now()
+							dayLight <- true
+						} else if value < 4900 && lastDayLight == true {
+							lastDayLight = false
+							lastDayLightTime = time.Now()
+							dayLight <- false
+						}
+					}
+					go postStat("light broadband", float64(value))
+				} else {
+					log.Println("error getting broadband value:", err)
+				}
+				if value, err := t.GetInfrared(); err == nil {
+					go postStat("light infrared", float64(value))
+				} else {
+					log.Println("error getting infrared value:", err)
+				}
+
+				if err := t.Off(); err != nil {
+					log.Fatal("Could not turn off:", err)
+				}
+			}
+		}
+	}()
+	return dayLight
 }

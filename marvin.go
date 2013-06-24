@@ -1,123 +1,127 @@
 package main
 
 import (
-	"flag"
 	"log"
-	"os"
-	"os/signal"
 	"time"
-
-	"github.com/stathat/go"
 )
 
-var StaticRoot *string
-
-func postStat(name string, value float64) {
-	if err := stathat.PostEZValue(name, "eikeon@eikeon.com", value); err != nil {
-		log.Printf("error posting value %v: %d", err, value)
-	}
+type Marvin struct {
+	Hue              hue
+	Schedule         schedule
+	ScheduleActive   bool
+	NightlightActive bool
+	DaylightActive   bool
+	Transitions      []string
+	dayLightSensor   *TSL2561
 }
-func main() {
-	log.Println("starting marvin")
 
-	Address := flag.String("address", ":9999", "http service address")
-	StaticRoot = flag.String("root", "static", "...")
-	config := flag.String("config", "/etc/marvin.json", "file path to configuration file")
-	verbose := flag.Bool("verbose", false, "verbose output")
-	flag.Parse()
-
-	err, s := NewSchedulerFromJSONPath(*config)
-	if err == nil {
-		go ListenAndServe(*Address, s)
-		go listen(s)
-
-		if flag.NArg() == 0 {
-			s.Hue.Do("chime") // visual display of scheduler starting
-			go s.run()
-		} else {
-			transition := flag.Arg(0)
-			go s.Hue.Do(transition)
+func (m *Marvin) Do(what string) {
+	log.Println("Do:", what)
+	if what == "sleep" {
+		m.ScheduleActive = true
+		m.DaylightActive = false
+		m.NightlightActive = true
+	} else if what == "sleep in" {
+		m.ScheduleActive = false
+		m.DaylightActive = false
+		m.NightlightActive = true
+		what = "sleep" // use the "sleep" hue transistion
+	} else if what == "wake" {
+		m.ScheduleActive = true
+		m.DaylightActive = false
+		m.NightlightActive = false
+	} else if what == "movie" {
+		m.ScheduleActive = false
+		m.DaylightActive = false
+		m.NightlightActive = false
+	} else if what == "awake" {
+		m.ScheduleActive = true
+		m.DaylightActive = true
+		m.NightlightActive = false
+		if m.dayLightSensor != nil {
+			if value, err := m.dayLightSensor.DayLightSingle(); err == nil {
+				dayLight := value > 5000
+				if dayLight {
+					m.Do("daylight")
+				} else {
+					m.Do("daylight off")
+				}
+			} else {
+				log.Println("error getting broadband value:", err)
+			}
 		}
+	} else if what == "deactivate daylights" {
+		m.DaylightActive = false
+		what = "chime"
+	} else if what == "deactivate nightlights" {
+		m.NightlightActive = false
+		what = "chime"
+	}
+	m.Hue.Do(what)
+}
+
+func (m *Marvin) loop() {
+	m.Do("startup")
+	m.ScheduleActive = true
+
+	var scheduledEventsChannel <-chan event
+	if c, err := m.Schedule.Run(); err == nil {
+		scheduledEventsChannel = c
 	} else {
-		log.Fatal(err)
+		log.Println("Warning: Scheduled events off:", err)
 	}
 
-	t, err := NewTSL2561(1, ADDRESS_FLOAT)
-	if err != nil {
-		log.Println("WARNING: could not create TSL2561:", err)
+	var dayLightChannel <-chan bool
+	if t, err := NewTSL2561(1, ADDRESS_FLOAT); err == nil {
+		m.dayLightSensor = t
+		dayLightChannel = t.DayLight()
+	} else {
+		log.Println("Warning: Daylight sensor off: ", err)
 	}
 
-	notifyChannel := make(chan os.Signal, 1)
-	signal.Notify(notifyChannel, os.Interrupt)
-	ticker := time.NewTicker(1 * time.Second)
+	var motionChannel <-chan bool
+	if c, err := GPIOInterrupt(7); err == nil {
+		motionChannel = c
+	} else {
+		log.Println("Warning: Motion sensor off:", err)
+	}
+	var motionTimer *time.Timer
+	var motionTimeout <-chan time.Time
 
-	dayLight := make(chan bool, 10)
-	var lastDayLight interface{}
-	lastDayLightTime := time.Now()
 	for {
 		select {
-		case value := <-dayLight:
-			if value {
-				s.Hue.Do("daylight")
-				log.Println("daylight")
-			} else {
-				s.Hue.Do("daylight off")
-				log.Println("daylight off")
+		case e := <-scheduledEventsChannel:
+			if m.ScheduleActive {
+				m.Do(e.What)
 			}
-		case <-ticker.C:
-			if t != nil {
-				if err = t.On(); err != nil {
-					log.Fatal("could not turn on:", err)
-				}
-				time.Sleep(t.IntegrationDuration())
-
-				if value, err := t.GetBroadband(); err == nil {
-					dl := value > 5000
-					if lastDayLight == nil {
-						lastDayLight = dl
-						lastDayLightTime = time.Now()
-					} else if time.Since(lastDayLightTime) > time.Duration(60*time.Second) {
-						if value > 5000 && lastDayLight == false {
-							lastDayLight = true
-							lastDayLightTime = time.Now()
-							dayLight <- true
-						} else if value < 4900 && lastDayLight == true {
-							lastDayLight = false
-							lastDayLightTime = time.Now()
-							dayLight <- false
-						}
-					}
-					if *verbose {
-						log.Println("broadband:", value)
-					}
-					go postStat("light broadband", float64(value))
+		case dayLight := <-dayLightChannel:
+			if m.DaylightActive {
+				if dayLight {
+					m.Do("daylight")
 				} else {
-					log.Println("error getting broadband value:", err)
-				}
-				if value, err := t.GetInfrared(); err == nil {
-					if *verbose {
-						log.Println("infrared:", value)
-					}
-					go postStat("light infrared", float64(value))
-				} else {
-					log.Println("error getting infrared value:", err)
-				}
-
-				if err := t.Off(); err != nil {
-					log.Fatal("Could not turn off:", err)
+					m.Do("daylight off")
 				}
 			}
-		case sig := <-notifyChannel:
-			switch sig {
-			case os.Interrupt:
-				log.Println("handling:", sig)
-				goto Done
-			default:
-				log.Fatal("Unexpected Signal:", sig)
+		case motion := <-motionChannel:
+			if motion {
+				if m.NightlightActive {
+					m.Do("all nightlight")
+					const duration = 60 * time.Second
+					if motionTimer == nil {
+						motionTimer = time.NewTimer(duration)
+						motionTimeout = motionTimer.C // enable motionTimeout case
+					} else {
+						motionTimer.Reset(duration)
+					}
+				}
+				go postStatCount("motion", 1)
+			}
+		case <-motionTimeout:
+			if m.NightlightActive {
+				m.Do("all off")
+				motionTimer = nil
+				motionTimeout = nil
 			}
 		}
 	}
-Done:
-	log.Println("stopping Marvin")
-
 }
