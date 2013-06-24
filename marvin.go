@@ -34,7 +34,7 @@ func (m *Marvin) Do(what string) {
 		m.ScheduleActive = false
 		m.DaylightActive = false
 		m.NightlightActive = false
-	} else if what == "day" {
+	} else if what == "awake" {
 		m.ScheduleActive = true
 		m.DaylightActive = true
 		m.NightlightActive = false
@@ -50,16 +50,19 @@ func (m *Marvin) Do(what string) {
 				log.Println("error getting broadband value:", err)
 			}
 		}
-	} else {
-		m.ScheduleActive = true
+	} else if what == "deactivate daylights" {
 		m.DaylightActive = false
+		what = "chime"
+	} else if what == "deactivate nightlights" {
 		m.NightlightActive = false
+		what = "chime"
 	}
 	m.Hue.Do(what)
 }
 
 func (m *Marvin) loop() {
 	m.Do("startup")
+	m.ScheduleActive = true
 
 	var scheduledEventsChannel <-chan event
 	if c, err := m.Schedule.Run(); err == nil {
