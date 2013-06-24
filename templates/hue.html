@@ -20,7 +20,7 @@
       </thead>
       <tbody>{{range $k,$v := .Transitions}}
 	<tr>
-	  <td><a class="transition" data-transition="{{$k}}">{{$k}} <i class="icon-play"></i></a></td>
+	  <td><a class="transition btn btn-block" data-transition="{{$k}}">{{$k}} <i class="icon-play"></i></a></td>
 	  <td>
 	    <dl class="dl-horizontal">{{range $v}}
 	      <dt>{{.Light}}</dt><dd>{{.State}} {{.Action}}</dd>{{end}}
