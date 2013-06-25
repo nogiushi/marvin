@@ -8,6 +8,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"code.google.com/p/go.net/websocket"
 )
 
 var site = template.Must(template.ParseFiles("templates/site.html"))
@@ -78,6 +80,27 @@ func add(view View) {
 	})
 }
 
+func StateServer(ws *websocket.Conn) {
+	go func() {
+		for {
+			if err := websocket.JSON.Receive(ws, &(marvin.State)); err == nil {
+				marvin.BroadcastStateChanged()
+			} else {
+				log.Println("State Websocket receive err:", err)
+				return
+			}
+		}
+	}()
+	for {
+		if err := websocket.JSON.Send(ws, marvin.State); err != nil {
+			log.Println("State Websocket send err:", err)
+			return
+		}
+		marvin.WaitStateChanged()
+		log.Println("..")
+	}
+}
+
 func ListenAndServe(address string, marvin *Marvin) {
 	add(&view{prefix: "/", name: "home", data: Data{"Marvin": marvin}})
 	add(&view{prefix: "/hue/", name: "hue", data: Data{"Marvin": marvin}})
@@ -98,6 +121,8 @@ func ListenAndServe(address string, marvin *Marvin) {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
+	http.Handle("/state", websocket.Handler(StateServer))
+
 	err := http.ListenAndServe(address, nil)
 	if err != nil {
 		log.Print("ListenAndServe:", err)

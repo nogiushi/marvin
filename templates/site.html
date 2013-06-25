@@ -1,6 +1,49 @@
 {{define "html"}}<!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="MarvinApp">
   <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+    <script>
+
+angular.module('MarvinApp', [], function ($interpolateProvider) {
+  $interpolateProvider.startSymbol('[[');
+  $interpolateProvider.endSymbol(']]');
+});
+
+function MarvinCtrl($scope) {
+
+    $scope.state = {};
+    $scope.errors = [];
+
+    var connection = new WebSocket('ws://'+document.location.host+'/state', ['soap', 'xmpp']);
+
+    connection.onopen = function () {
+	//connection.send('Ping');
+    };
+
+    connection.onclose = function (e) {
+	$scope.errors.push("WebSocket Closed: " + e)
+	console.log('WebSocket Closed ' + e);
+    };
+
+    connection.onerror = function (error) {
+	$scope.errors.push(error)
+	console.log('WebSocket Error ' + error);
+    };
+
+    connection.onmessage = function(e) {
+        $scope.$apply(function () {
+	    $scope.state = JSON.parse(e.data);
+        });
+    };
+
+    $scope.changeState = function() {
+	connection.send(JSON.stringify($scope.state));
+	console.log(JSON.stringify($scope.state));
+    };
+
+}
+    </script>
+
     <meta charset="utf-8">
     <title>{{if .}}{{with .Title}}{{.}} « {{end}}Marvin{{else}}Not Found{{end}}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -83,23 +126,6 @@ $('.transition').on('tap click', function (e) {
     });
 });
 
-$('.do_not_disturb').on('tap click', function (e) {
-    var do_not_disturb = this.checked
-    $.ajax({
-	url: "/post?" + $.now(),
-	type: "POST",
-	cache: false,
-	data: {"do_not_disturb": do_not_disturb},
-	statusCode: {
-	    404: function() {
-	    },
-	    200: function() {
-	    }
-	},
-	dataType: "html"
-    });
-});
-
     </script>
   </body>
 </html>{{end}}
@@ -129,23 +155,8 @@ $('.do_not_disturb').on('tap click', function (e) {
       </tbody>
     </table>
 
-    <form class="form-inline">
-      <label class="checkbox">
-        <input type="checkbox" class="do_not_disturb"{{if .ScheduleActive}} checked=""{{end}}> ScheduleActive
-      </label>
-    </form>
-
   </div>
 </div>
 
       {{end}}
-{{end}}
-
-{{define "transitions"}}
-
-  {{with .Marvin.Hue}}
-
-
-  {{end}}
-
 {{end}}

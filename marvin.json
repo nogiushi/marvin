@@ -1,6 +1,12 @@
 {
     "transitions": [ "sleep", "sleep in", "awake", "energize", "sun", "movie"],
 
+    "state": {"active": {"Schedule": true,
+			 "Nightlights": false,
+			 "Daylights": false
+			}
+	     },
+
     "hue": {
 	"host": "10.0.1.8",
 	"key": "334b473e8c2555d5eb722e0c932df793",
