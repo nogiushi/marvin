@@ -14,7 +14,7 @@ function MarvinCtrl($scope) {
     $scope.state = {};
     $scope.errors = [];
 
-    var connection = new WebSocket('ws://'+document.location.host+'/state', ['soap', 'xmpp']);
+    var connection = new WebSocket('ws://'+document.location.host+'/state');
 
     connection.onopen = function () {
 	//connection.send('Ping');
