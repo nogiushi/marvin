@@ -2,42 +2,45 @@ package main
 
 import (
 	"log"
+	"sync"
 	"time"
 )
 
 type Marvin struct {
-	Hue              hue
-	Schedule         schedule
-	ScheduleActive   bool
-	NightlightActive bool
-	DaylightActive   bool
-	Transitions      []string
-	dayLightSensor   *TSL2561
+	Hue         hue
+	Schedule    schedule
+	Transitions []string
+	State       struct {
+		Active         map[string]bool
+		LastTransition string
+	}
+	cond           *sync.Cond // a rendezvous point for goroutines waiting for or announcing state changed
+	dayLightSensor *TSL2561
 }
 
 func (m *Marvin) Do(what string) {
 	log.Println("Do:", what)
 	if what == "sleep" {
-		m.ScheduleActive = true
-		m.DaylightActive = false
-		m.NightlightActive = true
+		m.State.Active["Schedule"] = true
+		m.State.Active["Daylights"] = false
+		m.State.Active["Nightlights"] = true
 	} else if what == "sleep in" {
-		m.ScheduleActive = false
-		m.DaylightActive = false
-		m.NightlightActive = true
+		m.State.Active["Schedule"] = false
+		m.State.Active["Daylights"] = false
+		m.State.Active["Nightlights"] = true
 		what = "sleep" // use the "sleep" hue transistion
 	} else if what == "wake" {
-		m.ScheduleActive = true
-		m.DaylightActive = false
-		m.NightlightActive = false
+		m.State.Active["Schedule"] = true
+		m.State.Active["Daylights"] = false
+		m.State.Active["Nightlights"] = false
 	} else if what == "movie" {
-		m.ScheduleActive = false
-		m.DaylightActive = false
-		m.NightlightActive = false
+		m.State.Active["Schedule"] = false
+		m.State.Active["Daylights"] = false
+		m.State.Active["Nightlights"] = false
 	} else if what == "awake" {
-		m.ScheduleActive = true
-		m.DaylightActive = true
-		m.NightlightActive = false
+		m.State.Active["Schedule"] = true
+		m.State.Active["Daylights"] = true
+		m.State.Active["Nightlights"] = false
 		if m.dayLightSensor != nil {
 			if value, err := m.dayLightSensor.DayLightSingle(); err == nil {
 				dayLight := value > 5000
@@ -50,19 +53,14 @@ func (m *Marvin) Do(what string) {
 				log.Println("error getting broadband value:", err)
 			}
 		}
-	} else if what == "deactivate daylights" {
-		m.DaylightActive = false
-		what = "chime"
-	} else if what == "deactivate nightlights" {
-		m.NightlightActive = false
-		what = "chime"
 	}
-	m.Hue.Do(what)
+	m.State.LastTransition = what
+	m.BroadcastStateChanged()
+	go m.Hue.Do(what)
 }
 
 func (m *Marvin) loop() {
 	m.Do("startup")
-	m.ScheduleActive = true
 
 	var scheduledEventsChannel <-chan event
 	if c, err := m.Schedule.Run(); err == nil {
@@ -91,11 +89,11 @@ func (m *Marvin) loop() {
 	for {
 		select {
 		case e := <-scheduledEventsChannel:
-			if m.ScheduleActive {
+			if m.State.Active["Schedule"] {
 				m.Do(e.What)
 			}
 		case dayLight := <-dayLightChannel:
-			if m.DaylightActive {
+			if m.State.Active["Daylights"] {
 				if dayLight {
 					m.Do("daylight")
 				} else {
@@ -104,7 +102,7 @@ func (m *Marvin) loop() {
 			}
 		case motion := <-motionChannel:
 			if motion {
-				if m.NightlightActive {
+				if m.State.Active["Nightlights"] {
 					m.Do("all nightlight")
 					const duration = 60 * time.Second
 					if motionTimer == nil {
@@ -117,11 +115,29 @@ func (m *Marvin) loop() {
 				go postStatCount("motion", 1)
 			}
 		case <-motionTimeout:
-			if m.NightlightActive {
+			if m.State.Active["Nightlights"] {
 				m.Do("all off")
 				motionTimer = nil
 				motionTimeout = nil
 			}
 		}
 	}
+}
+
+func (m *Marvin) getStateCond() *sync.Cond {
+	if m.cond == nil {
+		m.cond = sync.NewCond(&sync.Mutex{})
+	}
+	return m.cond
+}
+
+func (m *Marvin) BroadcastStateChanged() {
+	m.getStateCond().Broadcast()
+}
+
+func (m *Marvin) WaitStateChanged() {
+	c := m.getStateCond()
+	c.L.Lock()
+	c.Wait()
+	c.L.Unlock()
 }
