@@ -126,32 +126,10 @@ func (t *TSL2561) GetInfrared() (value int, err error) {
 	return
 }
 
-func (t *TSL2561) DayLightSingle() (value int, err error) {
-	if err := t.On(); err != nil {
-		log.Println("could not turn on:", err)
-		return 0, err
-	}
-	time.Sleep(t.IntegrationDuration())
-
-	value, err = t.GetBroadband()
-	if err == nil {
-		go postStat("light broadband", float64(value))
-	} else {
-		log.Println("error getting broadband value:", err)
-	}
-
-	if e := t.Off(); err != nil {
-		log.Println("Could not turn off:", e)
-	}
-	return value, err
-}
-
-func (t *TSL2561) DayLight() chan bool {
-	dayLight := make(chan bool, 1)
+func (t *TSL2561) Broadband() chan int {
+	broadband := make(chan int, 1)
 
 	go func() {
-		var lastDayLight interface{}
-		lastDayLightTime := time.Now()
 		ticker := time.NewTicker(1 * time.Second)
 
 		for {
@@ -163,22 +141,7 @@ func (t *TSL2561) DayLight() chan bool {
 				time.Sleep(t.IntegrationDuration())
 
 				if value, err := t.GetBroadband(); err == nil {
-					dl := value > 5000
-					if lastDayLight == nil {
-						lastDayLight = dl
-						lastDayLightTime = time.Now()
-						dayLight <- dl
-					} else if time.Since(lastDayLightTime) > time.Duration(60*time.Second) {
-						if value > 5000 && lastDayLight == false {
-							lastDayLight = true
-							lastDayLightTime = time.Now()
-							dayLight <- true
-						} else if value < 4900 && lastDayLight == true {
-							lastDayLight = false
-							lastDayLightTime = time.Now()
-							dayLight <- false
-						}
-					}
+					broadband <- value
 					go postStat("light broadband", float64(value))
 				} else {
 					log.Println("error getting broadband value:", err)
@@ -195,5 +158,5 @@ func (t *TSL2561) DayLight() chan bool {
 			}
 		}
 	}()
-	return dayLight
+	return broadband
 }

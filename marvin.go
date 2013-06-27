@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+type lightTime struct {
+	value bool
+	time  time.Time
+}
+
 type Marvin struct {
 	Hue      hue
 	Schedule schedule
@@ -19,9 +24,9 @@ type Marvin struct {
 		LastTransition string
 	}
 
-	Do             chan string
-	cond           *sync.Cond // a rendezvous point for goroutines waiting for or announcing state changed
-	dayLightSensor *TSL2561
+	Do          chan string
+	cond        *sync.Cond // a rendezvous point for goroutines waiting for or announcing state changed
+	lightSensor *TSL2561
 }
 
 func (m *Marvin) loop() {
@@ -35,13 +40,14 @@ func (m *Marvin) loop() {
 		log.Println("Warning: Scheduled events off:", err)
 	}
 
-	var dayLightChannel <-chan bool
+	var lightChannel <-chan int
 	if t, err := NewTSL2561(1, ADDRESS_FLOAT); err == nil {
-		m.dayLightSensor = t
-		dayLightChannel = t.DayLight()
+		m.lightSensor = t
+		lightChannel = t.Broadband()
 	} else {
-		log.Println("Warning: Daylight sensor off: ", err)
+		log.Println("Warning: Light sensor off: ", err)
 	}
+	var lastLight *lightTime
 
 	var motionChannel <-chan bool
 	if c, err := GPIOInterrupt(7); err == nil {
@@ -65,28 +71,23 @@ func (m *Marvin) loop() {
 			m.State.LastTransition = what
 			m.BroadcastStateChanged()
 			go m.Hue.Do(what)
-			if what == "daylights" && m.dayLightSensor != nil {
-				if value, err := m.dayLightSensor.DayLightSingle(); err == nil {
-					if value > 5000 {
-						m.Do <- "daylight"
-					} else {
-						m.Do <- "daylight off"
-					}
-				} else {
-					log.Println("error getting broadband value:", err)
-				}
-			}
 		case e := <-scheduledEventsChannel:
 			if m.State.Active["Schedule"] {
 				m.Do <- e.What
 			}
-		case dayLight := <-dayLightChannel:
+		case light := <-lightChannel:
 			if m.State.Active["Daylights"] {
-				if dayLight {
-					m.Do <- "daylight"
-				} else {
-					m.Do <- "daylight off"
+				if lastLight == nil || time.Since(lastLight.time) > time.Duration(60*time.Second) {
+					if light > 5000 && lastLight.value != true {
+						lastLight = &lightTime{true, time.Now()}
+						m.Do <- "daylight"
+					} else if light < 4900 && lastLight.value != false {
+						lastLight = &lightTime{false, time.Now()}
+						m.Do <- "daylight off"
+					}
 				}
+			} else {
+				lastLight = nil
 			}
 		case motion := <-motionChannel:
 			if motion {
