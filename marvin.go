@@ -19,39 +19,14 @@ type Marvin struct {
 		LastTransition string
 	}
 
+	Do             chan string
 	cond           *sync.Cond // a rendezvous point for goroutines waiting for or announcing state changed
 	dayLightSensor *TSL2561
 }
 
-func (m *Marvin) Do(what string) {
-	log.Println("Do:", what)
-	v, ok := m.Transitions[what]
-	if ok {
-		for k, v := range v.Active {
-			m.State.Active[k] = v
-		}
-	}
-	if what == "daylights" {
-		if m.dayLightSensor != nil {
-			if value, err := m.dayLightSensor.DayLightSingle(); err == nil {
-				dayLight := value > 5000
-				if dayLight {
-					m.Do("daylight")
-				} else {
-					m.Do("daylight off")
-				}
-			} else {
-				log.Println("error getting broadband value:", err)
-			}
-		}
-	}
-	m.State.LastTransition = what
-	m.BroadcastStateChanged()
-	go m.Hue.Do(what)
-}
-
 func (m *Marvin) loop() {
-	m.Do("startup")
+	m.Do = make(chan string, 2)
+	m.Do <- "startup"
 
 	var scheduledEventsChannel <-chan event
 	if c, err := m.Schedule.Run(); err == nil {
@@ -79,22 +54,44 @@ func (m *Marvin) loop() {
 
 	for {
 		select {
+		case what := <-m.Do:
+			log.Println("Do:", what)
+			v, ok := m.Transitions[what]
+			if ok {
+				for k, v := range v.Active {
+					m.State.Active[k] = v
+				}
+			}
+			m.State.LastTransition = what
+			m.BroadcastStateChanged()
+			go m.Hue.Do(what)
+			if what == "daylights" && m.dayLightSensor != nil {
+				if value, err := m.dayLightSensor.DayLightSingle(); err == nil {
+					if value > 5000 {
+						m.Do <- "daylight"
+					} else {
+						m.Do <- "daylight off"
+					}
+				} else {
+					log.Println("error getting broadband value:", err)
+				}
+			}
 		case e := <-scheduledEventsChannel:
 			if m.State.Active["Schedule"] {
-				m.Do(e.What)
+				m.Do <- e.What
 			}
 		case dayLight := <-dayLightChannel:
 			if m.State.Active["Daylights"] {
 				if dayLight {
-					m.Do("daylight")
+					m.Do <- "daylight"
 				} else {
-					m.Do("daylight off")
+					m.Do <- "daylight off"
 				}
 			}
 		case motion := <-motionChannel:
 			if motion {
 				if m.State.Active["Nightlights"] {
-					m.Do("all nightlight")
+					m.Do <- "all nightlight"
 					const duration = 60 * time.Second
 					if motionTimer == nil {
 						motionTimer = time.NewTimer(duration)
@@ -107,7 +104,7 @@ func (m *Marvin) loop() {
 			}
 		case <-motionTimeout:
 			if m.State.Active["Nightlights"] {
-				m.Do("all off")
+				m.Do <- "all off"
 				motionTimer = nil
 				motionTimeout = nil
 			}

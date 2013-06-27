@@ -113,7 +113,7 @@ func ListenAndServe(address string, marvin *Marvin) {
 			if err := req.ParseForm(); err == nil {
 				name, ok := req.Form["do_transition"]
 				if ok {
-					marvin.Do(name[0])
+					marvin.Do <- name[0]
 				}
 			}
 			// TODO: write a response

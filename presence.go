@@ -43,7 +43,7 @@ func (h *host) ping() {
 			if r == true {
 				if h.present == false {
 					h.present = true
-					marvin.Do(h.name + " on")
+					marvin.Do <- h.name + " on"
 				}
 				return
 			}
@@ -53,7 +53,7 @@ func (h *host) ping() {
 	}
 	if h.present == true {
 		h.present = false
-		marvin.Do(h.name + " off")
+		marvin.Do <- h.name + " off"
 	}
 }
 
