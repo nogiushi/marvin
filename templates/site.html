@@ -10,37 +10,45 @@ angular.module('MarvinApp', [], function ($interpolateProvider) {
 });
 
 function MarvinCtrl($scope) {
-
     $scope.state = {};
     $scope.errors = [];
+    $scope.connection = null;
 
-    var connection = new WebSocket('ws://'+document.location.host+'/state', ['soap', 'xmpp']);
+    $scope.NewConnection = function() {
+	connection = new WebSocket('ws://'+document.location.host+'/state');
 
-    connection.onopen = function () {
-	//connection.send('Ping');
-    };
+	connection.onopen = function () {
+	};
 
-    connection.onclose = function (e) {
-	$scope.errors.push("WebSocket Closed: " + e)
-	console.log('WebSocket Closed ' + e);
-    };
+	connection.onclose = function (e) {
+	};
 
-    connection.onerror = function (error) {
-	$scope.errors.push(error)
-	console.log('WebSocket Error ' + error);
-    };
+	connection.onerror = function (error) {
+	    console.log('WebSocket Error ' + error);
+            $scope.$apply(function () {
+		$scope.errors.push(error)
+	    });
+	};
 
-    connection.onmessage = function(e) {
-        $scope.$apply(function () {
-	    $scope.state = JSON.parse(e.data);
-        });
+	connection.onmessage = function(e) {
+	    $scope.$apply(function () {
+		$scope.state = JSON.parse(e.data);
+	    });
+	};
+	$scope.connection = connection
     };
 
     $scope.changeState = function() {
-	connection.send(JSON.stringify($scope.state));
-	console.log(JSON.stringify($scope.state));
+	$scope.connection.send(JSON.stringify($scope.state));
     };
 
+    $(window).on("pageshow", function() {
+	$scope.NewConnection();
+    });
+
+    $(window).on("pagehide", function() {
+	$scope.connection.close();
+    });
 }
     </script>
 
