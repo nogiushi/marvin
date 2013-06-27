@@ -1,5 +1,13 @@
 {
-    "transitions": [ "sleep", "sleep in", "awake", "energize", "sun", "movie"],
+    "transitions": {
+	"sleep": {"active": {"Schedule": true, "Nightlights": true, "Daylights": false}},
+	"sleep in": {"active": {"Schedule": false, "Nightlights": true, "Daylights": false}},
+	"wake": {"active": {"Schedule": true, "Nightlights": false, "Daylights": false}},
+	"daylights": {"active": {"Schedule": true, "Nightlights": false, "Daylights": true}},
+	"energize": {"active": {"Schedule": true, "Nightlights": false, "Daylights": false}},
+	"sun": {"active": {"Schedule": true, "Nightlights": false, "Daylights": false}},
+	"movie": {"active": {"Schedule": false, "Nightlights": false, "Daylights": false}}
+    },
 
     "state": {"active": {"Schedule": true,
 			 "Nightlights": false,

@@ -7,40 +7,31 @@ import (
 )
 
 type Marvin struct {
-	Hue         hue
-	Schedule    schedule
-	Transitions []string
-	State       struct {
+	Hue      hue
+	Schedule schedule
+	//
+	Transitions map[string]struct {
+		Active map[string]bool
+	}
+	//
+	State struct {
 		Active         map[string]bool
 		LastTransition string
 	}
+
 	cond           *sync.Cond // a rendezvous point for goroutines waiting for or announcing state changed
 	dayLightSensor *TSL2561
 }
 
 func (m *Marvin) Do(what string) {
 	log.Println("Do:", what)
-	if what == "sleep" {
-		m.State.Active["Schedule"] = true
-		m.State.Active["Daylights"] = false
-		m.State.Active["Nightlights"] = true
-	} else if what == "sleep in" {
-		m.State.Active["Schedule"] = false
-		m.State.Active["Daylights"] = false
-		m.State.Active["Nightlights"] = true
-		what = "sleep" // use the "sleep" hue transistion
-	} else if what == "wake" {
-		m.State.Active["Schedule"] = true
-		m.State.Active["Daylights"] = false
-		m.State.Active["Nightlights"] = false
-	} else if what == "movie" {
-		m.State.Active["Schedule"] = false
-		m.State.Active["Daylights"] = false
-		m.State.Active["Nightlights"] = false
-	} else if what == "awake" {
-		m.State.Active["Schedule"] = true
-		m.State.Active["Daylights"] = true
-		m.State.Active["Nightlights"] = false
+	v, ok := m.Transitions[what]
+	if ok {
+		for k, v := range v.Active {
+			m.State.Active[k] = v
+		}
+	}
+	if what == "daylights" {
 		if m.dayLightSensor != nil {
 			if value, err := m.dayLightSensor.DayLightSingle(); err == nil {
 				dayLight := value > 5000
