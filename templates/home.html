@@ -23,9 +23,8 @@
     </div>
 
       <form ng-submit="changeState()">
-	<label class="checkbox"><input type=checkbox ng-model="state.Active['Schedule']" ng-change="changeState()">Schedule</label>
-	<label class="checkbox"><input type=checkbox ng-model="state.Active['Nightlights']" ng-change="changeState()">Nightlights</label>
-	<label class="checkbox"><input type=checkbox ng-model="state.Active['Daylights']" ng-change="changeState()">Daylights</label>
+	{{range $k, $v := .State.Active}}
+	<label class="checkbox"><input type=checkbox ng-model="state.Active['{{$k}}']" ng-change="changeState()">{{$k}}</label>{{end}}
       </form>
     </div>
   </div>
