@@ -78,10 +78,10 @@ func (m *Marvin) loop() {
 		case light := <-lightChannel:
 			if m.State.Active["Daylights"] {
 				if lastLight == nil || time.Since(lastLight.time) > time.Duration(60*time.Second) {
-					if light > 5000 && lastLight.value != true {
+					if light > 5000 && (lastLight == nil || lastLight.value != true) {
 						lastLight = &lightTime{true, time.Now()}
 						m.Do <- "daylight"
-					} else if light < 4900 && lastLight.value != false {
+					} else if light < 4900 && (lastLight == nil || lastLight.value != false) {
 						lastLight = &lightTime{false, time.Now()}
 						m.Do <- "daylight off"
 					}
