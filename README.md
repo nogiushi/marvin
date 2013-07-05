@@ -14,3 +14,8 @@ Marvin is a home automation program. Currently Marvin is executing our light sce
     make bootstrap
     cd ../..
     make
+
+	cd static/js/
+	wget https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js
+	wget https://raw.github.com/angular-ui/bootstrap/gh-pages/ui-bootstrap-tpls-0.4.0.min.js
+	cd ../..

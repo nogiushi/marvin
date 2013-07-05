@@ -8,30 +8,113 @@
     [[error]]
   </div>
 
-<div class="row-fluid">
-  <div class="span3">
-    <p>
-      {{range $k, $v := .Transitions}}
-      <a class="transition btn btn-large btn-block btn-primary" data-transition="{{$k}}">{{$k}} <i class="icon-play"></i></a>{{end}}
-    </p>
-  </div>
+  <div class="row-fluid">
+    <div class="span3">
 
-  <div class="span3">
+      <h2>Activity</h2>
 
-    <div class="alert alert-info">
-      <strong>Last transition:</strong> [[state.LastTransition]]
+      <div class="alert alert-info">[[state.Activity]]</div>
+      <p>
+	<a ng-repeat="(next, v) in state.Activities[state.Activity].Next" ng-click="updateActivity(state.Activity, next)" class="btn btn-large btn-block btn-primary" data-transition="[[next]]">[[next]] <i class="icon-play"></i></a>
+      </p>
+
+      <form ng-submit="updateActivity(state.Activity, targetActivity)" autocomplete="off">
+	<fieldset>
+	  <input class="input-block-level" type="text" typeahead="activity for activity in allActivities() | filter:$viewValue" ng-model="targetActivity" placeholder="activity name">
+	  <input type="hidden" ng-model="state.Activity">
+	  <!--<button type="submit" class="btn">Add</button>-->
+	</fieldset>
+      </form>
+
     </div>
 
+    <div class="span3">
+      <h2>Switches</h2>
       <form ng-submit="changeState()">
-	{{range $k, $v := .State.Active}}
-	<label class="checkbox"><input type=checkbox ng-model="state.Active['{{$k}}']" ng-change="changeState()">{{$k}}</label>{{end}}
+	{{range $k, $v := .Switch}}
+	<label class="checkbox"><input type=checkbox ng-model="state.Switch['{{$k}}']" ng-change="changeState('{{$k}}', state.Switch['{{$k}}'])">{{$k}}</label>{{end}}
       </form>
     </div>
-  </div>
-</div>
 
-</div>
+    <div class="row-fluid">
+      <div class="span3">
+	<h2>Lights</h2>
+	<table class="table">
+	  <thead>
+	    <tr>
+	      <th>Name</th>
+	      <th><i class="icon-off"></i> On</th>
+	      <th><i class="icon-adjust"></i> Color</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    <tr ng-repeat="(name, light) in state.Hue.Lights">
+	      <td>[[light.Name]]</td>
+	      <td ng-switch on="light.State.On">
+		<a ng-switch-when="true" class="btn btn-success">On</a>
+		<a ng-switch-when="false" class="btn btn-danger">Off</a>
+	      </td>
+	      <td>
+		<a style="color: white; background-color: [[getColor(light.State)]]" class="btn btn-block btn-link">[[getBrightness(light.State)]]%</a>
+	      </td>
+	    </tr>
+	  </tbody>
+	</table>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="row-fluid">
+      <div class="span3">
+	<h2>Sensors</h2>
+	<form>
+	  {{if .MotionSensor}}
+          <span ng-switch on="state.Motion">
+	    <span ng-switch-when="true" class="label label-success">motion</span>
+	    <span ng-switch-when="false" class="label label-important">no motion</span>
+	    <span ng-switch-default>-</span>
+	  </span>{{else}}<div class="alert alert-warning">no motion sensor</div>{{end}}
+	</form>
+	{{if .LightSensor}}<span ng-switch on="state.DayLight">
+	  <span ng-switch-when="true" class="label label-success">daylight</span>
+	  <span ng-switch-when="false" class="label label-inverse">dark</span>
+	  <span ng-switch-default>-</span>
+	</span>{{else}}<div class="alert alert-warning">no ambient light sensor</div>{{end}}
+      </div>
+
+      <div class="span3">
+	<h2>Presence</h2>
+	<table class="table">
+	  <thead>
+	    <tr>
+	      <th>Name</th>
+	      <th>Status</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    <tr ng-repeat="(k, v) in state.Present">
+	      <td>[[k]]</td>
+	      <td ng-switch on="v">
+		<span ng-switch-when="true" class="label label-success">Home</span>
+		<span ng-switch-when="false" class="label label-important">Away</span>
+		<span ng-switch-default>-</span>
+	      </td>
+	    </tr>
+	  </tbody>
+	</table>
+      </div>
+
+      <div class="span3">
+	<div class="alert alert-info">
+	  <strong>Last transition:</strong> [[state.LastTransition]]
+	</div>
+      </div>
+    </div>
+
+  </div>
 
   {{end}}
 
+<div>
 {{end}}

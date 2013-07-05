@@ -6,32 +6,68 @@ import (
 	"time"
 )
 
-type lightTime struct {
-	value bool
-	time  time.Time
+type activity struct {
+	Name string
+	Next map[string]bool
 }
 
 type Marvin struct {
-	Hue      hue
-	Schedule schedule
+	Hue            hue
+	Activities     map[string]*activity
+	Activity       string
+	Motion         bool
+	DayLight       bool
+	LastTransition string
+	Present        map[string]bool
+	Switch         map[string]bool
+	Schedule       schedule
 	//
 	Transitions map[string]struct {
-		Active map[string]bool
-	}
-	//
-	State struct {
-		Active         map[string]bool
-		LastTransition string
+		Switch map[string]bool
 	}
 
-	Do          chan string
+	do          chan string
 	cond        *sync.Cond // a rendezvous point for goroutines waiting for or announcing state changed
 	lightSensor *TSL2561
+
+	motionChannel <-chan bool
+	lightChannel  <-chan int
+}
+
+func (m *Marvin) MotionSensor() bool {
+	return m.motionChannel != nil
+}
+
+func (m *Marvin) LightSensor() bool {
+	return m.lightChannel != nil
+}
+
+func (m *Marvin) GetActivity(name string) *activity {
+	if name != "" {
+		a, ok := m.Activities[name]
+		if !ok {
+			a = &activity{name, map[string]bool{}}
+			m.Activities[name] = a
+		}
+		return a
+	} else {
+		return nil
+	}
 }
 
 func (m *Marvin) loop() {
-	m.Do = make(chan string, 2)
-	m.Do <- "startup"
+	m.Hue.Do("startup")
+	m.StateChanged()
+	if m.Switch == nil {
+		m.Switch = make(map[string]bool)
+	}
+	if m.Activities == nil {
+		m.Activities = make(map[string]*activity)
+	}
+	if m.Present == nil {
+		m.Present = make(map[string]bool)
+	}
+	m.do = make(chan string, 2)
 
 	var scheduledEventsChannel <-chan event
 	if c, err := m.Schedule.Run(); err == nil {
@@ -40,18 +76,16 @@ func (m *Marvin) loop() {
 		log.Println("Warning: Scheduled events off:", err)
 	}
 
-	var lightChannel <-chan int
+	var dayLightTime time.Time
 	if t, err := NewTSL2561(1, ADDRESS_FLOAT); err == nil {
 		m.lightSensor = t
-		lightChannel = t.Broadband()
+		m.lightChannel = t.Broadband()
 	} else {
 		log.Println("Warning: Light sensor off: ", err)
 	}
-	var lastLight *lightTime
 
-	var motionChannel <-chan bool
 	if c, err := GPIOInterrupt(7); err == nil {
-		motionChannel = c
+		m.motionChannel = c
 	} else {
 		log.Println("Warning: Motion sensor off:", err)
 	}
@@ -60,54 +94,62 @@ func (m *Marvin) loop() {
 
 	for {
 		select {
-		case what := <-m.Do:
+		case what := <-m.do:
 			log.Println("Do:", what)
 			v, ok := m.Transitions[what]
 			if ok {
-				for k, v := range v.Active {
-					m.State.Active[k] = v
+				for k, v := range v.Switch {
+					m.Switch[k] = v
 				}
 			}
-			m.State.LastTransition = what
-			m.BroadcastStateChanged()
-			go m.Hue.Do(what)
+			m.LastTransition = what
+			m.Hue.Do(what)
+			m.StateChanged()
 		case e := <-scheduledEventsChannel:
-			if m.State.Active["Schedule"] {
-				m.Do <- e.What
+			if m.Switch["Schedule"] {
+				m.do <- e.What
 			}
-		case light := <-lightChannel:
-			if m.State.Active["Daylights"] {
-				if lastLight == nil || time.Since(lastLight.time) > time.Duration(60*time.Second) {
-					if light > 5000 && (lastLight == nil || lastLight.value != true) {
-						lastLight = &lightTime{true, time.Now()}
-						m.Do <- "daylight"
-					} else if light < 4900 && (lastLight == nil || lastLight.value != false) {
-						lastLight = &lightTime{false, time.Now()}
-						m.Do <- "daylight off"
+		case light := <-m.lightChannel:
+			if time.Since(dayLightTime) > time.Duration(60*time.Second) {
+				if light > 5000 && (m.DayLight != true) {
+					m.DayLight = true
+					dayLightTime = time.Now()
+					m.StateChanged()
+					if m.Switch["Daylights"] {
+						m.do <- "daylight"
+					}
+				} else if light < 4900 && (m.DayLight != false) {
+					m.DayLight = false
+					dayLightTime = time.Now()
+					m.StateChanged()
+					if m.Switch["Daylights"] {
+						m.do <- "daylight off"
 					}
 				}
-			} else {
-				lastLight = nil
 			}
-		case motion := <-motionChannel:
+		case motion := <-m.motionChannel:
 			if motion {
-				if m.State.Active["Nightlights"] {
-					m.Do <- "all nightlight"
-					const duration = 60 * time.Second
-					if motionTimer == nil {
-						motionTimer = time.NewTimer(duration)
-						motionTimeout = motionTimer.C // enable motionTimeout case
-					} else {
-						motionTimer.Reset(duration)
+				const duration = 60 * time.Second
+				if motionTimer == nil {
+					m.Motion = true
+					m.StateChanged()
+					motionTimer = time.NewTimer(duration)
+					motionTimeout = motionTimer.C // enable motionTimeout case
+					if m.Switch["Nightlights"] {
+						m.do <- "all nightlight"
 					}
+				} else {
+					motionTimer.Reset(duration)
 				}
 				go postStatCount("motion", 1)
 			}
 		case <-motionTimeout:
-			if m.State.Active["Nightlights"] {
-				m.Do <- "all off"
-				motionTimer = nil
-				motionTimeout = nil
+			m.Motion = false
+			m.StateChanged()
+			motionTimer = nil
+			motionTimeout = nil
+			if m.Switch["Nightlights"] {
+				m.do <- "all off"
 			}
 		}
 	}
@@ -120,7 +162,8 @@ func (m *Marvin) getStateCond() *sync.Cond {
 	return m.cond
 }
 
-func (m *Marvin) BroadcastStateChanged() {
+func (m *Marvin) StateChanged() {
+	m.Hue.GetState()
 	m.getStateCond().Broadcast()
 }
 
