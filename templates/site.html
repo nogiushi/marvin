@@ -44,6 +44,14 @@ function MarvinCtrl($scope) {
 	$scope.connection.send(JSON.stringify(m));
     };
 
+    $scope.ON = {"on": true};
+    $scope.OFF = {"on": false};
+
+    $scope.setLightState = function(id, value) {
+	var m = {"action": "setLightState", "id": id, "value": value};
+	$scope.connection.send(JSON.stringify(m));
+    };
+
     $scope.allActivities = function() {
 	return Object.keys($scope.state.Activities);
     };
