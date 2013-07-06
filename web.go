@@ -90,8 +90,8 @@ func StateServer(ws *websocket.Conn) {
 				if msg["action"] == "updateSwitch" {
 					marvin.Switch[msg["name"].(string)] = msg["value"].(bool)
 					marvin.StateChanged()
-				} else if msg["action"] == "setLightState" {
-					marvin.Hue.SetLightState(msg["id"].(string), msg["value"])
+				} else if msg["action"] == "setHue" {
+					marvin.Hue.Set(msg["address"].(string), msg["value"])
 					marvin.StateChanged()
 				} else {
 					log.Printf("ignoring: %#v\n", msg)

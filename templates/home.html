@@ -51,11 +51,18 @@
 	    <tr ng-repeat="(name, light) in state.Hue.Lights">
 	      <td>[[light.Name]]</td>
 	      <td ng-switch on="light.State.On">
-		<a ng-switch-when="true" class="btn btn-success" ng-click="setLightState(name, OFF)">On</a>
-		<a ng-switch-when="false" class="btn btn-danger" ng-click="setLightState(name, ON)">Off</a>
+		<a ng-switch-when="true" class="btn btn-success" ng-click="setHue('/lights/'+name+'/state', OFF)">On</a>
+		<a ng-switch-when="false" class="btn btn-danger" ng-click="setHue('/lights/'+name+'/state', ON)">Off</a>
 	      </td>
-	      <td>
-		<a style="color: white; background-color: [[getColor(light.State)]]" class="btn btn-block btn-link">[[getBrightness(light.State)]]%</a>
+	      <td class="dropdown">
+		<a style="color: white; background-color: [[getColor(light.State)]]" class="dropdown-toggle btn btn-block btn-link">
+		  [[getBrightness(light.State)]]%
+		</a>
+		<ul class="dropdown-menu">
+		  <li ng-repeat="choice in allStates()">
+		    <a ng-click="setHue('/lights/'+name+'/state', state.Hue.States[choice])">[[choice]]</a>
+		  </li>
+		</ul>
 	      </td>
 	    </tr>
 	  </tbody>

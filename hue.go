@@ -159,32 +159,11 @@ func (h *hue) Do(transition string) {
 			name = command.Action
 			address += "/action"
 		}
-		url := "http://" + h.Host + "/api/" + h.Key + address
-		b, err := json.Marshal(h.States[name])
-		if err != nil {
-			log.Println("ERROR: json.Marshal: " + err.Error())
-			continue
-		}
-		if r, err := http.NewRequest("PUT", url, bytes.NewReader(b)); err == nil {
-			if response, err := http.DefaultClient.Do(r); err == nil {
-				response.Body.Close()
-				time.Sleep(100 * time.Millisecond)
-			} else {
-				log.Println("ERROR: client.Do: " + err.Error())
-			}
-		} else {
-			log.Println("ERROR: NewRequest: " + err.Error())
-		}
+		h.Set(address, h.States[name])
 	}
 }
 
-func (h *hue) SetLightState(id string, value interface{}) {
-	var address string
-	if true { // TODO: generalize to SetState(address string, value interface{})
-		address += "/lights/" + id + "/state"
-	} else {
-		address += "/lights/" + id + "/action"
-	}
+func (h *hue) Set(address string, value interface{}) {
 	url := "http://" + h.Host + "/api/" + h.Key + address
 	b, err := json.Marshal(value)
 	if err != nil {
@@ -196,7 +175,7 @@ func (h *hue) SetLightState(id string, value interface{}) {
 			response.Body.Close()
 			time.Sleep(100 * time.Millisecond)
 		} else {
-			log.Println("ERROR: client.SetLightState: " + err.Error())
+			log.Println("ERROR: client.Do: " + err.Error())
 		}
 	} else {
 		log.Println("ERROR: NewRequest: " + err.Error())
