@@ -125,8 +125,10 @@ function MarvinCtrl($scope) {
 	    saturation = Math.round(state["Sat"] / 255 * 100, 2);
 	    brightness = 50; // TODO: Math.round(state["Bri"] / 255 * 100, 2);
 	    return "hsl(" + hue + "," + saturation + "%," + brightness +"%)";
+        } if (state["ColorMode"]=="ct") {
+	    return "white"; // TODO: calculation
 	} else {
-	    return "TODO: color mode: " + state["ColorMode"];
+	    return "black"; // TODO:
 	}
     };
 
