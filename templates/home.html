@@ -127,19 +127,37 @@
 
     <div class="span3">
       <h2>Sensors</h2>
-      <form>
-	{{if .MotionSensor}}
-        <span ng-switch on="state.Motion">
-	  <span ng-switch-when="true" class="label label-success">motion</span>
-	  <span ng-switch-when="false" class="label label-important">no motion</span>
-	  <span ng-switch-default>-</span>
-	</span>{{else}}<div class="alert alert-warning">no motion sensor</div>{{end}}
-      </form>
-      {{if .LightSensor}}<span ng-switch on="state.DayLight">
-	<span ng-switch-when="true" class="label label-success">daylight</span>
-	<span ng-switch-when="false" class="label label-inverse">dark</span>
-	<span ng-switch-default>-</span>
-      </span>{{else}}<div class="alert alert-warning">no ambient light sensor</div>{{end}}
+      <table class="table">
+	<thead>
+	  <tr>
+	    <th scope="col">Name</th>
+	    <th scope="col">Status</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr>
+	    <td>Ambient Light</td>
+	    <td>
+	      {{if .LightSensor}}<span ng-switch on="state.DayLight">
+		<span ng-switch-when="true" class="label label-success">daylight</span>
+		<span ng-switch-when="false" class="label label-inverse">dark</span>
+		<span ng-switch-default>-</span>
+	      </span>{{else}}<span class="alert alert-warning">no ambient light sensor</span>{{end}}
+	    </td>
+	  </tr>
+	  <tr>
+	    <td>Motion</td>
+	    <td>
+	      {{if .MotionSensor}}
+	      <span ng-switch on="state.Motion">
+		<span ng-switch-when="true" class="label label-success">motion</span>
+		<span ng-switch-when="false" class="label label-important">no motion</span>
+		<span ng-switch-default>-</span>
+	      </span>{{else}}<span class="alert alert-warning">no motion sensor</span>{{end}}
+	    </td>
+	  </tr>
+	  </tbody>
+      </table>
     </div>
 
     <div class="span3">
