@@ -101,57 +101,74 @@
     </div>
   </div>
 
-    <hr>
-
   <div class="row-fluid">
 
-    <div class="row-fluid">
-      <div class="span3">
-	<h2>Sensors</h2>
-	<form>
-	  {{if .MotionSensor}}
-          <span ng-switch on="state.Motion">
-	    <span ng-switch-when="true" class="label label-success">motion</span>
-	    <span ng-switch-when="false" class="label label-important">no motion</span>
-	    <span ng-switch-default>-</span>
-	  </span>{{else}}<div class="alert alert-warning">no motion sensor</div>{{end}}
-	</form>
-	{{if .LightSensor}}<span ng-switch on="state.DayLight">
-	  <span ng-switch-when="true" class="label label-success">daylight</span>
-	  <span ng-switch-when="false" class="label label-inverse">dark</span>
-	  <span ng-switch-default>-</span>
-	</span>{{else}}<div class="alert alert-warning">no ambient light sensor</div>{{end}}
-      </div>
-
-      <div class="span3">
-	<h2>Presence</h2>
-	<table class="table">
-	  <thead>
-	    <tr>
-	      <th>Name</th>
-	      <th>Status</th>
-	    </tr>
-	  </thead>
-	  <tbody>
-	    <tr ng-repeat="(k, v) in state.Present">
-	      <td>[[k]]</td>
-	      <td ng-switch on="v">
-		<span ng-switch-when="true" class="label label-success">Home</span>
-		<span ng-switch-when="false" class="label label-important">Away</span>
-		<span ng-switch-default>-</span>
-	      </td>
-	    </tr>
-	  </tbody>
-	</table>
-      </div>
-
-      <div class="span3">
-	<div class="alert alert-info">
-	  <strong>Last transition:</strong> [[state.LastTransition]]
-	</div>
-      </div>
+    <div class="span3">
+      <h2>Schedule</h2>
+      <table class="table table-condensed table-striped">
+	<thead>
+	  <tr>
+	    <th scope="col">Time</th>
+	    <th scope="col">On</th>
+	    <th scope="col">Except</th>
+	    <th scope="col">Transition</th>
+	  </tr>
+	</thead>
+	<tbody>{{range .Schedule}}
+	  <tr>
+	    <td>{{.When}}</td>
+	    <td>{{if .On}}{{.On}}{{end}}</td>
+	    <td>{{if .ExceptOn}}{{.ExceptOn}}{{end}}</td>
+	    <td><a class="transition btn btn-block" data-transition="{{.What}}">{{.What}} <i class="icon-play"></i></a></td>
+	  </tr>{{end}}
+	</tbody>
+      </table>
     </div>
 
+    <div class="span3">
+      <h2>Sensors</h2>
+      <form>
+	{{if .MotionSensor}}
+        <span ng-switch on="state.Motion">
+	  <span ng-switch-when="true" class="label label-success">motion</span>
+	  <span ng-switch-when="false" class="label label-important">no motion</span>
+	  <span ng-switch-default>-</span>
+	</span>{{else}}<div class="alert alert-warning">no motion sensor</div>{{end}}
+      </form>
+      {{if .LightSensor}}<span ng-switch on="state.DayLight">
+	<span ng-switch-when="true" class="label label-success">daylight</span>
+	<span ng-switch-when="false" class="label label-inverse">dark</span>
+	<span ng-switch-default>-</span>
+      </span>{{else}}<div class="alert alert-warning">no ambient light sensor</div>{{end}}
+    </div>
+
+    <div class="span3">
+      <h2>Presence</h2>
+      <table class="table">
+	<thead>
+	  <tr>
+	    <th>Name</th>
+	    <th>Status</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr ng-repeat="(k, v) in state.Present">
+	    <td>[[k]]</td>
+	    <td ng-switch on="v">
+	      <span ng-switch-when="true" class="label label-success">Home</span>
+	      <span ng-switch-when="false" class="label label-important">Away</span>
+	      <span ng-switch-default>-</span>
+	    </td>
+	  </tr>
+	</tbody>
+      </table>
+    </div>
+
+    <div class="span3">
+      <div class="alert alert-info">
+	<strong>Last transition:</strong> [[state.LastTransition]]
+      </div>
+    </div>
   </div>
 
   {{end}}
