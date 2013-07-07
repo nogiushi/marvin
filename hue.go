@@ -19,11 +19,18 @@ type hue struct {
 		Action string
 	}
 	Lights map[string]light
+	Groups map[string]group
 }
 
 type light struct {
 	Name  string
 	State lightStateGet
+}
+
+type group struct {
+	Name   string
+	Lights []string
+	Action lightStateGet
 }
 
 type lightStateCommon struct {
@@ -128,6 +135,18 @@ func (h *hue) GetLights() {
 	}
 }
 
+func (h *hue) GetGroups() {
+	if response, err := http.Get(h.getURL() + "/groups"); err == nil {
+		dec := json.NewDecoder(response.Body)
+		if err = dec.Decode(&(h.Groups)); err != nil {
+			log.Fatal("could not decode groupsResponse:", err)
+		}
+		response.Body.Close()
+	} else {
+		log.Fatal("could not get groups:", err)
+	}
+}
+
 func (h *hue) GetState() {
 	if h.Lights == nil {
 		h.GetLights()
@@ -144,6 +163,25 @@ func (h *hue) GetState() {
 			response.Body.Close()
 		} else {
 			log.Fatal("could not get light:", err)
+		}
+	}
+
+	if h.Groups == nil {
+		h.GetGroups()
+		h.Groups["0"] = group{}
+	}
+	for name, _ := range h.Groups {
+		if response, err := http.Get(h.getURL() + "/groups/" + name); err == nil {
+			dec := json.NewDecoder(response.Body)
+			var l group
+			if err = dec.Decode(&l); err == nil {
+				h.Groups[name] = l
+			} else {
+				log.Fatal("could not decode group:", err)
+			}
+			response.Body.Close()
+		} else {
+			log.Fatal("could not get group:", err)
 		}
 	}
 }
