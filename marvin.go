@@ -92,6 +92,8 @@ func (m *Marvin) loop() {
 	var motionTimer *time.Timer
 	var motionTimeout <-chan time.Time
 
+	presenceChannel := Listen(m.Present)
+
 	for {
 		select {
 		case what := <-m.do:
@@ -150,6 +152,11 @@ func (m *Marvin) loop() {
 			motionTimeout = nil
 			if m.Switch["Nightlights"] {
 				m.do <- "all off"
+			}
+		case p := <-presenceChannel:
+			if m.Present[p.name] != p.status {
+				m.Present[p.name] = p.status
+				m.StateChanged()
 			}
 		}
 	}

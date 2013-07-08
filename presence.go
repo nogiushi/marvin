@@ -12,13 +12,11 @@ import (
 var hosts map[string]*host = map[string]*host{}
 
 type host struct {
-	name      string
-	addressIn chan net.IP
-	address   net.IP
-	present   bool
+	name    string
+	address net.IP
 }
 
-func (h *host) ping() {
+func (h *host) ping(ch chan pair) {
 	c := make(chan bool)
 
 	ports := []string{"22", "62078"}
@@ -41,39 +39,30 @@ func (h *host) ping() {
 		select {
 		case r := <-c:
 			if r == true {
-				if h.present == false {
-					h.present = true
-					marvin.Present[h.name] = true
-					marvin.StateChanged()
-				}
+				ch <- pair{h.name, true}
 				return
 			}
 		case <-timeout:
 			break
 		}
 	}
-	if h.present == true {
-		h.present = false
-		marvin.Present[h.name] = false
-		marvin.StateChanged()
-	}
+	ch <- pair{h.name, false}
 }
 
-func (h *host) watch() {
-	c := time.Tick(60 * time.Second)
-	for {
-		select {
-		case a := <-h.addressIn:
-			h.address = a
-			h.ping()
-			time.Sleep(10)
-		case <-c:
-			h.ping()
+type pair struct {
+	name   string
+	status bool
+}
+
+func Listen(current map[string]bool) chan pair {
+	for name, _ := range current {
+		hosts[name] = &host{name: name}
+		if a, err := net.ResolveTCPAddr("tcp4", name+".local:80"); err == nil {
+			hosts[name].address = a.IP
 		}
 	}
-}
 
-func listen() {
+	ch := make(chan pair)
 	mcaddr, err := net.ResolveUDPAddr("udp", "224.0.0.251:5353") // mdns/bonjour
 	if err != nil {
 		log.Fatal(err)
@@ -83,33 +72,48 @@ func listen() {
 		log.Fatal(err)
 	}
 
-	for {
-		buf := make([]byte, dns.MaxMsgSize)
-		read, _, err := conn.ReadFromUDP(buf)
-		if err != nil {
-			log.Println("err:", err)
-		}
-		var msg dns.Msg
-		if err := msg.Unpack(buf[:read]); err == nil {
-			if msg.MsgHdr.Response {
-				for i := 0; i < len(msg.Answer); i++ {
-					rr := msg.Answer[i]
-					rh := rr.Header()
-					if rh.Rrtype == dns.TypeA {
-						name := strings.NewReplacer(".local.", "").Replace(rh.Name)
-						h, ok := hosts[name]
-						if !ok {
-							ch := make(chan net.IP)
-							h = &host{name: name, address: rr.(*dns.A).A, addressIn: ch}
-							hosts[name] = h
-							go h.watch()
+	go func() {
+		for {
+			buf := make([]byte, dns.MaxMsgSize)
+			read, _, err := conn.ReadFromUDP(buf)
+			if err != nil {
+				log.Println("err:", err)
+			}
+			var msg dns.Msg
+			if err := msg.Unpack(buf[:read]); err == nil {
+				if msg.MsgHdr.Response {
+					for i := 0; i < len(msg.Answer); i++ {
+						rr := msg.Answer[i]
+						rh := rr.Header()
+						if rh.Rrtype == dns.TypeA {
+							name := strings.NewReplacer(".local.", "").Replace(rh.Name)
+							h, ok := hosts[name]
+							if !ok {
+								h = &host{name: name, address: rr.(*dns.A).A}
+								hosts[name] = h
+							}
+							h.address = rr.(*dns.A).A
+							go h.ping(ch)
 						}
-						h.addressIn <- rr.(*dns.A).A
 					}
 				}
+			} else {
+				log.Println("err:", err)
 			}
-		} else {
-			log.Println("err:", err)
 		}
-	}
+	}()
+
+	go func() {
+		c := time.Tick(60 * time.Second)
+		for {
+			select {
+			case <-c:
+				for _, h := range hosts {
+					go h.ping(ch)
+				}
+			}
+		}
+	}()
+
+	return ch
 }

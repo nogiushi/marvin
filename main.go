@@ -34,7 +34,6 @@ func main() {
 	go marvin.loop()
 
 	go ListenAndServe(*Address, &marvin)
-	go listen()
 
 	notifyChannel := make(chan os.Signal, 1)
 	signal.Notify(notifyChannel, os.Interrupt)
