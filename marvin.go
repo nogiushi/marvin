@@ -1,4 +1,4 @@
-package main
+package marvin
 
 import (
 	"encoding/json"
@@ -8,6 +8,12 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/eikeon/gpio"
+	"github.com/eikeon/hue"
+	"github.com/eikeon/presence"
+	"github.com/eikeon/scheduler"
+	"github.com/eikeon/tsl2561"
 )
 
 type activity struct {
@@ -16,7 +22,7 @@ type activity struct {
 }
 
 type Marvin struct {
-	Hue            hue
+	Hue            hue.Hue
 	Activities     map[string]*activity
 	Activity       string
 	Motion         bool
@@ -24,7 +30,7 @@ type Marvin struct {
 	LastTransition string
 	Present        map[string]bool
 	Switch         map[string]bool
-	Schedule       schedule
+	Schedule       scheduler.Schedule
 	//
 	Transitions map[string]struct {
 		Switch map[string]bool
@@ -32,7 +38,7 @@ type Marvin struct {
 
 	do            chan string
 	cond          *sync.Cond // a rendezvous point for goroutines waiting for or announcing state changed
-	lightSensor   *TSL2561
+	lightSensor   *tsl2561.TSL2561
 	motionChannel <-chan bool
 	lightChannel  <-chan int
 	path          string
@@ -74,7 +80,11 @@ func (m *Marvin) GetActivity(name string) *activity {
 	}
 }
 
-func (m *Marvin) loop() {
+func (m *Marvin) Do(s string) {
+	m.do <- s
+}
+
+func (m *Marvin) Run() {
 	m.Hue.Do("startup")
 	m.StateChanged()
 	if m.Switch == nil {
@@ -88,7 +98,7 @@ func (m *Marvin) loop() {
 	}
 	m.do = make(chan string, 2)
 
-	var scheduledEventsChannel <-chan event
+	var scheduledEventsChannel <-chan scheduler.Event
 	if c, err := m.Schedule.Run(); err == nil {
 		scheduledEventsChannel = c
 	} else {
@@ -96,14 +106,14 @@ func (m *Marvin) loop() {
 	}
 
 	var dayLightTime time.Time
-	if t, err := NewTSL2561(1, ADDRESS_FLOAT); err == nil {
+	if t, err := tsl2561.NewTSL2561(1, tsl2561.ADDRESS_FLOAT); err == nil {
 		m.lightSensor = t
 		m.lightChannel = t.Broadband()
 	} else {
 		log.Println("Warning: Light sensor off: ", err)
 	}
 
-	if c, err := GPIOInterrupt(7); err == nil {
+	if c, err := gpio.GPIOInterrupt(7); err == nil {
 		m.motionChannel = c
 	} else {
 		log.Println("Warning: Motion sensor off:", err)
@@ -111,7 +121,7 @@ func (m *Marvin) loop() {
 	var motionTimer *time.Timer
 	var motionTimeout <-chan time.Time
 
-	presenceChannel := Listen(m.Present)
+	presenceChannel := presence.Listen(m.Present)
 
 	notifyChannel := make(chan os.Signal, 1)
 	signal.Notify(notifyChannel, os.Interrupt, syscall.SIGHUP, syscall.SIGTERM)
@@ -134,6 +144,7 @@ func (m *Marvin) loop() {
 				m.do <- e.What
 			}
 		case light := <-m.lightChannel:
+			go postStat("light broadband", float64(light))
 			if time.Since(dayLightTime) > time.Duration(60*time.Second) {
 				if light > 5000 && (m.DayLight != true) {
 					m.DayLight = true
@@ -176,8 +187,8 @@ func (m *Marvin) loop() {
 				m.do <- "all off"
 			}
 		case p := <-presenceChannel:
-			if m.Present[p.name] != p.status {
-				m.Present[p.name] = p.status
+			if m.Present[p.Name] != p.Status {
+				m.Present[p.Name] = p.Status
 				m.StateChanged()
 			}
 		case <-time.NewTicker(60 * time.Second).C:

@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"code.google.com/p/go.net/websocket"
+	"github.com/eikeon/marvin"
 )
 
 var site = template.Must(template.ParseFiles("templates/site.html"))
@@ -82,36 +83,38 @@ func add(view View) {
 
 type message map[string]interface{}
 
-func (marvin *Marvin) StateServer(ws *websocket.Conn) {
-	go func() {
-		for {
-			var msg message
-			if err := websocket.JSON.Receive(ws, &msg); err == nil {
-				if msg["action"] == "updateSwitch" {
-					marvin.Switch[msg["name"].(string)] = msg["value"].(bool)
-					marvin.StateChanged()
-				} else if msg["action"] == "setHue" {
-					marvin.Hue.Set(msg["address"].(string), msg["value"])
-					marvin.StateChanged()
+func StateServer(marvin *marvin.Marvin) websocket.Handler {
+	return func(ws *websocket.Conn) {
+		go func() {
+			for {
+				var msg message
+				if err := websocket.JSON.Receive(ws, &msg); err == nil {
+					if msg["action"] == "updateSwitch" {
+						marvin.Switch[msg["name"].(string)] = msg["value"].(bool)
+						marvin.StateChanged()
+					} else if msg["action"] == "setHue" {
+						marvin.Hue.Set(msg["address"].(string), msg["value"])
+						marvin.StateChanged()
+					} else {
+						log.Printf("ignoring: %#v\n", msg)
+					}
 				} else {
-					log.Printf("ignoring: %#v\n", msg)
+					log.Println("State Websocket receive err:", err)
+					return
 				}
-			} else {
-				log.Println("State Websocket receive err:", err)
+			}
+		}()
+		for {
+			if err := websocket.JSON.Send(ws, marvin); err != nil {
+				log.Println("State Websocket send err:", err)
 				return
 			}
+			marvin.WaitStateChanged()
 		}
-	}()
-	for {
-		if err := websocket.JSON.Send(ws, marvin); err != nil {
-			log.Println("State Websocket send err:", err)
-			return
-		}
-		marvin.WaitStateChanged()
 	}
 }
 
-func (marvin *Marvin) AddHandlers() {
+func AddHandlers(marvin *marvin.Marvin) {
 	add(&view{prefix: "/", name: "home", data: Data{"Marvin": marvin}})
 	add(&view{prefix: "/hue/", name: "hue", data: Data{"Marvin": marvin}})
 	add(&view{prefix: "/schedule/", name: "schedule", data: Data{"Marvin": marvin}})
@@ -124,7 +127,7 @@ func (marvin *Marvin) AddHandlers() {
 			if err := req.ParseForm(); err == nil {
 				name, ok := req.Form["do_transition"]
 				if ok {
-					marvin.do <- name[0]
+					marvin.Do(name[0])
 				}
 			}
 			// TODO: write a response
@@ -147,7 +150,7 @@ func (marvin *Marvin) AddHandlers() {
 				if dok {
 					marvin.GetActivity(target[0])
 					marvin.Activity = target[0]
-					marvin.do <- target[0]
+					marvin.Do(target[0])
 					marvin.StateChanged()
 				}
 			}
@@ -156,5 +159,5 @@ func (marvin *Marvin) AddHandlers() {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
-	http.Handle("/state", websocket.Handler(marvin.StateServer))
+	http.Handle("/state", websocket.Handler(StateServer(marvin)))
 }
