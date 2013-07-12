@@ -1,8 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -26,12 +30,27 @@ type Marvin struct {
 		Switch map[string]bool
 	}
 
-	do          chan string
-	cond        *sync.Cond // a rendezvous point for goroutines waiting for or announcing state changed
-	lightSensor *TSL2561
-
+	do            chan string
+	cond          *sync.Cond // a rendezvous point for goroutines waiting for or announcing state changed
+	lightSensor   *TSL2561
 	motionChannel <-chan bool
 	lightChannel  <-chan int
+	path          string
+}
+
+func NewMarvinFromFile(path string) (*Marvin, error) {
+	var marvin Marvin
+	marvin.path = path
+	if j, err := os.OpenFile(marvin.path, os.O_RDONLY, 0666); err == nil {
+		dec := json.NewDecoder(j)
+		if err = dec.Decode(&marvin); err != nil {
+			return nil, err
+		}
+		j.Close()
+	} else {
+		return nil, err
+	}
+	return &marvin, nil
 }
 
 func (m *Marvin) MotionSensor() bool {
@@ -93,6 +112,9 @@ func (m *Marvin) loop() {
 	var motionTimeout <-chan time.Time
 
 	presenceChannel := Listen(m.Present)
+
+	notifyChannel := make(chan os.Signal, 1)
+	signal.Notify(notifyChannel, os.Interrupt, syscall.SIGHUP, syscall.SIGTERM)
 
 	for {
 		select {
@@ -158,7 +180,22 @@ func (m *Marvin) loop() {
 				m.Present[p.name] = p.status
 				m.StateChanged()
 			}
+		case <-time.NewTicker(60 * time.Second).C:
+			if err := m.Save(m.path); err == nil {
+				log.Println("saved:", m.path)
+			} else {
+				log.Println("ERROR: saving", err)
+			}
+		case sig := <-notifyChannel:
+			log.Println("handling:", sig)
+			goto Done
 		}
+	}
+Done:
+	if err := m.Save(m.path); err == nil {
+		log.Println("saved:", m.path)
+	} else {
+		log.Println("ERROR: saving config", err)
 	}
 }
 
@@ -171,7 +208,10 @@ func (m *Marvin) getStateCond() *sync.Cond {
 
 func (m *Marvin) StateChanged() {
 	m.Hue.GetState()
-	m.getStateCond().Broadcast()
+	c := m.getStateCond()
+	c.L.Lock()
+	c.Broadcast()
+	c.L.Unlock()
 }
 
 func (m *Marvin) WaitStateChanged() {
@@ -179,4 +219,18 @@ func (m *Marvin) WaitStateChanged() {
 	c.L.Lock()
 	c.Wait()
 	c.L.Unlock()
+}
+
+func (m *Marvin) Save(path string) error {
+	if j, err := os.Create(path); err == nil {
+		dec := json.NewEncoder(j)
+		var c Marvin = *m
+		if err = dec.Encode(&c); err != nil {
+			return err
+		}
+		j.Close()
+	} else {
+		return err
+	}
+	return nil
 }
