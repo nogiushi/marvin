@@ -82,7 +82,7 @@ func add(view View) {
 
 type message map[string]interface{}
 
-func StateServer(ws *websocket.Conn) {
+func (marvin *Marvin) StateServer(ws *websocket.Conn) {
 	go func() {
 		for {
 			var msg message
@@ -111,7 +111,7 @@ func StateServer(ws *websocket.Conn) {
 	}
 }
 
-func ListenAndServe(address string, marvin *Marvin) {
+func (marvin *Marvin) AddHandlers() {
 	add(&view{prefix: "/", name: "home", data: Data{"Marvin": marvin}})
 	add(&view{prefix: "/hue/", name: "hue", data: Data{"Marvin": marvin}})
 	add(&view{prefix: "/schedule/", name: "schedule", data: Data{"Marvin": marvin}})
@@ -156,10 +156,5 @@ func ListenAndServe(address string, marvin *Marvin) {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
-	http.Handle("/state", websocket.Handler(StateServer))
-
-	err := http.ListenAndServe(address, nil)
-	if err != nil {
-		log.Print("ListenAndServe:", err)
-	}
+	http.Handle("/state", websocket.Handler(marvin.StateServer))
 }
