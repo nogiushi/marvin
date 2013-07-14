@@ -84,14 +84,39 @@ function MarvinCtrl($scope) {
     };
 
     $scope.getBrightness = function(state) {
-	return Math.round(state["Bri"] / 255 * 100, 0);
+	return Math.round(state["bri"] / 255 * 100, 0);
+    };
+
+    $scope.getStateLabel = function(state) {
+	var label = "";
+	if (state.on==true) {
+	    label = label + "On";
+	} else if (state.on==false) {
+	    label = label + "Off";
+	}
+	if (state.bri) {
+	    label = label + " " + $scope.getBrightness(state) + "%";
+	}
+	if (state.alert) {
+	    label = label + " " + state.alert;
+	}
+	if (state.transitiontime) {
+	    label = label + " " + Math.round(state.transitiontime / 10, 1) + "sec";
+	}
+	return label;
     };
 
     $scope.getColor = function(state) {
-	if (state["ColorMode"]=="xy") {
+	if (state["colormode"]==undefined) {
+	    colormode = "xy"
+	    // TODO
+	} else {
+	    colormode = state["colormode"]
+	}
+	if (colormode=="xy") {
 	    // Calculate the closest point on the color gamut triangle and use that as xy value See step 6 of color to xy.
-	    var x = state["Xy"][0];
-	    var y = state["Xy"][1];
+	    var x = state["xy"][0];
+	    var y = state["xy"][1];
 	    var z = 1.0 - x - y;
 	    var Y = 0.5; //TODO brightness; // The given brightness value
 	    var X = (Y / y) * x;
@@ -120,12 +145,12 @@ function MarvinCtrl($scope) {
 	    r = Math.round(r * 255, 0); g = Math.round(g * 255, 0); b = Math.round(b * 255, 0);
 	    // TODO: getting values bigger than 255
 	    return "rgb(" + r + "," + g + "," + b + ")";
-        } if (state["ColorMode"]=="hs") {
-	    hue = Math.round(state["Hue"] / 65535 * 360, 2);
-	    saturation = Math.round(state["Sat"] / 255 * 100, 2);
-	    brightness = 50; // TODO: Math.round(state["Bri"] / 255 * 100, 2);
+        } if (colormode=="hs") {
+	    hue = Math.round(state["hue"] / 65535 * 360, 2);
+	    saturation = Math.round(state["sat"] / 255 * 100, 2);
+	    brightness = 50; // TODO: Math.round(state["bri"] / 255 * 100, 2);
 	    return "hsl(" + hue + "," + saturation + "%," + brightness +"%)";
-        } if (state["ColorMode"]=="ct") {
+        } if (colormode=="ct") {
 	    return "white"; // TODO: calculation
 	} else {
 	    return "black"; // TODO:

@@ -12,10 +12,6 @@
     [[error]]
   </div>
 
-  <div class="alert alert-error" ng-repeat="error in state.Hue.Errors">
-    [[error.Error.Description]]
-  </div>
-
   <div class="row-fluid">
     <div class="span3">
 
@@ -45,39 +41,12 @@
     </div>
 
     <div class="span3">
-      <h2>Light Groups</h2>
-      <table class="table">
-	<thead>
-	  <tr>
-	    <th>Name</th>
-	    <th><i class="icon-off"></i> On</th>
-	    <th><i class="icon-adjust"></i> Color</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  <tr ng-repeat="(name, group) in state.Hue.Datastore.Groups">
-	    <td>[[group.Name]]</td>
-	    <td ng-switch on="group.Action.On">
-	      <a ng-switch-when="true" class="btn btn-success" ng-click="setHue('/groups/'+name+'/action', OFF)">On</a>
-	      <a ng-switch-when="false" class="btn btn-danger" ng-click="setHue('/groups/'+name+'/action', ON)">Off</a>
-	    </td>
-	    <td class="dropdown">
-	      <a style="color: black; background-color: [[getColor(group.Action)]]" class="dropdown-toggle btn btn-block btn-link">
-		[[getBrightness(group.Action)]]%
-	      </a>
-	      <ul class="dropdown-menu">
-		<li ng-repeat="choice in allStates()">
-		  <a ng-click="setHue('/groups/'+name+'/action', state.Hue.States[choice])">[[choice]]</a>
-		</li>
-	      </ul>
-	    </td>
-	  </tr>
-	</tbody>
-      </table>
-    </div>
-
-    <div class="span3">
       <h2>Lights</h2>
+
+      <div class="alert alert-error" ng-repeat="error in state.Hue.Errors">
+	[[error.Error.Description]]
+      </div>
+
       <table class="table">
 	<thead>
 	  <tr>
@@ -87,15 +56,15 @@
 	  </tr>
 	</thead>
 	<tbody>
-	  <tr ng-repeat="(name, light) in state.Hue.Datastore.Lights">
-	    <td>[[light.Name]]</td>
-	    <td ng-switch on="light.State.On">
+	  <tr ng-repeat="(name, light) in state.Hue.Datastore.lights">
+	    <td>[[light.name]]</td>
+	    <td ng-switch on="light.State.on">
 	      <a ng-switch-when="true" class="btn btn-success" ng-click="setHue('/lights/'+name+'/state', OFF)">On</a>
 	      <a ng-switch-when="false" class="btn btn-danger" ng-click="setHue('/lights/'+name+'/state', ON)">Off</a>
 	    </td>
 	    <td class="dropdown">
-	      <a style="color: black; background-color: [[getColor(light.State)]]" class="dropdown-toggle btn btn-block btn-link">
-		[[getBrightness(light.State)]]%
+	      <a style="color: black; background-color: [[getColor(light.state)]]" class="dropdown-toggle btn btn-block btn-link">
+		[[getBrightness(light.state)]]%
 	      </a>
 	      <ul class="dropdown-menu">
 		<li ng-repeat="choice in allStates()">
@@ -106,7 +75,69 @@
 	  </tr>
 	</tbody>
       </table>
+      <table class="table">
+	<caption>groups</caption>
+	<thead>
+	  <tr>
+	    <th>Name</th>
+	    <th><i class="icon-off"></i> On</th>
+	    <th><i class="icon-adjust"></i> Color</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr ng-repeat="(name, group) in state.Hue.Datastore.groups">
+	    <td>[[group.name]]</td>
+	    <td ng-switch on="group.action.on">
+	      <a ng-switch-when="true" class="btn btn-success" ng-click="setHue('/groups/'+name+'/action', OFF)">On</a>
+	      <a ng-switch-when="false" class="btn btn-danger" ng-click="setHue('/groups/'+name+'/action', ON)">Off</a>
+	    </td>
+	    <td class="dropdown">
+	      <a style="color: black; background-color: [[getColor(group.action)]]" class="dropdown-toggle btn btn-block btn-link">
+		[[getBrightness(group.action)]]%
+	      </a>
+	      <ul class="dropdown-menu">
+		<li ng-repeat="choice in allStates()">
+		  <a ng-click="setHue('/groups/'+name+'/action', state.Hue.States[choice])">[[choice]]</a>
+		</li>
+	      </ul>
+	    </td>
+	  </tr>
+	</tbody>
+      </table>
+      <accordion close-others="true">
+	<accordion-group heading="States">
+	  <table class="table table-condensed">
+	    <thead>
+	      <tr>
+		<th>Name</th>
+		<th>State</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	      <tr ng-repeat="choice in allStates()">
+		<td>[[choice]]</td>
+		<td>
+		  <span class="dropdown">
+		    <a style="color: black; background-color: [[getColor(state.Hue.States[choice])]]" class="dropdown-toggle btn btn-block btn-link">
+		      [[getStateLabel(state.Hue.States[choice])]]
+		    </a>
+		    <ul class="dropdown-menu">
+		      <li ng-repeat="(name, light) in state.Hue.Datastore.lights">
+			<a ng-click="setHue('/lights/'+name+'/state', state.Hue.States[choice])">[[light.name]]</a>
+		      </li>
+		    </ul>
+		  </span>
+		</td>
+	      </tr>
+	    </tbody>
+	  </table>
+	</accordion-group>
+      </accordion>
     </div>
+
+    <div class="span3">
+    </div>
+
   </div>
 
   <div class="row-fluid">
