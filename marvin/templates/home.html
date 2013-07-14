@@ -13,15 +13,13 @@
   </div>
 
   <div class="row-fluid">
+
     <div class="span3">
-
       <h2>Activity</h2>
-
-      <div class="alert alert-info">[[state.Activity]]</div>
+      <div class="alert alert-info"><strong>currently:</strong> [[state.Activity]]</div>
       <p>
 	<a ng-repeat="(next, v) in state.Activities[state.Activity].Next" ng-click="updateActivity(state.Activity, next)" class="btn btn-large btn-block btn-primary" data-transition="[[next]]">[[next]] <i class="icon-play"></i></a>
       </p>
-
       <form ng-submit="updateActivity(state.Activity, targetActivity)" autocomplete="off">
 	<fieldset>
 	  <input class="input-block-level" type="text" typeahead="activity for activity in allActivities() | filter:$viewValue" ng-model="targetActivity" placeholder="activity name">
@@ -29,7 +27,6 @@
 	  <!--<button type="submit" class="btn">Add</button>-->
 	</fieldset>
       </form>
-
     </div>
 
     <div class="span3">
@@ -42,11 +39,12 @@
 
     <div class="span3">
       <h2>Lights</h2>
-
       <div class="alert alert-error" ng-repeat="error in state.Hue.Errors">
 	[[error.Error.Description]]
       </div>
-
+      <div class="alert alert-info">
+	<strong>Last transition:</strong> [[state.LastTransition]]
+      </div>
       <table class="table">
 	<thead>
 	  <tr>
@@ -58,7 +56,7 @@
 	<tbody>
 	  <tr ng-repeat="(name, light) in state.Hue.Datastore.lights">
 	    <td>[[light.name]]</td>
-	    <td ng-switch on="light.State.on">
+	    <td ng-switch on="light.state.on">
 	      <a ng-switch-when="true" class="btn btn-success" ng-click="setHue('/lights/'+name+'/state', OFF)">On</a>
 	      <a ng-switch-when="false" class="btn btn-danger" ng-click="setHue('/lights/'+name+'/state', ON)">Off</a>
 	    </td>
@@ -136,13 +134,6 @@
     </div>
 
     <div class="span3">
-    </div>
-
-  </div>
-
-  <div class="row-fluid">
-
-    <div class="span3">
       <h2>Schedule</h2>
       <table class="table table-condensed table-striped">
 	<thead>
@@ -160,6 +151,32 @@
 	    <td>{{if .ExceptOn}}{{.ExceptOn}}{{end}}</td>
 	    <td><a class="transition btn btn-block" data-transition="{{.What}}">{{.What}} <i class="icon-play"></i></a></td>
 	  </tr>{{end}}
+	</tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <div class="row-fluid">
+
+    <div class="span3">
+      <h2>Presence</h2>
+      <table class="table">
+	<thead>
+	  <tr>
+	    <th>Name</th>
+	    <th>Status</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr ng-repeat="(k, v) in state.Present">
+	    <td>[[k]]</td>
+	    <td ng-switch on="v">
+	      <span ng-switch-when="true" class="label label-success">Home</span>
+	      <span ng-switch-when="false" class="label label-important">Away</span>
+	      <span ng-switch-default>-</span>
+	    </td>
+	  </tr>
 	</tbody>
       </table>
     </div>
@@ -200,32 +217,11 @@
     </div>
 
     <div class="span3">
-      <h2>Presence</h2>
-      <table class="table">
-	<thead>
-	  <tr>
-	    <th>Name</th>
-	    <th>Status</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  <tr ng-repeat="(k, v) in state.Present">
-	    <td>[[k]]</td>
-	    <td ng-switch on="v">
-	      <span ng-switch-when="true" class="label label-success">Home</span>
-	      <span ng-switch-when="false" class="label label-important">Away</span>
-	      <span ng-switch-default>-</span>
-	    </td>
-	  </tr>
-	</tbody>
-      </table>
     </div>
 
     <div class="span3">
-      <div class="alert alert-info">
-	<strong>Last transition:</strong> [[state.LastTransition]]
-      </div>
     </div>
+
   </div>
 
   {{end}}
