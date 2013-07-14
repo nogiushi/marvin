@@ -31,6 +31,7 @@ type Marvin struct {
 	Present        map[string]bool
 	Switch         map[string]bool
 	Schedule       scheduler.Schedule
+	Messages       []string
 	//
 	Transitions map[string]struct {
 		Switch map[string]bool
@@ -85,6 +86,12 @@ func (m *Marvin) Do(s string) {
 }
 
 func (m *Marvin) Run() {
+	var createUserChan <-chan time.Time
+	if err := m.Hue.GetState(); err != nil {
+		createUserChan = time.NewTicker(1 * time.Second).C
+	} else {
+		m.Messages = m.Messages[0:0]
+	}
 	m.Hue.Do("startup")
 	m.StateChanged()
 	if m.Switch == nil {
@@ -128,6 +135,15 @@ func (m *Marvin) Run() {
 
 	for {
 		select {
+		case <-createUserChan:
+			if err := m.Hue.CreateUser(m.Hue.Username, "Marvin"); err == nil {
+				createUserChan = nil
+				m.Messages = m.Messages[0:0]
+				m.StateChanged()
+			} else {
+				m.Messages = []string{"press hue link button to authenticate"}
+				log.Println(err, m.Messages)
+			}
 		case what := <-m.do:
 			log.Println("Do:", what)
 			v, ok := m.Transitions[what]
@@ -218,7 +234,10 @@ func (m *Marvin) getStateCond() *sync.Cond {
 }
 
 func (m *Marvin) StateChanged() {
-	m.Hue.GetState()
+	err := m.Hue.GetState()
+	if err != nil {
+		log.Println("ERROR:", err)
+	}
 	c := m.getStateCond()
 	c.L.Lock()
 	c.Broadcast()
