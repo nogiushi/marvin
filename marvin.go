@@ -133,6 +133,8 @@ func (m *Marvin) Run() {
 	notifyChannel := make(chan os.Signal, 1)
 	signal.Notify(notifyChannel, os.Interrupt, syscall.SIGHUP, syscall.SIGTERM)
 
+	saveChannel := time.NewTicker(3600 * time.Second).C
+
 	for {
 		select {
 		case <-createUserChan:
@@ -207,7 +209,7 @@ func (m *Marvin) Run() {
 				m.Present[p.Name] = p.Status
 				m.StateChanged()
 			}
-		case <-time.NewTicker(60 * time.Second).C:
+		case <-saveChannel:
 			if err := m.Save(m.path); err == nil {
 				log.Println("saved:", m.path)
 			} else {
