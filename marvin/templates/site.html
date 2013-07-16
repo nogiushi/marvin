@@ -108,8 +108,16 @@ function MarvinCtrl($scope) {
 
     $scope.getColor = function(state) {
 	if (state["colormode"]==undefined) {
-	    colormode = "xy"
-	    // TODO
+	    // xy > ct > hs
+	    if ("xy" in state) {
+		colormode = "xy";
+	    } else if ("ct" in state) {
+		colormode = "ct";
+	    } else if ("hs" in state) {
+		colormode = "hs";
+	    } else {
+		colormode = undefined
+	    }
 	} else {
 	    colormode = state["colormode"]
 	}
@@ -151,9 +159,9 @@ function MarvinCtrl($scope) {
 	    brightness = 50; // TODO: Math.round(state["bri"] / 255 * 100, 2);
 	    return "hsl(" + hue + "," + saturation + "%," + brightness +"%)";
         } if (colormode=="ct") {
-	    return "white"; // TODO: calculation
+	    return "white";
 	} else {
-	    return "black"; // TODO:
+	    return "";
 	}
     };
 
