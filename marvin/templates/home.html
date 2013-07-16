@@ -67,7 +67,7 @@
 	      </a>
 	      <ul class="dropdown-menu">
 		<li ng-repeat="choice in allStates()">
-		  <a ng-click="setHue('/groups/'+name+'/action', state.Hue.States[choice])">[[choice]]</a>
+		  <a ng-click="setHue('/groups/'+name+'/action', state.States[choice])">[[choice]]</a>
 		</li>
 	      </ul>
 	    </td>
@@ -96,7 +96,7 @@
 	      </a>
 	      <ul class="dropdown-menu">
 		<li ng-repeat="choice in allStates()">
-		  <a ng-click="setHue('/lights/'+name+'/state', state.Hue.States[choice])">[[choice]]</a>
+		  <a ng-click="setHue('/lights/'+name+'/state', state.States[choice])">[[choice]]</a>
 		</li>
 	      </ul>
 	    </td>
@@ -117,12 +117,12 @@
 		<td>[[choice]]</td>
 		<td>
 		  <span class="dropdown">
-		    <a style="color: black; background-color: [[getColor(state.Hue.States[choice])]]" class="dropdown-toggle btn btn-block btn-link">
-		      [[getStateLabel(state.Hue.States[choice])]]
+		    <a style="color: black; background-color: [[getColor(state.States[choice])]]" class="dropdown-toggle btn btn-block btn-link">
+		      [[getStateLabel(state.States[choice])]]
 		    </a>
 		    <ul class="dropdown-menu">
 		      <li ng-repeat="(name, light) in state.Hue.Datastore.lights">
-			<a ng-click="setHue('/lights/'+name+'/state', state.Hue.States[choice])">[[light.name]]</a>
+			<a ng-click="setHue('/lights/'+name+'/state', state.States[choice])">[[light.name]]</a>
 		      </li>
 		    </ul>
 		  </span>

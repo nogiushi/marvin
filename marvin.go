@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -32,9 +33,14 @@ type Marvin struct {
 	Switch         map[string]bool
 	Schedule       scheduler.Schedule
 	Messages       []string
-	//
-	Transitions map[string]struct {
-		Switch map[string]bool
+	Addresses      map[string]string
+	States         map[string]interface{}
+	Transitions    map[string]struct {
+		Switch   map[string]bool
+		Commands []struct {
+			Address string
+			State   string
+		}
 	}
 
 	do            chan string
@@ -92,8 +98,6 @@ func (m *Marvin) Run() {
 	} else {
 		m.Messages = m.Messages[0:0]
 	}
-	m.Hue.Do("startup")
-	m.StateChanged()
 	if m.Switch == nil {
 		m.Switch = make(map[string]bool)
 	}
@@ -104,6 +108,7 @@ func (m *Marvin) Run() {
 		m.Present = make(map[string]bool)
 	}
 	m.do = make(chan string, 2)
+	m.do <- "startup"
 
 	var scheduledEventsChannel <-chan scheduler.Event
 	if c, err := m.Schedule.Run(); err == nil {
@@ -148,14 +153,22 @@ func (m *Marvin) Run() {
 			}
 		case what := <-m.do:
 			log.Println("Do:", what)
-			v, ok := m.Transitions[what]
+			t, ok := m.Transitions[what]
 			if ok {
-				for k, v := range v.Switch {
+				for k, v := range t.Switch {
 					m.Switch[k] = v
 				}
 			}
 			m.LastTransition = what
-			m.Hue.Do(what)
+			for _, command := range t.Commands {
+				address := command.Address
+				if strings.Contains(command.Address, "/light") {
+					address += "/state"
+				} else {
+					address += "/action"
+				}
+				m.Hue.Set(address, m.States[command.State])
+			}
 			m.StateChanged()
 		case e := <-scheduledEventsChannel:
 			if m.Switch["Schedule"] {
