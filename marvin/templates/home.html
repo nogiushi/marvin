@@ -67,7 +67,8 @@
 	      </a>
 	      <ul class="dropdown-menu">
 		<li ng-repeat="choice in allStates()">
-		  <a ng-click="setHue('/groups/'+name+'/action', state.States[choice])">[[choice]]</a>
+		  <a ng-click="setHue('/groups/'+name+'/action', state.States[choice])"
+		     style="color: black; background-color: [[getColor(state.States[choice])]]">[[choice]]</a>
 		</li>
 	      </ul>
 	    </td>
@@ -96,7 +97,8 @@
 	      </a>
 	      <ul class="dropdown-menu">
 		<li ng-repeat="choice in allStates()">
-		  <a ng-click="setHue('/lights/'+name+'/state', state.States[choice])">[[choice]]</a>
+		  <a ng-click="setHue('/lights/'+name+'/state', state.States[choice])"
+		     style="color: black; background-color: [[getColor(state.States[choice])]]">[[choice]]</a>
 		</li>
 	      </ul>
 	    </td>
