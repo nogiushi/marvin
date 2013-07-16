@@ -39,6 +39,14 @@ function MarvinCtrl($scope) {
 	$scope.connection = connection
     };
 
+    $(window).on("pageshow", function() {
+	$scope.NewConnection();
+    });
+
+    $(window).on("pagehide", function() {
+	$scope.connection.close();
+    });
+
     $scope.changeState = function(name, value) {
 	var m = {"action": "updateSwitch", "name": name, "value": value};
 	$scope.connection.send(JSON.stringify(m));
@@ -165,13 +173,6 @@ function MarvinCtrl($scope) {
 	}
     };
 
-    $(window).on("pageshow", function() {
-	$scope.NewConnection();
-    });
-
-    $(window).on("pagehide", function() {
-	$scope.connection.close();
-    });
 }
     </script>
 
