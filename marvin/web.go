@@ -4,23 +4,44 @@ import (
 	"bytes"
 	"crypto/md5"
 	"fmt"
+	"go/build"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
+	"path"
 
 	"code.google.com/p/go.net/websocket"
 	"github.com/eikeon/marvin"
 )
 
-var site = template.Must(template.ParseFiles("templates/site.html"))
+var Root string
+var site *template.Template
+var templates = make(map[string]*template.Template)
 
-func makeTemplate(names ...string) *template.Template {
-	t, err := site.Clone()
-	if err != nil {
-		log.Fatal("cloning site: ", err)
+func init() {
+	if p, err := build.Default.Import("github.com/eikeon/marvin/marvin", "", build.FindOnly); err == nil {
+		Root = p.Dir
+	} else {
+		log.Println("WARNING: could not import package:", err)
 	}
-	return template.Must(t.ParseFiles(names...))
+}
+
+func getTemplate(name string) *template.Template {
+	if t, ok := templates[name]; ok {
+		return t
+	} else {
+		if site == nil {
+			site = template.Must(template.ParseFiles(path.Join(Root, "templates/site.html")))
+		}
+		t, err := site.Clone()
+		if err != nil {
+			log.Fatal("cloning site: ", err)
+		}
+		t = template.Must(t.ParseFiles(path.Join(Root, name)))
+		templates[name] = t
+		return t
+	}
 }
 
 type View interface {
@@ -58,7 +79,7 @@ func (v *view) Data(req *http.Request) Data {
 }
 
 func add(view View) {
-	t := makeTemplate("templates/" + view.Name() + ".html")
+	t := getTemplate("templates/" + view.Name() + ".html")
 	http.HandleFunc(view.Prefix(), func(w http.ResponseWriter, req *http.Request) {
 		var d Data
 		if view.Match(req) {
@@ -119,9 +140,11 @@ func AddHandlers(marvin *marvin.Marvin) {
 	add(&view{prefix: "/hue/", name: "hue", data: Data{"Marvin": marvin}})
 	add(&view{prefix: "/schedule/", name: "schedule", data: Data{"Marvin": marvin}})
 
-	http.HandleFunc("/bootstrap/", StaticHandler)
-	http.HandleFunc("/jquery/", StaticHandler)
-	http.HandleFunc("/js/", StaticHandler)
+	fs := http.FileServer(http.Dir(path.Join(Root, "static/")))
+	http.Handle("/bootstrap/", fs)
+	http.Handle("/jquery/", fs)
+	http.Handle("/js/", fs)
+
 	http.HandleFunc("/post", func(w http.ResponseWriter, req *http.Request) {
 		if req.Method == "POST" {
 			if err := req.ParseForm(); err == nil {
