@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/stathat/go"
+
 	"github.com/eikeon/gpio"
 	"github.com/eikeon/hue"
 	"github.com/eikeon/presence"
@@ -42,6 +44,7 @@ type Marvin struct {
 			State   string
 		}
 	}
+	StatHatUserKey string
 
 	do            chan string
 	cond          *sync.Cond // a rendezvous point for goroutines waiting for or announcing state changed
@@ -175,7 +178,7 @@ func (m *Marvin) Run() {
 				m.do <- e.What
 			}
 		case light := <-m.lightChannel:
-			go postStat("light broadband", float64(light))
+			go m.postStatValue("light broadband", float64(light))
 			if time.Since(dayLightTime) > time.Duration(60*time.Second) {
 				if light > 5000 && (m.DayLight != true) {
 					m.DayLight = true
@@ -207,7 +210,7 @@ func (m *Marvin) Run() {
 				} else {
 					motionTimer.Reset(duration)
 				}
-				go postStatCount("motion", 1)
+				go m.postStatCount("motion", 1)
 			}
 		case <-motionTimeout:
 			m.Motion = false
@@ -278,4 +281,20 @@ func (m *Marvin) Save(path string) error {
 		return err
 	}
 	return nil
+}
+
+func (m *Marvin) postStatValue(name string, value float64) {
+	if m.StatHatUserKey != "" {
+		if err := stathat.PostEZValue(name, m.StatHatUserKey, value); err != nil {
+			log.Printf("error posting value %v: %d", err, value)
+		}
+	}
+}
+
+func (m *Marvin) postStatCount(name string, value int) {
+	if m.StatHatUserKey != "" {
+		if err := stathat.PostEZCount(name, m.StatHatUserKey, value); err != nil {
+			log.Printf("error posting value %v: %d", err, value)
+		}
+	}
 }
