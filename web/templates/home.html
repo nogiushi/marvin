@@ -16,7 +16,7 @@
 
     <div class="span3">
       <h2>Activity</h2>
-      <div class="alert alert-info"><strong>currently:</strong> [[state.Activity]]</div>
+      <div class="alert alert-info"><small>Current:</small> <strong>[[state.Activity]]</strong></div>
       <p>
 	<a ng-repeat="(next, v) in state.Activities[state.Activity].Next" ng-click="updateActivity(state.Activity, next)" class="btn btn-large btn-block btn-primary" data-transition="[[next]]">[[next]] <i class="icon-play"></i></a>
       </p>
@@ -42,11 +42,8 @@
       <div class="alert alert-error" ng-repeat="error in state.Hue.Errors">
 	[[error.Error.Description]]
       </div>
-      <div class="alert alert-info">
-	<strong>Last transition:</strong> [[state.LastTransition]]
-      </div>
       <table class="table">
-	<caption>Light groups</caption>
+	<caption>Light Groups</caption>
 	<thead>
 	  <tr>
 	    <th>Name</th>
@@ -76,7 +73,7 @@
 	</tbody>
       </table>
       <table class="table">
-	<caption>light bulbs</caption>
+	<caption>Light Bulbs</caption>
 	<thead>
 	  <tr>
 	    <th>Name</th>
@@ -105,55 +102,7 @@
 	  </tr>
 	</tbody>
       </table>
-      <accordion close-others="true">
-	<accordion-group heading="States">
-	  <table class="table table-condensed">
-	    <thead>
-	      <tr>
-		<th>Name</th>
-		<th>State</th>
-	      </tr>
-	    </thead>
-	    <tbody>
-	      <tr ng-repeat="choice in allStates()">
-		<td>[[choice]]</td>
-		<td>
-		  <a style="color: black; background-color: [[getColor(state.States[choice])]]" class="btn btn-block btn-link" ng-click="openEditState(choice)">
-		    [[getStateLabel(state.States[choice])]]
-		  </a>
-		</td>
-	      </tr>
-	    </tbody>
-	  </table>
-	</accordion-group>
-      </accordion>
     </div>
-
-    <div class="span3">
-      <h2>Schedule</h2>
-      <table class="table table-condensed table-striped">
-	<thead>
-	  <tr>
-	    <th scope="col">Time</th>
-	    <th scope="col">On</th>
-	    <th scope="col">Except</th>
-	    <th scope="col">Transition</th>
-	  </tr>
-	</thead>
-	<tbody>{{range .Schedule}}
-	  <tr>
-	    <td>{{.When}}</td>
-	    <td>{{if .On}}{{.On}}{{end}}</td>
-	    <td>{{if .ExceptOn}}{{.ExceptOn}}{{end}}</td>
-	    <td><a class="transition btn btn-block" data-transition="{{.What}}">{{.What}} <i class="icon-play"></i></a></td>
-	  </tr>{{end}}
-	</tbody>
-      </table>
-    </div>
-
-  </div>
-
-  <div class="row-fluid">
 
     <div class="span3">
       <h2>Presence</h2>
@@ -173,6 +122,32 @@
 	      <span ng-switch-default>-</span>
 	    </td>
 	  </tr>
+	</tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <div class="row-fluid">
+
+    <div class="span3">
+      <h2>Schedule</h2>
+      <table class="table table-condensed table-striped">
+	<thead>
+	  <tr>
+	    <th scope="col">Time</th>
+	    <th scope="col">On</th>
+	    <th scope="col">Except</th>
+	    <th scope="col">Transition</th>
+	  </tr>
+	</thead>
+	<tbody>{{range .Schedule}}
+	  <tr>
+	    <td>{{.When}}</td>
+	    <td>{{if .On}}{{.On}}{{end}}</td>
+	    <td>{{if .ExceptOn}}{{.ExceptOn}}{{end}}</td>
+	    <td><a class="transition btn btn-block" data-transition="{{.What}}">{{.What}} <i class="icon-play"></i></a></td>
+	  </tr>{{end}}
 	</tbody>
       </table>
     </div>
@@ -213,9 +188,50 @@
     </div>
 
     <div class="span3">
+      <h2>Light States</h2>
+      <table class="table table-condensed">
+	<thead>
+	  <tr>
+	    <th>Name</th>
+	    <th>State</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr ng-repeat="choice in allStates()">
+	    <td>[[choice]]</td>
+	    <td>
+	      <a style="color: black; background-color: [[getColor(state.States[choice])]]" class="btn btn-block btn-link" ng-click="openEditState(choice)">
+		[[getStateLabel(state.States[choice])]]
+	      </a>
+	    </td>
+	  </tr>
+	</tbody>
+      </table>
     </div>
 
     <div class="span3">
+      <h2>Transitions</h2>
+      <div class="alert alert-info">
+	<small>Last:</small> <strong>[[state.LastTransition]]</strong>
+      </div>
+      <table class="table table-condensed table-striped">
+	<thead>
+	  <tr>
+	    <th scope="col">Name</th>
+	    <th scope="col">Commands</th>
+	  </tr>
+	</thead>
+	<tbody>{{range $k,$v := .Transitions}}
+	  <tr>
+	    <td><a class="transition btn btn-block" data-transition="{{$k}}">{{$k}} <i class="icon-play"></i></a></td>
+	    <td>
+	      <dl class="dl-horizontal">{{range $v.Commands}}
+		<dt>{{.Address}}</dt><dd>{{.State}}</dd>{{end}}
+	      </dl>
+	    </td>
+	  </tr>{{end}}
+	</tbody>
+      </table>
     </div>
 
   </div>

@@ -137,7 +137,6 @@ func StateServer(marvin *marvin.Marvin) websocket.Handler {
 
 func AddHandlers(marvin *marvin.Marvin) {
 	add(&view{prefix: "/", name: "home", data: Data{"Marvin": marvin}})
-	add(&view{prefix: "/hue/", name: "hue", data: Data{"Marvin": marvin}})
 	add(&view{prefix: "/schedule/", name: "schedule", data: Data{"Marvin": marvin}})
 
 	fs := http.FileServer(http.Dir(path.Join(Root, "static/")))

@@ -35,7 +35,6 @@ type Marvin struct {
 	Switch         map[string]bool
 	Schedule       scheduler.Schedule
 	Messages       []string
-	Addresses      map[string]string
 	States         map[string]interface{}
 	Transitions    map[string]struct {
 		Switch   map[string]bool
