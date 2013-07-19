@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/eikeon/marvin"
+	"github.com/eikeon/marvin/web"
 )
 
 var StaticRoot *string
@@ -19,7 +20,7 @@ func main() {
 	log.Println("starting marvin")
 
 	if marvin, err := marvin.NewMarvinFromFile(*config); err == nil {
-		AddHandlers(marvin)
+		web.AddHandlers(marvin)
 		go func() {
 			err := http.ListenAndServe(*Address, nil)
 			if err != nil {

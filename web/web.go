@@ -1,4 +1,4 @@
-package main
+package web
 
 import (
 	"bytes"
@@ -20,7 +20,7 @@ var site *template.Template
 var templates = make(map[string]*template.Template)
 
 func init() {
-	if p, err := build.Default.Import("github.com/eikeon/marvin/marvin", "", build.FindOnly); err == nil {
+	if p, err := build.Default.Import("github.com/eikeon/marvin/web", "", build.FindOnly); err == nil {
 		Root = p.Dir
 	} else {
 		log.Println("WARNING: could not import package:", err)

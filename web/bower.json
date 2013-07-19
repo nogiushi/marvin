@@ -1,0 +1,7 @@
+{
+  "name": "marvin",
+  "version": "0.1.0",
+  "dependencies": {
+    "bootstrap": "https://github.com/eikeon/bootstrap.git"
+  }
+}

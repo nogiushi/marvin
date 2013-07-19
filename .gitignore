@@ -6,8 +6,9 @@
 # Folders
 _obj
 _test
-components
-static
+web/components
+web/bower_components
+web/static
 
 # Architecture specific extensions/prefixes
 *.[568vq]
