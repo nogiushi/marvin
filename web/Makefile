@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 all:  angular angular-ui bootstrap jquery
 
 clean:
