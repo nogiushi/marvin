@@ -65,7 +65,11 @@ function MarvinCtrl($scope) {
     };
 
     $scope.allStates = function() {
-	return Object.keys($scope.state.States);
+	if ("States" in $scope.state) {
+	    return Object.keys($scope.state.States);
+	} else {
+	    return [];
+	}
     };
 
     $scope.updateActivity = function(source, target) {
