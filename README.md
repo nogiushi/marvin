@@ -26,3 +26,11 @@ This github repository contains Marvin's software. Marvin currently has the foll
 * marvin - package containing core functionality
 * marvin/web - package containing web interface
 * marvin/marvin - package containing program
+
+
+## Install ##
+
+    go get -v -u github.com/eikeon/marvin/marvin
+    pushd `go list -f '{{.Dir}}' github.com/eikeon/marvin/web`; make; popd
+
+    marvin --help
