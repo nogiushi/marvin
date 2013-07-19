@@ -6,9 +6,11 @@
 # Folders
 _obj
 _test
+tmp
 web/components
 web/bower_components
 web/static
+web/node_modules/
 
 # Architecture specific extensions/prefixes
 *.[568vq]
