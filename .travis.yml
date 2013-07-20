@@ -7,7 +7,7 @@ script:
   - sudo add-apt-repository --yes ppa:chris-lea/node.js
   - sudo apt-get --yes update
   - sudo apt-get install --yes nodejs
-  - npm cache ls; sudo npm install -g bower
+  - npm cache ls; mkdir -p tmp; sudo npm install -g bower
   - go get -v github.com/eikeon/marvin
   - go get -v github.com/eikeon/marvin/marvin
   - pushd `go list -f '{{.Dir}}' github.com/eikeon/marvin/web`; make; popd
