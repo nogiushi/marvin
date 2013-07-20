@@ -28,7 +28,7 @@ This github repository contains Marvin's software. Marvin currently has the foll
 * marvin/marvin - package containing program
 
 
-## Install ##
+## Install [![Build Status](https://api.travis-ci.org/eikeon/marvin.png?branch=master)](https://travis-ci.org/eikeon/marvin) ##
 
     go get -v -u github.com/eikeon/marvin/marvin
 
