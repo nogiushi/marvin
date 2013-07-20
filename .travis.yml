@@ -1,0 +1,14 @@
+language: go
+go: 
+- 1.1
+- tip
+
+script:
+  - sudo add-apt-repository --yes ppa:chris-lea/node.js
+  - sudo apt-get --yes update
+  - sudo apt-get install --yes nodejs
+  - npm cache ls; sudo npm install -g bower
+  - go get -v github.com/eikeon/marvin/marvin
+  - pushd `go list -f '{{.Dir}}' github.com/eikeon/marvin/web`; make; popd
+  - go list -f '{{range .XTestImports}}{{.}}{{"\n"}}{{end}}' | xargs go get
+  - go test ./...
