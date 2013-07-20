@@ -1,23 +1,24 @@
 SHELL := /bin/bash
 
-all:  angular angular-ui bowerinstall
+all:  bowerinstall
 
 clean:
+	rm -rf bower_components/
 	rm -rf static/bootstrap
 	rm -rf static/jquery
+	rm -rf static/js/angular.min.js
+	rm -rf static/js/colorconverter.js
 
 bowerinstall:
-	npm install bower
-	./node_modules/bower/bin/bower install; 
+	bower install
 	pushd bower_components/bootstrap/; npm install; make; make bootstrap; popd
+	pushd bower_components/hue-color-converter/; npm install typescript; ./node_modules/typescript/bin/tsc colorconverter.ts
+
+install: bowerinstall
 	mkdir -p static
 	cp -r bower_components/bootstrap/bootstrap static/
 	cp -r bower_components/jquery static/
-
-angular:
-	curl --create-dirs -o static/js/angular.min.js https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js
-
-angular-ui:
-	curl --create-dirs -o static/js/ui-bootstrap-tpls-0.4.0.min.js https://raw.github.com/angular-ui/bootstrap/gh-pages/ui-bootstrap-tpls-0.4.0.min.js
-
-
+	mkdir -p static/js
+	cp -r bower_components/angular/angular.min.js static/js/
+	cp -r bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js static/js/
+	cp -r bower_components/hue-color-converter/colorconverter.js static/js/

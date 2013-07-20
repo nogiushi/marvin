@@ -2,6 +2,9 @@
   "name": "marvin",
   "version": "0.1.0",
   "dependencies": {
-    "bootstrap": "https://github.com/eikeon/bootstrap.git"
+    "bootstrap": "https://github.com/eikeon/bootstrap.git",
+    "hue-color-converter": "https://github.com/Q42/hue-color-converter.git",
+    "anjularjs": "https://github.com/angular/angular.js.git",
+    "angular-bootstrap": "~0.4.0"
   }
 }
