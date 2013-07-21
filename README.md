@@ -33,6 +33,6 @@ This github repository contains Marvin's software. Marvin currently has the foll
     go get -v -u github.com/eikeon/marvin/marvin
 
     npm cache ls; sudo npm install -g bower
-    pushd `go list -f '{{.Dir}}' github.com/eikeon/marvin/web`; make; popd
+    pushd `go list -f '{{.Dir}}' github.com/eikeon/marvin/web`; make install; popd
 
     marvin --help
