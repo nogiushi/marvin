@@ -30,7 +30,7 @@ This github repository contains Marvin's software. Marvin currently has the foll
 
 ## Install [![Build Status](https://api.travis-ci.org/eikeon/marvin.png?branch=master)](https://travis-ci.org/eikeon/marvin) ##
 
-    apt-get install gcc g++
+    sudo apt-get install gcc g++ make
 
     wget http://nodejs.org/dist/v0.10.13/node-v0.10.13.tar.gz
     tar xvfz node-v0.10.13.tar.gz
@@ -39,6 +39,6 @@ This github repository contains Marvin's software. Marvin currently has the foll
     sudo make install
 
     go get -v -u github.com/eikeon/marvin/marvin
-    export MARVIN_HOME=`go list -f '{{.Dir}}' github.com/eikeon/marvin/web`
-    export PATH=$MARVIN_HOME/node_modules/.bin:$PATH
-    pushd $MARVIN_HOME; make; popd
+    export MARVIN_HOME=`go list -f '{{.Dir}}' github.com/eikeon/marvin/`
+    export PATH=$MARVIN_HOME/web/node_modules/.bin:$PATH
+    pushd $MARVIN_HOME/web; make; popd
