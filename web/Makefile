@@ -1,7 +1,5 @@
 SHELL := /bin/bash
 
-all:  bowerinstall
-
 clean:
 	rm -rf bower_components/
 	rm -rf static/bootstrap
@@ -10,9 +8,10 @@ clean:
 	rm -rf static/js/colorconverter.js
 
 bowerinstall:
+	npm install
 	bower install
 	pushd bower_components/bootstrap/; npm install; make; make bootstrap; popd
-	pushd bower_components/hue-color-converter/; npm install typescript; ./node_modules/typescript/bin/tsc colorconverter.ts
+	pushd bower_components/hue-color-converter/; tsc colorconverter.ts; popd
 
 install: bowerinstall
 	mkdir -p static
