@@ -55,7 +55,7 @@ in your ~/.profile.
 ### install latest nodejs
 
 Marvin's needs a nodejs environment for managing external javascript and css
-dependencies using Bower.
+dependencies using [Bower](https://github.com/bower/bower).
 
     wget http://nodejs.org/dist/v0.10.13/node-v0.10.13.tar.gz
     tar xvfz node-v0.10.13.tar.gz
