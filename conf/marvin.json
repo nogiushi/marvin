@@ -1,0 +1,787 @@
+{
+    "Activities": {
+        "awake": {
+            "Name": "awake",
+            "Next": {
+                "cleaning": true,
+                "movie": true,
+                "relaxing": true,
+                "sleeping": true,
+                "working": true
+            }
+        },
+        "cleaning": {
+            "Name": "cleaning",
+            "Next": {
+                "awake": true
+            }
+        },
+        "movie": {
+            "Name": "movie",
+            "Next": {
+                "awake": true
+            }
+        },
+        "relaxing": {
+            "Name": "relaxing",
+            "Next": {
+                "awake": true,
+                "sleeping": true
+            }
+        },
+        "sleeping": {
+            "Name": "sleeping",
+            "Next": {
+                "awake": true,
+                "wake": true
+            }
+        },
+        "wake": {
+            "Name": "wake",
+            "Next": {
+                "awake": true
+            }
+        },
+        "working": {
+            "Name": "working",
+            "Next": {
+                "awake": true
+            }
+        }
+    },
+    "Activity": "cleaning",
+    "DayLight": false,
+    "Hue": {
+        "Datastore": {
+            "groups": {
+                "0": {
+                    "action": {
+                        "alert": "",
+                        "bri": 254,
+                        "colormode": "ct",
+                        "ct": 351,
+                        "effect": "none",
+                        "hue": 0,
+                        "on": true,
+                        "reachable": false,
+                        "sat": 0,
+                        "xy": [
+                            0.5787,
+                            0.3872
+                        ]
+                    },
+                    "lights": [],
+                    "name": "Lightset 0"
+                }
+            },
+            "lights": {
+            }
+        },
+        "Errors": null
+    },
+    "LastTransition": "wake",
+    "Messages": [],
+    "Motion": true,
+    "Present": {
+    },
+    "Schedule": [
+        {
+            "Days": null,
+            "ExceptOn": "holidays",
+            "Interval": "24h",
+            "On": "weekdays",
+            "What": "wake",
+            "When": "7:15AM"
+        },
+        {
+            "Days": null,
+            "ExceptOn": "",
+            "Interval": "24h",
+            "On": "weekends",
+            "What": "wake",
+            "When": "9:00AM"
+        },
+        {
+            "Days": null,
+            "ExceptOn": "",
+            "Interval": "24h",
+            "On": "",
+            "What": "chime",
+            "When": "8:45AM"
+        },
+        {
+            "Days": null,
+            "ExceptOn": "",
+            "Interval": "24h",
+            "On": "",
+            "What": "couch sun",
+            "When": "6:00PM"
+        },
+        {
+            "Days": null,
+            "ExceptOn": "",
+            "Interval": "24h",
+            "On": "",
+            "What": "dinner",
+            "When": "7:30PM"
+        },
+        {
+            "Days": null,
+            "ExceptOn": "",
+            "Interval": "24h",
+            "On": "",
+            "What": "meditation",
+            "When": "9:00PM"
+        },
+        {
+            "Days": null,
+            "ExceptOn": "",
+            "Interval": "24h",
+            "On": "",
+            "What": "sunset",
+            "When": "9:30PM"
+        },
+        {
+            "Days": null,
+            "ExceptOn": "",
+            "Interval": "24h",
+            "On": "",
+            "What": "twilight",
+            "When": "10:15PM"
+        },
+        {
+            "Days": null,
+            "ExceptOn": "",
+            "Interval": "24h",
+            "On": "",
+            "What": "dusk",
+            "When": "10:45PM"
+        },
+        {
+            "Days": null,
+            "ExceptOn": "",
+            "Interval": "24h",
+            "On": "",
+            "What": "sleeping",
+            "When": "11:00PM"
+        }
+    ],
+    "StatHatUserKey": "",
+    "States": {
+        "alert": {
+            "alert": "lselect"
+        },
+        "blink": {
+            "alert": "select"
+        },
+        "deep blue": {
+            "bri": 254,
+            "on": true,
+            "transitiontime": 10,
+            "xy": [
+                0.167,
+                0.04
+            ]
+        },
+        "deep blue (dim)": {
+            "bri": 1,
+            "on": true,
+            "transitiontime": 30,
+            "xy": [
+                0.167,
+                0.04
+            ]
+        },
+        "energize": {
+            "bri": 254,
+            "on": true,
+            "xy": [
+                0.3151,
+                0.3252
+            ]
+        },
+        "green": {
+            "bri": 254,
+            "transitiontime": 10,
+            "xy": [
+                0.402,
+                0.5038
+            ]
+        },
+        "nightlight": {
+            "bri": 29,
+            "on": true,
+            "xy": [
+                0.5119,
+                0.4147
+            ]
+        },
+        "nightlight (dim)": {
+            "bri": 0,
+            "on": true,
+            "xy": [
+                0.5119,
+                0.4147
+            ]
+        },
+        "off": {
+            "on": false
+        },
+        "on": {
+            "on": true
+        },
+        "pink": {
+            "bri": 254,
+            "on": true,
+            "transitiontime": 300,
+            "xy": [
+                0.3505,
+                0.1762
+            ]
+        },
+        "pink alert": {
+            "bri": 1,
+            "on": true,
+            "transitiontime": 10,
+            "xy": [
+                0.6484,
+                0.3309
+            ]
+        },
+        "red alert": {
+            "bri": 16,
+            "on": true,
+            "transitiontime": 30,
+            "xy": [
+                0.6484,
+                0.3309
+            ]
+        },
+        "sun": {
+            "bri": 254,
+            "on": true,
+            "transitiontime": 10,
+            "xy": [
+                0.5787,
+                0.3872
+            ]
+        },
+        "sun (dim)": {
+            "bri": 1,
+            "on": true,
+            "transitiontime": 300,
+            "xy": [
+                0.5787,
+                0.3872
+            ]
+        },
+        "sunrise": {
+            "bri": 254,
+            "on": true,
+            "transitiontime": 3600,
+            "xy": [
+                0.5787,
+                0.3872
+            ]
+        },
+        "sunset": {
+            "bri": 0,
+            "on": true,
+            "transitiontime": 3600,
+            "xy": [
+                0.5787,
+                0.3872
+            ]
+        }
+    },
+    "Switch": {
+        "Daylights": false,
+        "Nightlights": false,
+        "Schedule": true
+    },
+    "Transitions": {
+        "alert": {
+            "Commands": [
+                {
+                    "Address": "/groups/0",
+                    "State": "alert"
+                }
+            ],
+            "Switch": null
+        },
+        "all green": {
+            "Commands": [
+                {
+                    "Address": "/groups/0",
+                    "State": "green"
+                }
+            ],
+            "Switch": null
+        },
+        "all nightlight": {
+            "Commands": [
+                {
+                    "Address": "/lights/1",
+                    "State": "nightlight"
+                },
+                {
+                    "Address": "/lights/3",
+                    "State": "nightlight (dim)"
+                },
+                {
+                    "Address": "/lights/4",
+                    "State": "nightlight"
+                },
+                {
+                    "Address": "/lights/2",
+                    "State": "nightlight"
+                },
+                {
+                    "Address": "/lights/5",
+                    "State": "nightlight"
+                },
+                {
+                    "Address": "/lights/6",
+                    "State": "nightlight"
+                }
+            ],
+            "Switch": null
+        },
+        "all off": {
+            "Commands": [
+                {
+                    "Address": "/groups/0",
+                    "State": "off"
+                }
+            ],
+            "Switch": null
+        },
+        "awake": {
+            "Commands": [
+                {
+                    "Address": "/groups/0",
+                    "State": "sun"
+                }
+            ],
+            "Switch": {
+                "Daylights": true,
+                "Nightlights": false,
+                "Schedule": true
+            }
+        },
+        "chime": {
+            "Commands": [
+                {
+                    "Address": "/groups/0",
+                    "State": "blink"
+                }
+            ],
+            "Switch": null
+        },
+        "cleaning": {
+            "Commands": [
+                {
+                    "Address": "/groups/0",
+                    "State": "energize"
+                }
+            ],
+            "Switch": {
+                "Daylights": false,
+                "Nightlights": false,
+                "Schedule": true
+            }
+        },
+        "couch sun": {
+            "Commands": [
+                {
+                    "Address": "/lights/2",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/5",
+                    "State": "sun"
+                }
+            ],
+            "Switch": null
+        },
+        "daylight": {
+            "Commands": [
+                {
+                    "Address": "/lights/1",
+                    "State": "off"
+                },
+                {
+                    "Address": "/lights/3",
+                    "State": "off"
+                }
+            ],
+            "Switch": null
+        },
+        "daylight off": {
+            "Commands": [
+                {
+                    "Address": "/lights/1",
+                    "State": "on"
+                },
+                {
+                    "Address": "/lights/3",
+                    "State": "on"
+                }
+            ],
+            "Switch": null
+        },
+        "dinner": {
+            "Commands": [
+                {
+                    "Address": "/lights/1",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/3",
+                    "State": "sun (dim)"
+                },
+                {
+                    "Address": "/lights/4",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/2",
+                    "State": "sun (dim)"
+                },
+                {
+                    "Address": "/lights/5",
+                    "State": "sun (dim)"
+                },
+                {
+                    "Address": "/lights/6",
+                    "State": "sun (dim)"
+                }
+            ],
+            "Switch": null
+        },
+        "dusk": {
+            "Commands": [
+                {
+                    "Address": "/lights/1",
+                    "State": "sun (dim)"
+                },
+                {
+                    "Address": "/lights/3",
+                    "State": "sun (dim)"
+                },
+                {
+                    "Address": "/lights/4",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/2",
+                    "State": "off"
+                },
+                {
+                    "Address": "/lights/5",
+                    "State": "off"
+                }
+            ],
+            "Switch": null
+        },
+        "dusk corner": {
+            "Commands": [
+                {
+                    "Address": "/lights/4",
+                    "State": "sun (dim)"
+                },
+                {
+                    "Address": "/lights/6",
+                    "State": "sun (dim)"
+                }
+            ],
+            "Switch": null
+        },
+        "floor lamps green": {
+            "Commands": [
+                {
+                    "Address": "/lights/1",
+                    "State": "green"
+                },
+                {
+                    "Address": "/lights/3",
+                    "State": "green"
+                }
+            ],
+            "Switch": null
+        },
+        "floor lamps sun": {
+            "Commands": [
+                {
+                    "Address": "/lights/1",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/3",
+                    "State": "sun"
+                }
+            ],
+            "Switch": null
+        },
+        "green": {
+            "Commands": [
+                {
+                    "Address": "/lights/1",
+                    "State": "green"
+                },
+                {
+                    "Address": "/lights/3",
+                    "State": "green"
+                },
+                {
+                    "Address": "/lights/4",
+                    "State": "green"
+                },
+                {
+                    "Address": "/lights/2",
+                    "State": "green"
+                },
+                {
+                    "Address": "/lights/5",
+                    "State": "green"
+                }
+            ],
+            "Switch": null
+        },
+        "hack": {
+            "Commands": [
+                {
+                    "Address": "/lights/6",
+                    "State": "deep blue"
+                }
+            ],
+            "Switch": null
+        },
+        "jazz": {
+            "Commands": [
+                {
+                    "Address": "/lights/1",
+                    "State": "deep blue (dim)"
+                },
+                {
+                    "Address": "/lights/3",
+                    "State": "deep blue (dim)"
+                },
+                {
+                    "Address": "/lights/4",
+                    "State": "deep blue (dim)"
+                },
+                {
+                    "Address": "/lights/2",
+                    "State": "deep blue (dim)"
+                },
+                {
+                    "Address": "/lights/5",
+                    "State": "deep blue (dim)"
+                }
+            ],
+            "Switch": null
+        },
+        "kitchen sun": {
+            "Commands": [
+                {
+                    "Address": "/lights/4",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/6",
+                    "State": "sun"
+                }
+            ],
+            "Switch": null
+        },
+        "meditation": {
+            "Commands": [
+                {
+                    "Address": "/lights/1",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/3",
+                    "State": "red alert"
+                },
+                {
+                    "Address": "/lights/4",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/2",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/5",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/6",
+                    "State": "deep blue"
+                }
+            ],
+            "Switch": null
+        },
+        "movie": {
+            "Commands": [
+                {
+                    "Address": "/lights/1",
+                    "State": "off"
+                },
+                {
+                    "Address": "/lights/3",
+                    "State": "off"
+                },
+                {
+                    "Address": "/lights/4",
+                    "State": "sun (dim)"
+                },
+                {
+                    "Address": "/lights/2",
+                    "State": "off"
+                },
+                {
+                    "Address": "/lights/5",
+                    "State": "off"
+                }
+            ],
+            "Switch": {
+                "Daylights": false,
+                "Nightlights": false,
+                "Schedule": false
+            }
+        },
+        "sleeping": {
+            "Commands": [
+                {
+                    "Address": "/groups/0",
+                    "State": "off"
+                }
+            ],
+            "Switch": {
+                "Daylights": false,
+                "Nightlights": true,
+                "Schedule": true
+            }
+        },
+        "startup": {
+            "Commands": [
+                {
+                    "Address": "/groups/0",
+                    "State": "blink"
+                }
+            ],
+            "Switch": null
+        },
+        "sun": {
+            "Commands": [
+                {
+                    "Address": "/lights/1",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/3",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/4",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/6",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/2",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/5",
+                    "State": "sun"
+                }
+            ],
+            "Switch": {
+                "Daylights": false,
+                "Nightlights": false,
+                "Schedule": true
+            }
+        },
+        "sunset": {
+            "Commands": [
+                {
+                    "Address": "/lights/1",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/4",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/2",
+                    "State": "sun (dim)"
+                },
+                {
+                    "Address": "/lights/5",
+                    "State": "sun (dim)"
+                },
+                {
+                    "Address": "/lights/6",
+                    "State": "sun (dim)"
+                }
+            ],
+            "Switch": null
+        },
+        "twilight": {
+            "Commands": [
+                {
+                    "Address": "/lights/1",
+                    "State": "sun (dim)"
+                },
+                {
+                    "Address": "/lights/3",
+                    "State": "sun (dim)"
+                },
+                {
+                    "Address": "/lights/4",
+                    "State": "sun"
+                },
+                {
+                    "Address": "/lights/2",
+                    "State": "sun (dim)"
+                },
+                {
+                    "Address": "/lights/5",
+                    "State": "sun (dim)"
+                }
+            ],
+            "Switch": null
+        },
+        "wake": {
+            "Commands": [
+                {
+                    "Address": "/lights/1",
+                    "State": "sunrise"
+                },
+                {
+                    "Address": "/lights/3",
+                    "State": "sunrise"
+                },
+                {
+                    "Address": "/lights/4",
+                    "State": "sunrise"
+                },
+                {
+                    "Address": "/lights/6",
+                    "State": "sunrise"
+                }
+            ],
+            "Switch": {
+                "Daylights": false,
+                "Nightlights": false,
+                "Schedule": true
+            }
+        }
+    }
+}
