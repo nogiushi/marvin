@@ -30,15 +30,15 @@ This github repository contains Marvin's software. Marvin currently has the foll
 
 ## Install [![Build Status](https://api.travis-ci.org/eikeon/marvin.png?branch=master)](https://travis-ci.org/eikeon/marvin) ##
 
-* get ubuntu 
+### get ubuntu 
 
 If you are installing Marvin on your BeagleBone we've been using 13.04 from [ARMhf](http://www.armhf.com/index.php/boards/beaglebone-black/).
 
-* install build tools
+### install build tools
 
     sudo apt-get install gcc g++ make mercurial
 
-* install latest golang
+### install latest golang
 
 Marvin is written in Go so you will need a Go environment to build and install
 it. You will probably want to put the GOPATH and GOROOT environment variables
@@ -52,7 +52,7 @@ in your ~/.profile.
     export GOPATH=$HOME/go
     export GOROOT=/opt/go
 
-* install latest nodejs
+### install latest nodejs
 
 Marvin's needs a nodejs environment for managing external javascript and css
 dependencies using Bower.
@@ -63,7 +63,7 @@ dependencies using Bower.
     ./configure --without-snapshot
     sudo make install
 
-* install marvin
+### install marvin
 
     go get -v -u github.com/eikeon/marvin/marvin
     export MARVIN_HOME=$HOME/go/src/github.com/eikeon/marvin
