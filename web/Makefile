@@ -1,19 +1,12 @@
 SHELL := /bin/bash
 
-clean:
-	rm -rf bower_components/
-	rm -rf static/bootstrap
-	rm -rf static/jquery
-	rm -rf static/js/angular.min.js
-	rm -rf static/js/colorconverter.js
-
-bowerinstall:
+all:
 	npm install
 	bower install
 	pushd bower_components/bootstrap/; npm install; make; make bootstrap; popd
 	pushd bower_components/hue-color-converter/; tsc colorconverter.ts; popd
 
-install: bowerinstall
+install: all
 	mkdir -p static
 	cp -r bower_components/bootstrap/bootstrap static/
 	cp -r bower_components/jquery static/
@@ -24,3 +17,11 @@ install: bowerinstall
 
 developjs:
 	ln -sf ../../js/marvin.js static/js/marvin.js
+
+clean:
+	rm -rf bower_components/
+	rm -rf static/bootstrap
+	rm -rf static/jquery
+	rm -rf static/js/angular.min.js
+	rm -rf static/js/colorconverter.js
+
