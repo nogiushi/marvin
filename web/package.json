@@ -1,0 +1,9 @@
+{
+    "name": "marvin",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+      "bower": "0.10.0",
+      "typescript": "0.9.0.1"
+    }
+}

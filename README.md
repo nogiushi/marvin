@@ -30,9 +30,46 @@ This github repository contains Marvin's software. Marvin currently has the foll
 
 ## Install [![Build Status](https://api.travis-ci.org/eikeon/marvin.png?branch=master)](https://travis-ci.org/eikeon/marvin) ##
 
+### get ubuntu 
+
+If you are installing Marvin on your BeagleBone we've been using 13.04 from [ARMhf](http://www.armhf.com/index.php/boards/beaglebone-black/).
+
+### install build tools
+
+    sudo apt-get install gcc g++ make mercurial
+
+### install latest golang
+
+Marvin is written in Go so you will need a Go environment to build and install
+it. You will probably want to put the GOPATH and GOROOT environment variables
+in your ~/.profile.
+
+    hg clone -u release https://code.google.com/p/go
+    sudo mv go /opt/go
+    cd /opt/go
+    ./all.bash
+    mkdir $HOME/go
+    export GOPATH=$HOME/go
+    export GOROOT=/opt/go
+
+### install latest nodejs
+
+Marvin's needs a nodejs environment for managing external javascript and css
+dependencies using [Bower](https://github.com/bower/bower).
+
+    wget http://nodejs.org/dist/v0.10.13/node-v0.10.13.tar.gz
+    tar xvfz node-v0.10.13.tar.gz
+    cd node-v0.10.13
+    ./configure --without-snapshot
+    sudo make install
+
+### install marvin
+
     go get -v -u github.com/eikeon/marvin/marvin
-
-    npm cache ls; sudo npm install -g bower
-    pushd `go list -f '{{.Dir}}' github.com/eikeon/marvin/web`; make install; popd
-
-    marvin --help
+    export MARVIN_HOME=$HOME/go/src/github.com/eikeon/marvin
+    export PATH=$MARVIN_HOME/web/node_modules/.bin:$PATH
+    pushd $MARVIN_HOME/web; make install; popd
+    sudo cp conf/marvin.json /etc/marvin.json
+    sudo cp conf/marvin.conf /etc/init/marvin.conf
+    sudo start marvin
+    # point browser at http://{your-hostname}:8000
