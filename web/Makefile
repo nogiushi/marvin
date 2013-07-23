@@ -8,7 +8,6 @@ clean:
 	rm -rf static/js/colorconverter.js
 
 bowerinstall:
-	# install node dependencies in package.json
 	npm install
 	bower install
 	pushd bower_components/bootstrap/; npm install; make; make bootstrap; popd
