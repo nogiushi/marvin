@@ -197,15 +197,15 @@ func (m *Marvin) Run() {
 			}
 		case motion := <-m.motionChannel:
 			if motion {
+				if m.Switch["Nightlights"] && m.LastTransition != "all nightlight" {
+					m.do <- "all nightlight"
+				}
 				const duration = 60 * time.Second
 				if motionTimer == nil {
 					m.Motion = true
 					m.StateChanged()
 					motionTimer = time.NewTimer(duration)
 					motionTimeout = motionTimer.C // enable motionTimeout case
-					if m.Switch["Nightlights"] {
-						m.do <- "all nightlight"
-					}
 				} else {
 					motionTimer.Reset(duration)
 				}
