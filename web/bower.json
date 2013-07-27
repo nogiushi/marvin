@@ -2,9 +2,9 @@
   "name": "marvin",
   "version": "0.1.0",
   "dependencies": {
-    "bootstrap": "https://github.com/eikeon/bootstrap.git",
-    "hue-color-converter": "https://github.com/Q42/hue-color-converter.git",
-    "anjularjs": "https://github.com/angular/angular.js.git",
-    "angular-bootstrap": "~0.4.0"
+    "bootstrap": "git://github.com/twbs/bootstrap.git#3.0.0-rc1",
+    "hue-color-converter": "git://github.com/Q42/hue-color-converter.git",
+    "anjularjs": "git://github.com/angular/angular.js.git",
+    "angular-bootstrap": "git://github.com/angular-ui/bootstrap-bower.git#0.4.0"
   }
 }

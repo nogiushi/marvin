@@ -13,10 +13,9 @@
     <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <style>
       body {
-        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+        padding-top: 50px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
     </style>
-    <link href="/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
     <style>
 @media (max-width: 767px) {
   .dl-horizontal dt {
@@ -38,24 +37,27 @@
   </head>
 
   <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="/">Marvin</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li><a href="/">Home</a></li>
-              <li><a href="/schedule/">Schedule</a></li>
-            </ul>
-          </div><!--/.nav-collapse -->
-        </div>
+    <div class="navbar navbar-fixed-top">
+      <div class="container">
+	<!-- .navbar-toggle is used as the toggle for collapsed navbar content -->
+	<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+	  <span class="icon-bar"></span>
+	  <span class="icon-bar"></span>
+	  <span class="icon-bar"></span>
+	</button>
+	<a class="navbar-brand" href="/">Marvin</a>
+	<!-- Place everything within .navbar-collapse to hide it until above 768px -->
+	<div class="nav-collapse collapse navbar-responsive-collapse">
+	  <ul class="nav navbar-nav">
+            <li><a href="/">Home</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/senses/">Senses</a></li>
+	  </ul>
+	</div><!-- /.nav-collapse -->
       </div>
     </div>
-    <div class="container-fluid">
+
+    <div class="container">
       {{if .}}{{template "content" .}}{{else}}<h1>Not Found</h1>{{end}}
     </div>
     <script src="/jquery/jquery.min.js"></script>
@@ -92,12 +94,7 @@ $('.transition').on('tap click', function (e) {
 </html>{{end}}
 
 {{define "schedule"}}
-      {{with .Marvin}}
-
-<div class="row-fluid">
-  <div class="span12">
-    <h2>Schedule</h2>
-    <table class="table table-condensed table-striped">
+    <table class="table">
       <thead>
 	<tr>
 	  <th scope="col">Time</th>
@@ -111,13 +108,68 @@ $('.transition').on('tap click', function (e) {
 	  <td>{{.When}}</td>
 	  <td>{{if .On}}{{.On}}{{end}}</td>
 	  <td>{{if .ExceptOn}}{{.ExceptOn}}{{end}}</td>
-	  <td><a class="transition btn btn-block" data-transition="{{.What}}">{{.What}} <i class="icon-play"></i></a></td>
+	  <td><a class="transition btn btn-large btn-block btn-primary" data-transition="{{.What}}">{{.What}} <i class="icon-play"></i></a></td>
 	</tr>{{end}}
       </tbody>
     </table>
 
-  </div>
-</div>
+{{end}}
 
-      {{end}}
+
+{{define "presence"}}
+      <table class="table">
+	<thead>
+	  <tr>
+	    <th>Name</th>
+	    <th>Status</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr ng-repeat="(k, v) in state.Present">
+	    <td>[[k]]</td>
+	    <td ng-switch on="v">
+	      <span ng-switch-when="true" class="label label-success">Home</span>
+	      <span ng-switch-when="false" class="label label-important">Away</span>
+	      <span ng-switch-default>-</span>
+	    </td>
+	  </tr>
+	</tbody>
+      </table>
+{{end}}
+
+
+{{define "sensors"}}
+
+      <table class="table">
+	<thead>
+	  <tr>
+	    <th scope="col">Name</th>
+	    <th scope="col">Status</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr>
+	    <td>Ambient Light</td>
+	    <td>
+	      {{if .LightSensor}}<span ng-switch on="state.DayLight">
+		<span ng-switch-when="true" class="label label-success">daylight</span>
+		<span ng-switch-when="false" class="label label-inverse">dark</span>
+		<span ng-switch-default>-</span>
+	      </span>{{else}}<span class="alert alert-warning">no ambient light sensor</span>{{end}}
+	    </td>
+	  </tr>
+	  <tr>
+	    <td>Motion</td>
+	    <td>
+	      {{if .MotionSensor}}
+	      <span ng-switch on="state.Motion">
+		<span ng-switch-when="true" class="label label-success">motion</span>
+		<span ng-switch-when="false" class="label label-important">no motion</span>
+		<span ng-switch-default>-</span>
+	      </span>{{else}}<span class="alert alert-warning">no motion sensor</span>{{end}}
+	    </td>
+	  </tr>
+	  </tbody>
+      </table>
+
 {{end}}

@@ -110,7 +110,7 @@ func (m *Marvin) Run() {
 		m.Present = make(map[string]bool)
 	}
 	m.do = make(chan string, 2)
-	m.do <- "startup"
+	//m.do <- "startup"
 
 	var scheduledEventsChannel <-chan scheduler.Event
 	if c, err := m.Schedule.Run(); err == nil {
