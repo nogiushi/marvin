@@ -10,9 +10,8 @@ install: all
 	cp -r bower_components/bootstrap/dist static/bootstrap
 	cp -r bower_components/jquery static/
 	cp -r js/ static/js/
-	cp bower_components/angular/angular.min.js static/js/
-	cp bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js static/js/
 	cp bower_components/hue-color-converter/colorconverter.js static/js/
+	cp bower_components/angular-ui-bootstrap/index.js static/js/ui-bootstrap-tpls.min.js
 
 developjs:
 	ln -sf ../../js/marvin.js static/js/marvin.js

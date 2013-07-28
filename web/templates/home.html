@@ -42,6 +42,7 @@
       <div class="alert alert-error" ng-repeat="error in state.Hue.Errors">
 	[[error.Error.Description]]
       </div>
+
       <table class="table">
 	<caption>Light Groups</caption>
 	<thead>
@@ -58,11 +59,11 @@
 	      <a ng-switch-when="true" class="btn btn-success" ng-click="setHue('/groups/'+name+'/action', OFF)">On</a>
 	      <a ng-switch-when="false" class="btn btn-danger" ng-click="setHue('/groups/'+name+'/action', ON)">Off</a>
 	    </td>
-	    <td class="dropdown">
+	    <td class="dropdown" style="position: relative">
 	      <a style="color: black; background-color: [[getColor(group.action)]]" class="dropdown-toggle">
 		[[getBrightness(group.action)]]%
 	      </a>
-	      <ul class="dropdown-menu">
+	      <ul class="dropdown-menu" role="menu">
 		<li ng-repeat="choice in allStates()">
 		  <a ng-click="setHue('/groups/'+name+'/action', state.States[choice])"
 		     style="color: black; background-color: [[getColor(state.States[choice])]]">[[choice]]</a>
@@ -88,11 +89,11 @@
 	      <a ng-switch-when="true" class="btn btn-success" ng-click="setHue('/lights/'+name+'/state', OFF)">On</a>
 	      <a ng-switch-when="false" class="btn btn-danger" ng-click="setHue('/lights/'+name+'/state', ON)">Off</a>
 	    </td>
-	    <td class="dropdown">
+	    <td class="dropdown" style="position: relative">
 	      <a style="color: black; background-color: [[getColor(light.state)]]" class="dropdown-toggle btn btn-block btn-link">
 		[[getBrightness(light.state)]]%
 	      </a>
-	      <ul class="dropdown-menu">
+	      <ul class="dropdown-menu" role="menu">
 		<li ng-repeat="choice in allStates()">
 		  <a ng-click="setHue('/lights/'+name+'/state', state.States[choice])"
 		     style="color: black; background-color: [[getColor(state.States[choice])]]">[[choice]]</a>
