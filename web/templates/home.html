@@ -18,7 +18,7 @@
       <h2>Activity</h2>
       <div class="alert alert-info"><small>Current:</small> <strong>[[state.Activity]]</strong></div>
       <p>
-	<a ng-repeat="(next, v) in state.Activities[state.Activity].Next" ng-click="updateActivity(state.Activity, next)" class="btn btn-large btn-block btn-primary" data-transition="[[next]]">[[next]] <i class="icon-play"></i></a>
+	<a ng-repeat="(next, v) in state.Activities[state.Activity].Next track by $index" ng-click="updateActivity(state.Activity, next)" class="btn btn-large btn-block btn-primary" data-transition="[[next]]">[[next]] <i class="icon-play"></i></a>
       </p>
       <form ng-submit="updateActivity(state.Activity, targetActivity)" autocomplete="off">
 	<fieldset>

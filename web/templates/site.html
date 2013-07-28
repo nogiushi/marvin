@@ -125,7 +125,7 @@ $('.transition').on('tap click', function (e) {
 	  </tr>
 	</thead>
 	<tbody>
-	  <tr ng-repeat="(k, v) in state.Present">
+	  <tr ng-repeat="(k, v) in state.Present track by $index">
 	    <td>[[k]]</td>
 	    <td ng-switch on="v">
 	      <span ng-switch-when="true" class="label label-success">Home</span>
