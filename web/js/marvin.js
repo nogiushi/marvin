@@ -10,7 +10,13 @@ function MarvinCtrl($scope) {
     $scope.connection = null;
 
     $scope.NewConnection = function() {
-        connection = new WebSocket('ws://'+document.location.host+'/state');
+	var wsproto = "";
+	if (document.location.protocol == "https:") {
+	    wsproto = "wss";
+	} else {
+	    wsproto = "ws";
+	}
+        connection = new WebSocket(wsproto+"://"+document.location.host+'/state');
 
         connection.onopen = function () {
         };
