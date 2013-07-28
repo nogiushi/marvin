@@ -52,6 +52,8 @@
             <li><a href="/">Home</a></li>
             <li><a href="/schedule/">Schedule</a></li>
             <li><a href="/senses/">Senses</a></li>
+            <li><a href="/lightstates/">Light States</a></li>
+            <li><a href="/transitions/">Transitions</a></li>
 	  </ul>
 	</div><!-- /.nav-collapse -->
       </div>
@@ -108,7 +110,7 @@ $('.transition').on('tap click', function (e) {
 	  <td>{{.When}}</td>
 	  <td>{{if .On}}{{.On}}{{end}}</td>
 	  <td>{{if .ExceptOn}}{{.ExceptOn}}{{end}}</td>
-	  <td><a class="transition btn btn-large btn-block btn-primary" data-transition="{{.What}}">{{.What}} <i class="icon-play"></i></a></td>
+	  <td><a class="transition btn btn-block btn-primary" data-transition="{{.What}}">{{.What}} <i class="icon-play"></i></a></td>
 	</tr>{{end}}
       </tbody>
     </table>
@@ -172,4 +174,48 @@ $('.transition').on('tap click', function (e) {
 	  </tbody>
       </table>
 
+{{end}}
+
+{{define "transitions"}}
+
+      <table class="table table-condensed table-striped">
+	<thead>
+	  <tr>
+	    <th scope="col">Name</th>
+	    <th scope="col">Commands</th>
+	  </tr>
+	</thead>
+	<tbody>{{range $k,$v := .Transitions}}
+	  <tr>
+	    <td><a class="transition btn btn-block" data-transition="{{$k}}">{{$k}} <i class="icon-play"></i></a></td>
+	    <td>
+	      <dl class="dl-horizontal">{{range $v.Commands}}
+		<dt>{{.Address}}</dt><dd>{{.State}}</dd>{{end}}
+	      </dl>
+	    </td>
+	  </tr>{{end}}
+	</tbody>
+      </table>
+{{end}}
+
+{{define "lightstates"}}
+
+      <table class="table table-condensed">
+	<thead>
+	  <tr>
+	    <th>Name</th>
+	    <th>State</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr ng-repeat="choice in allStates()">
+	    <td>[[choice]]</td>
+	    <td>
+	      <a style="color: black; background-color: [[getColor(state.States[choice])]]" class="btn btn-block btn-link" ng-click="openEditState(choice)">
+		[[getStateLabel(state.States[choice])]]
+	      </a>
+	    </td>
+	  </tr>
+	</tbody>
+      </table>
 {{end}}

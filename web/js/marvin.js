@@ -91,6 +91,22 @@ function MarvinCtrl($scope) {
         $scope.targetActivity = "";
     };
 
+    $scope.doTransition = function(transition) {
+	$.ajax({
+	    url: "/post?" + $.now(),
+	    type: "POST",
+	    cache: false,
+	    data: {"do_transition": transition},
+	    statusCode: {
+		404: function() {
+		},
+		200: function() {
+		}
+	    },
+	    dataType: "html"
+	});
+    };
+
     $scope.getBrightness = function(state) {
         return Math.round(state.bri / 255 * 100, 0);
     };

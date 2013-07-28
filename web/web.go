@@ -139,6 +139,8 @@ func AddHandlers(marvin *marvin.Marvin) {
 	add(&view{prefix: "/", name: "home", data: Data{"Marvin": marvin}})
 	add(&view{prefix: "/schedule/", name: "schedule", data: Data{"Marvin": marvin}})
 	add(&view{prefix: "/senses/", name: "senses", data: Data{"Marvin": marvin}})
+	add(&view{prefix: "/lightstates/", name: "lightstates", data: Data{"Marvin": marvin}})
+	add(&view{prefix: "/transitions/", name: "transitions", data: Data{"Marvin": marvin}})
 
 	fs := http.FileServer(http.Dir(path.Join(Root, "static/")))
 	http.Handle("/bootstrap/", fs)

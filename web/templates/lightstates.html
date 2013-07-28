@@ -1,0 +1,18 @@
+{{define "content"}}
+<div ng-controller="MarvinCtrl">
+
+  <div class="alert alert-info" ng-repeat="message in state.Messages">
+    [[message]]
+  </div>
+
+  <div class="alert alert-error" ng-repeat="error in errors">
+    [[error]]
+  </div>
+
+  <h2>Light States</h2>
+  <div class="span12">
+    {{template "lightstates" .Marvin}}
+  </div>
+
+</div>
+{{end}}
