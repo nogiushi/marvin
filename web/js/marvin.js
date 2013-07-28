@@ -91,10 +91,6 @@ function MarvinCtrl($scope) {
         $scope.targetActivity = "";
     };
 
-    $scope.nextActivities = function(query, process) {
-        return $scope.state.NextActivities;
-    };
-
     $scope.getBrightness = function(state) {
         return Math.round(state.bri / 255 * 100, 0);
     };
