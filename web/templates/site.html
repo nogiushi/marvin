@@ -129,7 +129,7 @@ $('.transition').on('tap click', function (e) {
 	    <td>[[k]]</td>
 	    <td ng-switch on="v">
 	      <span ng-switch-when="true" class="label label-success">Home</span>
-	      <span ng-switch-when="false" class="label label-important">Away</span>
+	      <span ng-switch-when="false" class="label label-danger">Away</span>
 	      <span ng-switch-default>-</span>
 	    </td>
 	  </tr>
@@ -153,7 +153,7 @@ $('.transition').on('tap click', function (e) {
 	    <td>
 	      {{if .LightSensor}}<span ng-switch on="state.DayLight">
 		<span ng-switch-when="true" class="label label-success">daylight</span>
-		<span ng-switch-when="false" class="label label-inverse">dark</span>
+		<span ng-switch-when="false" class="label">dark</span>
 		<span ng-switch-default>-</span>
 	      </span>{{else}}<span class="alert alert-warning">no ambient light sensor</span>{{end}}
 	    </td>
@@ -164,7 +164,7 @@ $('.transition').on('tap click', function (e) {
 	      {{if .MotionSensor}}
 	      <span ng-switch on="state.Motion">
 		<span ng-switch-when="true" class="label label-success">motion</span>
-		<span ng-switch-when="false" class="label label-important">no motion</span>
+		<span ng-switch-when="false" class="label label-danger">no motion</span>
 		<span ng-switch-default>-</span>
 	      </span>{{else}}<span class="alert alert-warning">no motion sensor</span>{{end}}
 	    </td>
