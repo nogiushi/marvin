@@ -152,7 +152,7 @@ $('.transition').on('tap click', function (e) {
 		<span ng-switch-when="true" class="label label-success">daylight</span>
 		<span ng-switch-when="false" class="label">dark</span>
 		<span ng-switch-default>-</span>
-	      </span>{{else}}<span class="alert alert-warning">no ambient light sensor</span>{{end}}
+	      </span>{{else}}<span class="label label-danger">no sensor</span>{{end}}
 	    </td>
 	  </tr>
 	  <tr>
@@ -163,7 +163,7 @@ $('.transition').on('tap click', function (e) {
 		<span ng-switch-when="true" class="label label-success">motion</span>
 		<span ng-switch-when="false" class="label label-danger">no motion</span>
 		<span ng-switch-default>-</span>
-	      </span>{{else}}<span class="alert alert-warning">no motion sensor</span>{{end}}
+	      </span>{{else}}<span class="label label-danger">no sensor</span>{{end}}
 	    </td>
 	  </tr>
 	  </tbody>
