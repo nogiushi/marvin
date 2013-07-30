@@ -1,16 +1,13 @@
 {{define "html"}}<!DOCTYPE html>
 <html lang="en" ng-app="MarvinApp">
   <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
-    <script src="/js/ui-bootstrap-tpls.min.js"></script>
-    <script src="/js/colorconverter.js"></script>
-    <script src="/js/marvin.js"></script>
+    <script src="/{{.Version}}/js/marvin.js"></script>
 
     <meta charset="utf-8">
     <title>{{if .}}{{with .Title}}{{.}} « {{end}}Marvin{{else}}Not Found{{end}}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/{{.Version}}/css/marvin.min.css" rel="stylesheet">
     <style>
       body {
         padding-top: 50px; /* 60px to make the container go all the way to the bottom of the topbar */
@@ -62,8 +59,6 @@
     <div class="container">
       {{if .}}{{template "content" .}}{{else}}<h1>Not Found</h1>{{end}}
     </div>
-    <script src="/jquery/jquery.min.js"></script>
-    <script src="/bootstrap/js/bootstrap.min.js"></script>
     <script>
 (function($) {
     function initPage() {

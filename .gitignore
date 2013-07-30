@@ -10,6 +10,7 @@ tmp
 web/components
 web/bower_components
 web/static
+web/build
 web/node_modules/
 
 # Architecture specific extensions/prefixes

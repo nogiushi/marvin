@@ -1,4 +1,3 @@
-
 angular.module('MarvinApp', ['ui.bootstrap'], function ($interpolateProvider) {
   $interpolateProvider.startSymbol('[[');
   $interpolateProvider.endSymbol(']]');
@@ -10,12 +9,12 @@ function MarvinCtrl($scope) {
     $scope.connection = null;
 
     $scope.NewConnection = function() {
-	var wsproto = "";
-	if (document.location.protocol == "https:") {
-	    wsproto = "wss";
-	} else {
-	    wsproto = "ws";
-	}
+        var wsproto = "";
+        if (document.location.protocol == "https:") {
+            wsproto = "wss";
+        } else {
+            wsproto = "ws";
+        }
         connection = new WebSocket(wsproto+"://"+document.location.host+'/state');
 
         connection.onopen = function () {
@@ -92,19 +91,19 @@ function MarvinCtrl($scope) {
     };
 
     $scope.doTransition = function(transition) {
-	$.ajax({
-	    url: "/post?" + $.now(),
-	    type: "POST",
-	    cache: false,
-	    data: {"do_transition": transition},
-	    statusCode: {
-		404: function() {
-		},
-		200: function() {
-		}
-	    },
-	    dataType: "html"
-	});
+        $.ajax({
+            url: "/post?" + $.now(),
+            type: "POST",
+            cache: false,
+            data: {"do_transition": transition},
+            statusCode: {
+                404: function() {
+                },
+                200: function() {
+                }
+            },
+            dataType: "html"
+        });
     };
 
     $scope.getBrightness = function(state) {

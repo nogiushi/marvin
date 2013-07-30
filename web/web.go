@@ -3,18 +3,23 @@ package web
 import (
 	"bytes"
 	"crypto/md5"
+	"encoding/json"
 	"fmt"
 	"go/build"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"path"
 
 	"code.google.com/p/go.net/websocket"
 	"github.com/eikeon/marvin"
 )
 
+var pkg struct {
+	Version string `json:"version"`
+}
 var Root string
 var site *template.Template
 var templates = make(map[string]*template.Template)
@@ -25,6 +30,31 @@ func init() {
 	} else {
 		log.Println("WARNING: could not import package:", err)
 	}
+
+	if j, err := os.OpenFile("package.json", os.O_RDONLY, 0666); err == nil {
+		dec := json.NewDecoder(j)
+		if err = dec.Decode(&pkg); err != nil {
+			log.Println("WARNING: could not decode package.json", err)
+		}
+		j.Close()
+	} else {
+		log.Println("WARNING: could not open package.json", err)
+	}
+
+}
+
+type longExpireHandler struct {
+	h http.Handler
+}
+
+func longExpire(h http.Handler) http.Handler {
+	return &longExpireHandler{h}
+}
+
+func (le *longExpireHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ttl := int64(86400)
+	w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d", ttl))
+	le.h.ServeHTTP(w, r)
 }
 
 func getTemplate(name string) *template.Template {
@@ -75,6 +105,7 @@ func (v *view) Data(req *http.Request) Data {
 		v.data = make(Data)
 	}
 	v.data["Title"] = v.Name()
+	v.data["Version"] = pkg.Version
 	return v.data
 }
 
@@ -142,10 +173,8 @@ func AddHandlers(marvin *marvin.Marvin) {
 	add(&view{prefix: "/lightstates/", name: "lightstates", data: Data{"Marvin": marvin}})
 	add(&view{prefix: "/transitions/", name: "transitions", data: Data{"Marvin": marvin}})
 
-	fs := http.FileServer(http.Dir(path.Join(Root, "static/")))
-	http.Handle("/bootstrap/", fs)
-	http.Handle("/jquery/", fs)
-	http.Handle("/js/", fs)
+	fs := longExpire(http.FileServer(http.Dir(path.Join(Root, "static/"))))
+	http.Handle("/"+pkg.Version+"/", fs)
 
 	http.HandleFunc("/post", func(w http.ResponseWriter, req *http.Request) {
 		if req.Method == "POST" {
