@@ -31,7 +31,7 @@ func init() {
 		log.Println("WARNING: could not import package:", err)
 	}
 
-	if j, err := os.OpenFile("package.json", os.O_RDONLY, 0666); err == nil {
+	if j, err := os.OpenFile(path.Join(Root, "package.json"), os.O_RDONLY, 0666); err == nil {
 		dec := json.NewDecoder(j)
 		if err = dec.Decode(&pkg); err != nil {
 			log.Println("WARNING: could not decode package.json", err)
