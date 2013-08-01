@@ -14,49 +14,17 @@
 
   <div class="row">
 
-    <div class="col-12 col-sm-6 col-lg-4">
-      <h2>Activity</h2>
+    <div class="col-12 col-sm-6 col-lg-8">
+      <h1></h1>
+      <p>Welcome, our current activity is <strong>[[state.Activity]]</strong> and our last transition was <strong>[[state.LastTransition]]</strong>. I've been running since {{.StartedOn.Format "Monday, January 2 2006 at 15:04"}}. </p>
 
-      <form class="form-inline" ng-submit="updateActivity(state.Activity, targetActivity)" autocomplete="off">
-	<span class="form-group">
-	  <label for="iAm">I am:</label>
-	  <span class="btn-group">
-	    <button id="iAm" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-	      [[state.Activity]] <span class="caret"></span>
-	    </button>
-	    <ul class="dropdown-menu">
-	      <li ng-repeat="(next, v) in state.Activities[state.Activity].Next track by $index" ng-click="updateActivity(state.Activity, next)">
-		<a class="btn btn-large btn-block btn-primary" data-transition="[[next]]">[[next]] <i class="icon-play"></i></a>
-	      </li>
-	      <li ng-repeat="(name, v) in state.Activities track by $index">
-		<a ng-click="updateActivity('[[state.Activity]]', '[[name]]')">[[name]]</a>
-	      </li>
-	    </ul>
-	    <span class="col-8 col-sm-6 col-lg-8">
-	      <input class="form-control" type="text" typeahead="activity for activity in allActivities() | filter:$viewValue" ng-model="targetActivity" placeholder="activity name">
-	      <input type="hidden" ng-model="state.Activity">
-	      <!--<button type="submit" class="btn">Add</button>-->
-	    </span>
-	  </span>
-	</span>
-
+      <form class="form-inline" ng-submit="sendMessage(message)" autocomplete="off">
+	  <label for="iAm">Marvin,</label>
+	  <input id="iAm" class="form-control" type="text" typeahead="activity for activity in allActivities() | filter:$viewValue" ng-model="message" placeholder="message to Marvin">
+	  <input type="hidden" ng-model="state.Activity">
+	  <!--<button type="submit" class="btn">Add</button>-->
       </form>
 
-    </div>
-
-
-    <div class="col-12 col-sm-6 col-lg-4">
-      <h2>Transition</h2>
-      <div class="btn-group">
-	<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-	  [[state.LastTransition]] <span class="caret"></span>
-	</button>
-	<ul class="dropdown-menu">
-	  <li ng-repeat="(name, v) in state.Transitions track by $index">
-	    <a ng-click="doTransition('[[name]]')">[[name]]</a>
-	  </li>
-	</ul>
-      </div>
     </div>
 
     <div class="col-12 col-sm-6 col-lg-4">

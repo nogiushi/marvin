@@ -44,6 +44,7 @@ type Marvin struct {
 		}
 	}
 	StatHatUserKey string
+	StartedOn      time.Time
 
 	do            chan string
 	cond          *sync.Cond // a rendezvous point for goroutines waiting for or announcing state changed
@@ -94,6 +95,7 @@ func (m *Marvin) Do(s string) {
 }
 
 func (m *Marvin) Run() {
+	m.StartedOn = time.Now()
 	var createUserChan <-chan time.Time
 	if err := m.Hue.GetState(); err != nil {
 		createUserChan = time.NewTicker(1 * time.Second).C
@@ -153,7 +155,18 @@ func (m *Marvin) Run() {
 				m.Messages = []string{"press hue link button to authenticate"}
 				log.Println(err, m.Messages)
 			}
-		case what := <-m.do:
+		case message := <-m.do:
+			what := ""
+			const IAM = "I am "
+			const DOTRANSITION = "do transition "
+			if strings.HasPrefix(message, IAM) {
+				what = message[len(IAM):]
+				m.Activity = what
+			} else if strings.HasPrefix(message, DOTRANSITION) {
+				what = message[len(DOTRANSITION):]
+			} else {
+				what = message
+			}
 			log.Println("Do:", what)
 			t, ok := m.Transitions[what]
 			if ok {

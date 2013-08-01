@@ -60,7 +60,16 @@ function MarvinCtrl($scope) {
     };
 
     $scope.allActivities = function() {
-        return Object.keys($scope.state.Activities);
+        var choices = [];
+        var states = Object.keys($scope.state.Activities);
+        for (var i = 0; i < states.length; i++) {
+            choices.push("I am " + states[i]);
+        }
+        var transition = Object.keys($scope.state.Transitions);
+        for (i = 0; i < transition.length; i++) {
+            choices.push("do transition " + transition[i]);
+        }
+        return choices;
     };
 
     $scope.allStates = function() {
@@ -71,39 +80,10 @@ function MarvinCtrl($scope) {
         }
     };
 
-    $scope.updateActivity = function(source, target) {
-        $.ajax({
-            url: "/activities/?" + $.now(),
-            type: "POST",
-            cache: false,
-            data: {
-                "sourceActivity": source,
-                "targetActivity": target},
-            statusCode: {
-                404: function() {
-                },
-                200: function() {
-                }
-            },
-            dataType: "html"
-        });
-        $scope.targetActivity = "";
-    };
-
-    $scope.doTransition = function(transition) {
-        $.ajax({
-            url: "/post?" + $.now(),
-            type: "POST",
-            cache: false,
-            data: {"do_transition": transition},
-            statusCode: {
-                404: function() {
-                },
-                200: function() {
-                }
-            },
-            dataType: "html"
-        });
+    $scope.sendMessage = function(message) {
+        var m = {"message": message};
+        $scope.connection.send(JSON.stringify(m));
+        $scope.message = "";
     };
 
     $scope.getBrightness = function(state) {
