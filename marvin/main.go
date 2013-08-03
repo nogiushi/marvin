@@ -5,6 +5,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/eikeon/marvin"
 	"github.com/eikeon/marvin/web"
@@ -24,22 +25,27 @@ func main() {
 
 	if marvin, err := marvin.NewMarvinFromFile(*config); err == nil {
 		web.AddHandlers(marvin)
-		if *cert != "" || *key != "" {
-			go func() {
-				config := &tls.Config{ClientAuth: tls.RequestClientCert}
-				server := &http.Server{Addr: *address, TLSConfig: config}
-				err = server.ListenAndServeTLS(*cert, *key)
-				if err != nil {
-					log.Print("ListenAndServe:", err)
-				}
-			}()
-		} else {
-			go func() {
-				err := http.ListenAndServe(*address, nil)
-				if err != nil {
-					log.Print("ListenAndServe:", err)
-				}
-			}()
+		addresses := strings.Split(*address, ",")
+		for i, addr := range addresses {
+			if i == 1 || (len(addresses) == 1 && *cert != "" || *key != "") {
+				log.Println("starting secure:", addr, i)
+				go func() {
+					config := &tls.Config{ClientAuth: tls.RequestClientCert}
+					server := &http.Server{Addr: addr, TLSConfig: config}
+					err = server.ListenAndServeTLS(*cert, *key)
+					if err != nil {
+						log.Print("ListenAndServe:", err)
+					}
+				}()
+			} else {
+				log.Println("starting:", addr, i)
+				go func() {
+					err := http.ListenAndServe(addr, nil)
+					if err != nil {
+						log.Print("ListenAndServe:", err)
+					}
+				}()
+			}
 		}
 		marvin.Run()
 	} else {
