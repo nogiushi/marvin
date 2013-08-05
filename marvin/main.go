@@ -27,24 +27,25 @@ func main() {
 		web.AddHandlers(marvin)
 		addresses := strings.Split(*address, ",")
 		for i, addr := range addresses {
-			if i == 1 || (len(addresses) == 1 && *cert != "" || *key != "") {
+			if i == 1 || (len(addresses) == 1 && (*cert != "" || *key != "")) {
 				log.Println("starting secure:", addr, i)
-				go func() {
+				go func(a string) {
 					config := &tls.Config{ClientAuth: tls.RequestClientCert}
-					server := &http.Server{Addr: addr, TLSConfig: config}
+					server := &http.Server{Addr: a, TLSConfig: config}
 					err = server.ListenAndServeTLS(*cert, *key)
 					if err != nil {
 						log.Print("ListenAndServe:", err)
 					}
-				}()
+				}(addr)
 			} else {
 				log.Println("starting:", addr, i)
-				go func() {
-					err := http.ListenAndServe(addr, nil)
+				go func(a string) {
+					server := &http.Server{Addr: a}
+					err := server.ListenAndServe()
 					if err != nil {
 						log.Print("ListenAndServe:", err)
 					}
-				}()
+				}(addr)
 			}
 		}
 		marvin.Run()
