@@ -45,6 +45,7 @@ type Marvin struct {
 	}
 	StatHatUserKey string
 	StartedOn      time.Time
+	MotionOn       time.Time
 
 	do            chan string
 	cond          *sync.Cond // a rendezvous point for goroutines waiting for or announcing state changed
@@ -210,6 +211,7 @@ func (m *Marvin) Run() {
 			}
 		case motion := <-m.motionChannel:
 			if motion {
+				m.MotionOn = time.Now()
 				if m.Switch["Nightlights"] && m.LastTransition != "all nightlight" {
 					m.do <- "all nightlight"
 				}
