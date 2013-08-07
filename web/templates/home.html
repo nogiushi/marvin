@@ -20,7 +20,7 @@
 
       <form class="form-inline" ng-submit="sendMessage(message)" autocomplete="off">
 	  <label for="iAm">Marvin,</label>
-	  <input id="iAm" class="form-control" type="text" typeahead="activity for activity in allActivities() | filter:$viewValue" ng-model="message" placeholder="message to Marvin">
+	  <input id="iAm" class="form-control" type="text" typeahead="activity for activity in allMessages() | filter:$viewValue" ng-model="message" placeholder="message to Marvin">
 	  <input type="hidden" ng-model="state.Activity">
 	  <!--<button type="submit" class="btn">Add</button>-->
       </form>

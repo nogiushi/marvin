@@ -59,7 +59,7 @@ function MarvinCtrl($scope) {
         $scope.connection.send(JSON.stringify(m));
     };
 
-    $scope.allActivities = function() {
+    $scope.allMessages = function() {
         var choices = [];
         var states = Object.keys($scope.state.Activities);
         for (var i = 0; i < states.length; i++) {
@@ -68,6 +68,14 @@ function MarvinCtrl($scope) {
         var transition = Object.keys($scope.state.Transitions);
         for (i = 0; i < transition.length; i++) {
             choices.push("do transition " + transition[i]);
+        }
+        var switches = Object.keys($scope.state.Switch);
+        for (i = 0; i < switches.length; i++) {
+            if ($scope.state.Switch[switches[i]] === true) {
+                choices.push("turn off " + switches[i]);
+            } else {
+                choices.push("turn on " + switches[i]);
+            }
         }
         return choices;
     };

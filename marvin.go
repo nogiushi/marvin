@@ -160,9 +160,23 @@ func (m *Marvin) Run() {
 			what := ""
 			const IAM = "I am "
 			const DOTRANSITION = "do transition "
+			const TURN = "turn "
 			if strings.HasPrefix(message, IAM) {
 				what = message[len(IAM):]
 				m.Activity = what
+			} else if strings.HasPrefix(message, TURN) {
+				words := strings.Split(message[len(TURN):], " ")
+				if len(words) == 2 {
+					var value bool
+					if words[0] == "on" {
+						value = true
+					} else {
+						value = false
+					}
+					if _, ok := m.Switch[words[1]]; ok {
+						m.Switch[words[1]] = value
+					}
+				}
 			} else if strings.HasPrefix(message, DOTRANSITION) {
 				what = message[len(DOTRANSITION):]
 			} else {
