@@ -75,7 +75,7 @@ module.exports = function(grunt) {
             }
         },
         copy: {
-            main: {
+            images: {
                 files: [
                     {
                         src: 'images/*',
