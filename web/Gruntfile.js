@@ -74,6 +74,16 @@ module.exports = function(grunt) {
                 dest: 'build/js/colorconverter.js'
             }
         },
+        copy: {
+            images: {
+                files: [
+                    {
+                        src: 'images/*',
+                        dest: 'static/<%= pkg.version %>/'
+                    }
+                ]
+            }
+        }
     });
 
     // These plugins provide necessary tasks.
@@ -84,12 +94,13 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-ngmin');
     grunt.loadNpmTasks('grunt-recess');
     grunt.loadNpmTasks('grunt-typescript');
+    grunt.loadNpmTasks('grunt-contrib-copy');
 
     // Test task.
     grunt.registerTask('test', ['jshint']);
 
     // JS distribution task.
-    grunt.registerTask('static-js', ['typescript', 'ngmin', 'concat', 'uglify']);
+    grunt.registerTask('static-js', ['typescript', 'ngmin', 'concat', 'uglify']); 
 
     // Default task(s).
     grunt.registerTask('default', ['uglify']);
@@ -97,8 +108,11 @@ module.exports = function(grunt) {
     // CSS distribution task.
     grunt.registerTask('static-css', ['recess']);
 
+    // Images distribution task
+    grunt.registerTask('static-images', ['copy']);
+
     // Full distribution task.
-    grunt.registerTask('static', ['clean', 'static-css', 'static-js']);
+    grunt.registerTask('static', ['clean', 'static-css', 'static-js', 'static-images']);
 
     // Default task.
     grunt.registerTask('default', ['test', 'static']);
