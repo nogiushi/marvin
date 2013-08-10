@@ -91,6 +91,15 @@ func (m *Marvin) GetActivity(name string) *activity {
 	}
 }
 
+func (m *Marvin) UpdateActivity(name string) {
+	s := m.GetActivity(m.Activity)
+	if s != nil {
+		s.Next[name] = true
+	}
+	m.GetActivity(name)
+	m.Activity = name
+}
+
 func (m *Marvin) Do(s string) {
 	m.do <- s
 }
@@ -163,7 +172,7 @@ func (m *Marvin) Run() {
 			const TURN = "turn "
 			if strings.HasPrefix(message, IAM) {
 				what = message[len(IAM):]
-				m.Activity = what
+				m.UpdateActivity(what)
 			} else if strings.HasPrefix(message, TURN) {
 				words := strings.Split(message[len(TURN):], " ")
 				if len(words) == 2 {

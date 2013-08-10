@@ -159,6 +159,7 @@ func StateServer(marvin *marvin.Marvin) websocket.Handler {
 			}
 		}()
 		for {
+			// TODO: fix race
 			if err := websocket.JSON.Send(ws, marvin); err != nil {
 				log.Println("State Websocket send err:", err)
 				return
@@ -184,30 +185,6 @@ func AddHandlers(marvin *marvin.Marvin) {
 				name, ok := req.Form["do_transition"]
 				if ok {
 					marvin.Do(name[0])
-				}
-			}
-			// TODO: write a response
-		} else {
-			w.WriteHeader(http.StatusMethodNotAllowed)
-		}
-	})
-	http.HandleFunc("/activities/", func(w http.ResponseWriter, req *http.Request) {
-		if req.Method == "POST" {
-			if err := req.ParseForm(); err == nil {
-				source, sok := req.Form["sourceActivity"]
-				target, dok := req.Form["targetActivity"]
-				log.Println("s:", source, "d:", target)
-				if sok {
-					s := marvin.GetActivity(source[0])
-					if s != nil && dok {
-						s.Next[target[0]] = true
-					}
-				}
-				if dok {
-					marvin.GetActivity(target[0])
-					marvin.Activity = target[0]
-					marvin.Do(target[0])
-					marvin.StateChanged()
 				}
 			}
 			// TODO: write a response
