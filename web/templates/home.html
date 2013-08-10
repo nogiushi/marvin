@@ -16,7 +16,7 @@
 
     <div class="col-12 col-sm-6 col-lg-8">
       <h1></h1>
-      <p>Welcome, our current activity is <strong>[[state.Activity]]</strong> and our last transition was <strong>[[state.LastTransition]]</strong>. I've been running since {{.StartedOn.Format "Monday, January 2 2006 at 15:04"}}.{{if .MotionSensor}} Last motion was at {{.MotionOn.Format "15:04"}}.{{end}}</p>
+      <p>Welcome, our current activity is <strong>[[state.Activity]]</strong><span ng-switch on="state.Activity==state.LastTransition"><span ng-switch-when="false"> and our last transition was <strong>[[state.LastTransition]]</strong></span></span>. I've been running since {{.StartedOn.Format "Monday, January 2 2006 at 15:04"}}.{{if .MotionSensor}} Last motion was at {{.MotionOn.Format "15:04"}}.{{end}}</p>
 
       <form class="form-inline" ng-submit="sendMessage(message)" autocomplete="off">
 	  <label for="iAm">Marvin,</label>
