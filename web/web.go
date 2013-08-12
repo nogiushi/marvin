@@ -142,7 +142,7 @@ func StateServer(marvin *marvin.Marvin) websocket.Handler {
 				var msg message
 				if err := websocket.JSON.Receive(ws, &msg); err == nil {
 					if msg["message"] != nil {
-						marvin.Do(msg["message"].(string))
+						marvin.Do("web", msg["message"].(string))
 					} else if msg["action"] == "updateSwitch" {
 						marvin.Switch[msg["name"].(string)] = msg["value"].(bool)
 						marvin.StateChanged()
@@ -184,7 +184,7 @@ func AddHandlers(marvin *marvin.Marvin) {
 			if err := req.ParseForm(); err == nil {
 				name, ok := req.Form["do_transition"]
 				if ok {
-					marvin.Do(name[0])
+					marvin.Do("web", name[0])
 				}
 			}
 			// TODO: write a response

@@ -19,6 +19,25 @@ import (
 	"github.com/eikeon/tsl2561"
 )
 
+type message struct {
+	Who, When, What string
+}
+
+type cb struct {
+	Buffer []message
+	Start  int
+	End    int
+}
+
+func (b *cb) Write(v message) {
+	C := cap(b.Buffer)
+	b.Buffer[b.End%C] = v
+	b.End += 1
+	if b.End-b.Start > C {
+		b.Start = b.End - C
+	}
+}
+
 type activity struct {
 	Name string
 	Next map[string]bool
@@ -47,7 +66,9 @@ type Marvin struct {
 	StartedOn      time.Time
 	MotionOn       time.Time
 
-	do            chan string
+	RecentMessages cb
+
+	do            chan message
 	cond          *sync.Cond // a rendezvous point for goroutines waiting for or announcing state changed
 	lightSensor   *tsl2561.TSL2561
 	motionChannel <-chan bool
@@ -100,12 +121,14 @@ func (m *Marvin) UpdateActivity(name string) {
 	m.Activity = name
 }
 
-func (m *Marvin) Do(s string) {
-	m.do <- s
+func (m *Marvin) Do(who, what string) {
+	when := time.Now().Format("15:04 Monday, January 2 2006")
+	m.do <- message{who, when, what}
 }
 
 func (m *Marvin) Run() {
 	m.StartedOn = time.Now()
+	m.RecentMessages = cb{Buffer: make([]message, 3)}
 	var createUserChan <-chan time.Time
 	if err := m.Hue.GetState(); err != nil {
 		createUserChan = time.NewTicker(1 * time.Second).C
@@ -121,8 +144,8 @@ func (m *Marvin) Run() {
 	if m.Present == nil {
 		m.Present = make(map[string]bool)
 	}
-	m.do = make(chan string, 2)
-	m.do <- "startup"
+	m.do = make(chan message, 2)
+	m.Do("Marvin", "startup")
 
 	var scheduledEventsChannel <-chan scheduler.Event
 	if c, err := m.Schedule.Run(); err == nil {
@@ -166,15 +189,16 @@ func (m *Marvin) Run() {
 				log.Println(err, m.Messages)
 			}
 		case message := <-m.do:
+			m.RecentMessages.Write(message)
 			what := ""
 			const IAM = "I am "
 			const DOTRANSITION = "do transition "
 			const TURN = "turn "
-			if strings.HasPrefix(message, IAM) {
-				what = message[len(IAM):]
+			if strings.HasPrefix(message.What, IAM) {
+				what = message.What[len(IAM):]
 				m.UpdateActivity(what)
-			} else if strings.HasPrefix(message, TURN) {
-				words := strings.Split(message[len(TURN):], " ")
+			} else if strings.HasPrefix(message.What, TURN) {
+				words := strings.Split(message.What[len(TURN):], " ")
 				if len(words) == 2 {
 					var value bool
 					if words[0] == "on" {
@@ -186,10 +210,10 @@ func (m *Marvin) Run() {
 						m.Switch[words[1]] = value
 					}
 				}
-			} else if strings.HasPrefix(message, DOTRANSITION) {
-				what = message[len(DOTRANSITION):]
+			} else if strings.HasPrefix(message.What, DOTRANSITION) {
+				what = message.What[len(DOTRANSITION):]
 			} else {
-				what = message
+				what = message.What
 			}
 			log.Println("Do:", what)
 			t, ok := m.Transitions[what]
@@ -211,7 +235,7 @@ func (m *Marvin) Run() {
 			m.StateChanged()
 		case e := <-scheduledEventsChannel:
 			if m.Switch["Schedule"] {
-				m.do <- e.What
+				m.Do("Marvin", e.What)
 			}
 		case light := <-m.lightChannel:
 			go m.postStatValue("light broadband", float64(light))
@@ -221,14 +245,14 @@ func (m *Marvin) Run() {
 					dayLightTime = time.Now()
 					m.StateChanged()
 					if m.Switch["Daylights"] {
-						m.do <- "daylight"
+						m.Do("Marvin", "daylight")
 					}
 				} else if light < 4900 && (m.DayLight != false) {
 					m.DayLight = false
 					dayLightTime = time.Now()
 					m.StateChanged()
 					if m.Switch["Daylights"] {
-						m.do <- "daylight off"
+						m.Do("Marvin", "daylight off")
 					}
 				}
 			}
@@ -236,7 +260,7 @@ func (m *Marvin) Run() {
 			if motion {
 				m.MotionOn = time.Now()
 				if m.Switch["Nightlights"] && m.LastTransition != "all nightlight" {
-					m.do <- "all nightlight"
+					m.Do("Marvin", "all nightlight")
 				}
 				const duration = 60 * time.Second
 				if motionTimer == nil {
@@ -255,7 +279,7 @@ func (m *Marvin) Run() {
 			motionTimer = nil
 			motionTimeout = nil
 			if m.Switch["Nightlights"] {
-				m.do <- "all off"
+				m.Do("Marvin", "all off")
 			}
 		case p := <-presenceChannel:
 			if m.Present[p.Name] != p.Status {
