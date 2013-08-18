@@ -47,8 +47,11 @@ function MarvinCtrl($scope) {
     });
 
     $scope.changeState = function(name, value) {
-        var m = {"action": "updateSwitch", "name": name, "value": value};
-        $scope.connection.send(JSON.stringify(m));
+        if (value === true) {
+            $scope.sendMessage("turn on " + name);
+        } else {
+            $scope.sendMessage("turn off " + name);
+        }
     };
 
     $scope.ON = {"on": true};
@@ -169,6 +172,6 @@ function MarvinCtrl($scope) {
     };
 
     $scope.formatWhen = function(when) {
-	return when;
+        return when;
     };
 }
