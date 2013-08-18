@@ -14,6 +14,7 @@ import (
 
 	"github.com/stathat/go"
 
+	"github.com/eikeon/dynamodb"
 	"github.com/eikeon/gpio"
 	"github.com/eikeon/hue"
 	"github.com/eikeon/presence"
@@ -23,7 +24,7 @@ import (
 
 type message struct {
 	Hash string `db:"HASH"`
-	When string
+	When string `db:"RANGE"`
 	Who  string
 	What string
 	Why  string
@@ -84,12 +85,13 @@ type Marvin struct {
 
 	RecentMessages cb
 
-	do            chan message
+	do, persist   chan message
 	cond          *sync.Cond // a rendezvous point for goroutines waiting for or announcing state changed
 	lightSensor   *tsl2561.TSL2561
 	motionChannel <-chan bool
 	lightChannel  <-chan int
 	path          string
+	db            dynamodb.DynamoDB
 }
 
 func NewMarvinFromFile(path string) (*Marvin, error) {
@@ -104,7 +106,39 @@ func NewMarvinFromFile(path string) (*Marvin, error) {
 	} else {
 		return nil, err
 	}
+	marvin.initDB()
 	return &marvin, nil
+}
+
+func (m *Marvin) initDB() {
+	db := dynamodb.NewDynamoDB()
+	if db != nil {
+		m.db = db
+		messageTable, err := db.Register("message", (*message)(nil))
+		if err != nil {
+			panic(err)
+		}
+		if err := db.CreateTable(messageTable); err != nil {
+			log.Println("CreateTable:", err)
+		}
+		for {
+			if description, err := db.DescribeTable("message"); err != nil {
+				log.Println("DescribeTable err:", err)
+			} else {
+				log.Println(description.Table.TableStatus)
+				if description.Table.TableStatus == "ACTIVE" {
+					break
+				}
+			}
+			time.Sleep(time.Second)
+		}
+		m.persist = make(chan message, 2)
+		go func() {
+			for msg := range m.persist {
+				db.PutItem("message", db.ToItem(&msg))
+			}
+		}()
+	}
 }
 
 func (m *Marvin) MotionSensor() bool {
@@ -138,7 +172,11 @@ func (m *Marvin) UpdateActivity(name string) {
 }
 
 func (m *Marvin) Do(who, what, why string) {
-	m.do <- NewMessage(who, what, why)
+	msg := NewMessage(who, what, why)
+	m.do <- msg
+	if m.persist != nil {
+		m.persist <- msg
+	}
 }
 
 func (m *Marvin) Run() {
@@ -204,6 +242,7 @@ func (m *Marvin) Run() {
 				log.Println(err, m.Messages)
 			}
 		case message := <-m.do:
+			log.Println("Message:", what)
 			m.RecentMessages.Write(message)
 			what := ""
 			const IAM = "I am "
@@ -230,7 +269,6 @@ func (m *Marvin) Run() {
 			} else {
 				what = message.What
 			}
-			log.Println("Do:", what)
 			t, ok := m.Transitions[what]
 			if ok {
 				for k, v := range t.Switch {
