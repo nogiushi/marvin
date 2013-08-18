@@ -197,7 +197,7 @@ func (m *Marvin) Run() {
 	if m.Present == nil {
 		m.Present = make(map[string]bool)
 	}
-	m.do = make(chan message, 2)
+	m.do = make(chan message, 100)
 	m.Do("Marvin", "chime", "startup")
 
 	var scheduledEventsChannel <-chan scheduler.Event
@@ -299,7 +299,12 @@ func (m *Marvin) Run() {
 				} else {
 					address += "/action"
 				}
-				m.Hue.Set(address, m.States[command.State])
+				b, err := json.Marshal(m.States[command.State])
+				if err != nil {
+					log.Println("ERROR: json.Marshal: " + err.Error())
+				} else {
+					m.Do("Marvin", "set hue address "+address+" to "+string(b), what)
+				}
 			}
 			m.StateChanged()
 		case e := <-scheduledEventsChannel:
@@ -313,20 +318,23 @@ func (m *Marvin) Run() {
 					m.DayLight = true
 					dayLightTime = time.Now()
 					m.StateChanged()
+					m.Do("Marvin", "it is light", "ambient light sensor")
 					if m.Switch["Daylights"] {
-						m.Do("Marvin", "daylight", "ambient light")
+						m.Do("Marvin", "daylight", "it is light")
 					}
 				} else if light < 4900 && (m.DayLight != false) {
 					m.DayLight = false
 					dayLightTime = time.Now()
 					m.StateChanged()
+					m.Do("Marvin", "it is dark", "ambient light sensor")
 					if m.Switch["Daylights"] {
-						m.Do("Marvin", "daylight off", "ambient light")
+						m.Do("Marvin", "daylight off", "it is dark")
 					}
 				}
 			}
 		case motion := <-m.motionChannel:
 			if motion {
+				m.Do("Marvin", "motion detected", "motion sensor")
 				m.MotionOn = time.Now()
 				if m.Switch["Nightlights"] && m.LastTransition != "all nightlight" {
 					m.Do("Marvin", "all nightlight", "motion detected")
@@ -354,6 +362,14 @@ func (m *Marvin) Run() {
 			if m.Present[p.Name] != p.Status {
 				m.Present[p.Name] = p.Status
 				m.StateChanged()
+				var status string
+				if p.Status {
+					status = "home"
+				} else {
+					status = "away"
+				}
+				m.Do("Marvin", p.Name+" is "+status, "presence")
+
 			}
 		case <-saveChannel:
 			if err := m.Save(m.path); err == nil {
