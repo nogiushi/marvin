@@ -246,7 +246,6 @@ func (m *Marvin) Run() {
 					address += "/action"
 				}
 				m.Hue.Set(address, m.States[command.State])
-				m.Do("marvin", "set "+address+" to "+command.State, what)
 			}
 			m.StateChanged()
 		case e := <-scheduledEventsChannel:
