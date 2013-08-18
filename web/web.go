@@ -142,7 +142,14 @@ func StateServer(marvin *marvin.Marvin) websocket.Handler {
 				var msg message
 				if err := websocket.JSON.Receive(ws, &msg); err == nil {
 					if msg["message"] != nil {
-						marvin.Do("web", msg["message"].(string))
+						req := ws.Request()
+						who := req.RemoteAddr
+						if req.TLS != nil {
+							for _, c := range req.TLS.PeerCertificates {
+								who = c.Subject.CommonName
+							}
+						}
+						marvin.Do(who, msg["message"].(string), "web")
 					} else if msg["action"] == "updateSwitch" {
 						marvin.Switch[msg["name"].(string)] = msg["value"].(bool)
 						marvin.StateChanged()
@@ -184,7 +191,8 @@ func AddHandlers(marvin *marvin.Marvin) {
 			if err := req.ParseForm(); err == nil {
 				name, ok := req.Form["do_transition"]
 				if ok {
-					marvin.Do("web", name[0])
+					who := req.RemoteAddr
+					marvin.Do(who, name[0], "web")
 				}
 			}
 			// TODO: write a response

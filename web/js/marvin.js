@@ -168,4 +168,7 @@ function MarvinCtrl($scope) {
         return messages;
     };
 
+    $scope.formatWhen = function(when) {
+	return when;
+    };
 }

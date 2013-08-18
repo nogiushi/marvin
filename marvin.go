@@ -1,7 +1,9 @@
 package marvin
 
 import (
+	"crypto/md5"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -20,7 +22,21 @@ import (
 )
 
 type message struct {
-	Who, When, What string
+	Hash string `db:"HASH"`
+	When string
+	Who  string
+	What string
+	Why  string
+}
+
+func NewMessage(who, what, why string) message {
+	when := time.Now().Format(time.RFC3339Nano)
+
+	h := md5.New()
+	h.Write([]byte(when))
+	hash := fmt.Sprintf("%x", h.Sum(nil))
+
+	return message{Hash: hash, When: when, What: what, Who: who, Why: why}
 }
 
 type cb struct {
@@ -121,9 +137,8 @@ func (m *Marvin) UpdateActivity(name string) {
 	m.Activity = name
 }
 
-func (m *Marvin) Do(who, what string) {
-	when := time.Now().Format("15:04 Monday, January 2 2006")
-	m.do <- message{who, when, what}
+func (m *Marvin) Do(who, what, why string) {
+	m.do <- NewMessage(who, what, why)
 }
 
 func (m *Marvin) Run() {
@@ -145,7 +160,7 @@ func (m *Marvin) Run() {
 		m.Present = make(map[string]bool)
 	}
 	m.do = make(chan message, 2)
-	m.Do("Marvin", "startup")
+	m.Do("Marvin", "chime", "startup")
 
 	var scheduledEventsChannel <-chan scheduler.Event
 	if c, err := m.Schedule.Run(); err == nil {
@@ -231,11 +246,12 @@ func (m *Marvin) Run() {
 					address += "/action"
 				}
 				m.Hue.Set(address, m.States[command.State])
+				m.Do("marvin", "set "+address+" to "+command.State, what)
 			}
 			m.StateChanged()
 		case e := <-scheduledEventsChannel:
 			if m.Switch["Schedule"] {
-				m.Do("Marvin", e.What)
+				m.Do("Marvin", e.What, "schedule")
 			}
 		case light := <-m.lightChannel:
 			go m.postStatValue("light broadband", float64(light))
@@ -245,14 +261,14 @@ func (m *Marvin) Run() {
 					dayLightTime = time.Now()
 					m.StateChanged()
 					if m.Switch["Daylights"] {
-						m.Do("Marvin", "daylight")
+						m.Do("Marvin", "daylight", "ambient light")
 					}
 				} else if light < 4900 && (m.DayLight != false) {
 					m.DayLight = false
 					dayLightTime = time.Now()
 					m.StateChanged()
 					if m.Switch["Daylights"] {
-						m.Do("Marvin", "daylight off")
+						m.Do("Marvin", "daylight off", "ambient light")
 					}
 				}
 			}
@@ -260,7 +276,7 @@ func (m *Marvin) Run() {
 			if motion {
 				m.MotionOn = time.Now()
 				if m.Switch["Nightlights"] && m.LastTransition != "all nightlight" {
-					m.Do("Marvin", "all nightlight")
+					m.Do("Marvin", "all nightlight", "motion detected")
 				}
 				const duration = 60 * time.Second
 				if motionTimer == nil {
@@ -279,7 +295,7 @@ func (m *Marvin) Run() {
 			motionTimer = nil
 			motionTimeout = nil
 			if m.Switch["Nightlights"] {
-				m.Do("Marvin", "all off")
+				m.Do("Marvin", "all off", "motion timeout")
 			}
 		case p := <-presenceChannel:
 			if m.Present[p.Name] != p.Status {

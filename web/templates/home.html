@@ -18,7 +18,7 @@
       <h1></h1>
       <ul class="list-group" ng-switch on="state.RecentMessages.Start > 0">
 	<li ng-switch-when="true" class="list-group-item">...</li>
-	<li class="list-group-item" ng-repeat="message in recentMessages(false)">[[message.Who]]: <span class="text-primary">[[message.What]]</span> at <span class="text-muted">[[message.When]]</span></li>
+	<li class="list-group-item" ng-repeat="message in recentMessages(false)">[[message.Who]]: <span class="text-primary">[[message.What]]</span> <span class="text-muted">([[message.Why]])</span> at <small>[[formatWhen(message.When)]]</small></li>
       </ul>
       <br>
       <form class="form-inline" ng-submit="sendMessage(message)" autocomplete="off">
