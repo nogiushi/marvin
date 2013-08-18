@@ -58,8 +58,7 @@ function MarvinCtrl($scope) {
     $scope.OFF = {"on": false};
 
     $scope.setHue = function(address, value) {
-        var m = {"action": "setHue", "address": address, "value": value};
-        $scope.connection.send(JSON.stringify(m));
+        $scope.sendMessage("set hue address " + address + " to " + JSON.stringify(value));
     };
 
     $scope.allMessages = function() {

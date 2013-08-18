@@ -242,15 +242,31 @@ func (m *Marvin) Run() {
 				log.Println(err, m.Messages)
 			}
 		case message := <-m.do:
-			log.Println("Message:", what)
+			log.Println("Message:", message)
 			m.RecentMessages.Write(message)
 			what := ""
 			const IAM = "I am "
+			const SETHUE = "set hue address "
 			const DOTRANSITION = "do transition "
 			const TURN = "turn "
 			if strings.HasPrefix(message.What, IAM) {
 				what = message.What[len(IAM):]
 				m.UpdateActivity(what)
+			} else if strings.HasPrefix(message.What, SETHUE) {
+				words := strings.Split(message.What[len(SETHUE):], " ")
+				if len(words) == 3 {
+					address := words[0]
+					state := words[2]
+					var s interface{}
+					dec := json.NewDecoder(strings.NewReader(state))
+					if err := dec.Decode(&s); err != nil {
+						log.Println("json decode err:", err)
+					} else {
+						m.Hue.Set(address, s)
+					}
+				} else {
+					log.Println("unexpected number of words in:", message)
+				}
 			} else if strings.HasPrefix(message.What, TURN) {
 				words := strings.Split(message.What[len(TURN):], " ")
 				if len(words) == 2 {

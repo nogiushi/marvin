@@ -150,9 +150,6 @@ func StateServer(marvin *marvin.Marvin) websocket.Handler {
 							}
 						}
 						marvin.Do(who, msg["message"].(string), "web")
-					} else if msg["action"] == "setHue" {
-						marvin.Hue.Set(msg["address"].(string), msg["value"])
-						marvin.StateChanged()
 					} else {
 						log.Printf("ignoring: %#v\n", msg)
 					}
