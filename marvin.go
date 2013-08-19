@@ -1,9 +1,7 @@
 package marvin
 
 import (
-	"crypto/md5"
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -22,7 +20,7 @@ import (
 	"github.com/eikeon/tsl2561"
 )
 
-type message struct {
+type Message struct {
 	Hash string `db:"HASH"`
 	When string `db:"RANGE"`
 	Who  string
@@ -30,23 +28,21 @@ type message struct {
 	Why  string
 }
 
-func NewMessage(who, what, why string) message {
+func NewMessage(who, what, why string) Message {
 	when := time.Now().Format(time.RFC3339Nano)
 
-	h := md5.New()
-	h.Write([]byte(when))
-	hash := fmt.Sprintf("%x", h.Sum(nil))
+	hash := when[0:10]
 
-	return message{Hash: hash, When: when, What: what, Who: who, Why: why}
+	return Message{Hash: hash, When: when, What: what, Who: who, Why: why}
 }
 
 type cb struct {
-	Buffer []message
+	Buffer []Message
 	Start  int
 	End    int
 }
 
-func (b *cb) Write(v message) {
+func (b *cb) Write(v Message) {
 	C := cap(b.Buffer)
 	b.Buffer[b.End%C] = v
 	b.End += 1
@@ -85,7 +81,7 @@ type Marvin struct {
 
 	RecentMessages cb
 
-	do, persist   chan message
+	do, persist   chan Message
 	cond          *sync.Cond // a rendezvous point for goroutines waiting for or announcing state changed
 	lightSensor   *tsl2561.TSL2561
 	motionChannel <-chan bool
@@ -110,11 +106,21 @@ func NewMarvinFromFile(path string) (*Marvin, error) {
 	return &marvin, nil
 }
 
+var messageTableName string = "MarvinMessage"
+
+func init() {
+	if hostname, err := os.Hostname(); err == nil {
+		messageTableName = messageTableName + "-" + hostname
+	} else {
+		log.Println("error getting hostname:", err)
+	}
+}
+
 func (m *Marvin) initDB() {
 	db := dynamodb.NewDynamoDB()
 	if db != nil {
 		m.db = db
-		messageTable, err := db.Register("message", (*message)(nil))
+		messageTable, err := db.Register(messageTableName, (*Message)(nil))
 		if err != nil {
 			panic(err)
 		}
@@ -122,7 +128,7 @@ func (m *Marvin) initDB() {
 			log.Println("CreateTable:", err)
 		}
 		for {
-			if description, err := db.DescribeTable("message"); err != nil {
+			if description, err := db.DescribeTable(messageTableName); err != nil {
 				log.Println("DescribeTable err:", err)
 			} else {
 				log.Println(description.Table.TableStatus)
@@ -132,10 +138,10 @@ func (m *Marvin) initDB() {
 			}
 			time.Sleep(time.Second)
 		}
-		m.persist = make(chan message, 2)
+		m.persist = make(chan Message, 512)
 		go func() {
 			for msg := range m.persist {
-				db.PutItem("message", db.ToItem(&msg))
+				db.PutItem(messageTableName, db.ToItem(&msg))
 			}
 		}()
 	}
@@ -181,7 +187,7 @@ func (m *Marvin) Do(who, what, why string) {
 
 func (m *Marvin) Run() {
 	m.StartedOn = time.Now()
-	m.RecentMessages = cb{Buffer: make([]message, 3)}
+	m.RecentMessages = cb{Buffer: make([]Message, 3)}
 	var createUserChan <-chan time.Time
 	if err := m.Hue.GetState(); err != nil {
 		createUserChan = time.NewTicker(1 * time.Second).C
@@ -197,7 +203,7 @@ func (m *Marvin) Run() {
 	if m.Present == nil {
 		m.Present = make(map[string]bool)
 	}
-	m.do = make(chan message, 100)
+	m.do = make(chan Message, 100)
 	m.Do("Marvin", "chime", "startup")
 
 	var scheduledEventsChannel <-chan scheduler.Event
@@ -443,4 +449,15 @@ func (m *Marvin) postStatCount(name string, value int) {
 			log.Printf("error posting value %v: %d", err, value)
 		}
 	}
+}
+
+func (m *Marvin) Log() (messages []*Message) {
+	if sr, err := m.db.Scan(messageTableName); err == nil {
+		for i := 0; i < sr.Count; i++ {
+			messages = append(messages, m.db.FromItem(messageTableName, sr.Items[i]).(*Message))
+		}
+	} else {
+		log.Println("scan error:", err)
+	}
+	return
 }

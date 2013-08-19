@@ -74,62 +74,40 @@ func getTemplate(name string) *template.Template {
 	}
 }
 
-type View interface {
-	Prefix() string
-	Name() string
-	Match(req *http.Request) bool
-	Data(req *http.Request) Data
-}
+type templateData map[string]interface{}
 
-type Data map[string]interface{}
-
-type view struct {
-	prefix, name string
-	data         Data
-}
-
-func (v *view) Prefix() string {
-	return v.prefix
-}
-
-func (v *view) Name() string {
-	return v.name
-}
-
-func (v *view) Match(req *http.Request) bool {
-	return req.URL.Path == v.Prefix()
-}
-
-func (v *view) Data(req *http.Request) Data {
-	if v.data == nil {
-		v.data = make(Data)
+func writeTemplate(t *template.Template, d templateData, w http.ResponseWriter) {
+	var bw bytes.Buffer
+	h := md5.New()
+	mw := io.MultiWriter(&bw, h)
+	err := t.ExecuteTemplate(mw, "html", d)
+	if err == nil {
+		w.Header().Set("ETag", fmt.Sprintf(`"%x"`, h.Sum(nil)))
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", bw.Len()))
+		w.Write(bw.Bytes())
+	} else {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	v.data["Title"] = v.Name()
-	v.data["Version"] = pkg.Version
-	return v.data
 }
 
-func add(view View) {
-	t := getTemplate("templates/" + view.Name() + ".html")
-	http.HandleFunc(view.Prefix(), func(w http.ResponseWriter, req *http.Request) {
-		var d Data
-		if view.Match(req) {
-			d = view.Data(req)
+func handleTemplate(prefix, name string, data templateData) {
+	t := getTemplate("templates/" + name + ".html")
+	http.HandleFunc(prefix, func(w http.ResponseWriter, req *http.Request) {
+		d := templateData{}
+		d["Title"] = name
+		d["Version"] = pkg.Version
+		if data != nil {
+			for k, v := range data {
+				d[k] = v
+			}
+		}
+		if req.URL.Path == prefix {
+			d["Found"] = true
 		} else {
 			w.Header().Set("Cache-Control", "max-age=10, must-revalidate")
 			w.WriteHeader(http.StatusNotFound)
 		}
-		var bw bytes.Buffer
-		h := md5.New()
-		mw := io.MultiWriter(&bw, h)
-		err := t.ExecuteTemplate(mw, "html", d)
-		if err == nil {
-			w.Header().Set("ETag", fmt.Sprintf(`"%x"`, h.Sum(nil)))
-			w.Header().Set("Content-Length", fmt.Sprintf("%d", bw.Len()))
-			w.Write(bw.Bytes())
-		} else {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+		writeTemplate(t, d, w)
 	})
 }
 
@@ -170,12 +148,13 @@ func StateServer(marvin *marvin.Marvin) websocket.Handler {
 	}
 }
 
-func AddHandlers(marvin *marvin.Marvin) {
-	add(&view{prefix: "/", name: "home", data: Data{"Marvin": marvin}})
-	add(&view{prefix: "/schedule/", name: "schedule", data: Data{"Marvin": marvin}})
-	add(&view{prefix: "/senses/", name: "senses", data: Data{"Marvin": marvin}})
-	add(&view{prefix: "/lightstates/", name: "lightstates", data: Data{"Marvin": marvin}})
-	add(&view{prefix: "/transitions/", name: "transitions", data: Data{"Marvin": marvin}})
+func AddHandlers(m *marvin.Marvin) {
+	handleTemplate("/", "home", templateData{"Marvin": m})
+	handleTemplate("/schedule/", "schedule", templateData{"Marvin": m})
+	handleTemplate("/senses/", "senses", templateData{"Marvin": m})
+	handleTemplate("/lightstates/", "lightstates", templateData{"Marvin": m})
+	handleTemplate("/transitions/", "transitions", templateData{"Marvin": m})
+	handleTemplate("/messages/", "messages", templateData{"Marvin": m})
 
 	fs := longExpire(http.FileServer(http.Dir(path.Join(Root, "static/"))))
 	http.Handle("/"+pkg.Version+"/", fs)
@@ -186,7 +165,7 @@ func AddHandlers(marvin *marvin.Marvin) {
 				name, ok := req.Form["do_transition"]
 				if ok {
 					who := req.RemoteAddr
-					marvin.Do(who, name[0], "web")
+					m.Do(who, name[0], "web")
 				}
 			}
 			// TODO: write a response
@@ -194,5 +173,5 @@ func AddHandlers(marvin *marvin.Marvin) {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
-	http.Handle("/state", websocket.Handler(StateServer(marvin)))
+	http.Handle("/state", websocket.Handler(StateServer(m)))
 }
