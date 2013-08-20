@@ -452,7 +452,11 @@ func (m *Marvin) postStatCount(name string, value int) {
 }
 
 func (m *Marvin) Log() (messages []*Message) {
-	if sr, err := m.db.Scan(messageTableName); err == nil {
+	when := time.Now().Format(time.RFC3339Nano)
+	hash := when[0:10]
+	conditions := dynamodb.KeyConditions{"Hash": {[]dynamodb.AttributeValue{{"S": hash}}, "EQ"}}
+	q := dynamodb.Query{TableName: messageTableName, KeyConditions: conditions}
+	if sr, err := m.db.Query(&q); err == nil {
 		for i := 0; i < sr.Count; i++ {
 			messages = append(messages, m.db.FromItem(messageTableName, sr.Items[i]).(*Message))
 		}
