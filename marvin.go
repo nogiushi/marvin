@@ -120,15 +120,16 @@ func (m *Marvin) initDB() {
 	db := dynamodb.NewDynamoDB()
 	if db != nil {
 		m.db = db
-		messageTable, err := db.Register(messageTableName, (*Message)(nil))
+		t, err := db.Register(messageTableName, (*Message)(nil))
 		if err != nil {
 			panic(err)
 		}
-		if err := db.CreateTable(messageTable); err != nil {
+		pt := dynamodb.ProvisionedThroughput{ReadCapacityUnits: 1, WriteCapacityUnits: 1}
+		if _, err := db.CreateTable(t.TableName, t.AttributeDefinitions, t.KeySchema, pt, nil); err != nil {
 			log.Println("CreateTable:", err)
 		}
 		for {
-			if description, err := db.DescribeTable(messageTableName); err != nil {
+			if description, err := db.DescribeTable(messageTableName, nil); err != nil {
 				log.Println("DescribeTable err:", err)
 			} else {
 				log.Println(description.Table.TableStatus)
@@ -141,7 +142,7 @@ func (m *Marvin) initDB() {
 		m.persist = make(chan Message, 512)
 		go func() {
 			for msg := range m.persist {
-				db.PutItem(messageTableName, db.ToItem(&msg))
+				db.PutItem(messageTableName, db.ToItem(&msg), nil)
 			}
 		}()
 	}
@@ -455,8 +456,7 @@ func (m *Marvin) Log() (messages []*Message) {
 	when := time.Now().Format(time.RFC3339Nano)
 	hash := when[0:10]
 	conditions := dynamodb.KeyConditions{"Hash": {[]dynamodb.AttributeValue{{"S": hash}}, "EQ"}}
-	q := dynamodb.Query{TableName: messageTableName, KeyConditions: conditions}
-	if sr, err := m.db.Query(&q); err == nil {
+	if sr, err := m.db.Query(messageTableName, &dynamodb.QueryOptions{KeyConditions: conditions}); err == nil {
 		for i := 0; i < sr.Count; i++ {
 			messages = append(messages, m.db.FromItem(messageTableName, sr.Items[i]).(*Message))
 		}
