@@ -335,7 +335,6 @@ func (m *Marvin) Run() {
 						if err != nil {
 							log.Println("ERROR:", err)
 						}
-						m.StateChanged()
 					}
 				} else {
 					log.Println("unexpected number of words in:", message)
