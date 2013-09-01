@@ -113,39 +113,45 @@ func handleTemplate(prefix, name string, data templateData) {
 
 type message map[string]interface{}
 
-func StateServer(marvin *marvin.Marvin) websocket.Handler {
-	return func(ws *websocket.Conn) {
-		go func() {
-			for {
-				var msg message
-				if err := websocket.JSON.Receive(ws, &msg); err == nil {
-					if msg["message"] != nil {
-						req := ws.Request()
-						who := req.RemoteAddr
-						if req.TLS != nil {
-							for _, c := range req.TLS.PeerCertificates {
-								who = c.Subject.CommonName
-							}
-						}
-						marvin.Do(who, msg["message"].(string), "web")
-					} else {
-						log.Printf("ignoring: %#v\n", msg)
-					}
-				} else {
-					log.Println("State Websocket receive err:", err)
-					return
-				}
-			}
-		}()
+type stateServer struct {
+	marvin *marvin.Marvin
+}
+
+func (s stateServer) wsHandler(ws *websocket.Conn) {
+	stateChanges := make(chan marvin.State, 10)
+	s.marvin.Register(&stateChanges)
+	defer func() { s.marvin.Unregister(&stateChanges) }()
+	go func() {
 		for {
-			// TODO: fix race
-			if err := websocket.JSON.Send(ws, marvin); err != nil {
-				log.Println("State Websocket send err:", err)
+			var msg message
+			if err := websocket.JSON.Receive(ws, &msg); err == nil {
+				if msg["message"] != nil {
+					req := ws.Request()
+					who := req.RemoteAddr
+					if req.TLS != nil {
+						for _, c := range req.TLS.PeerCertificates {
+							who = c.Subject.CommonName
+						}
+					}
+					s.marvin.Do(who, msg["message"].(string), "web")
+				} else {
+					log.Printf("ignoring: %#v\n", msg)
+				}
+			} else {
+				log.Println("State Websocket receive err:", err)
 				return
 			}
-			marvin.WaitStateChanged()
+		}
+
+	}()
+
+	for state := range stateChanges {
+		if err := websocket.JSON.Send(ws, state); err != nil {
+			log.Println("State Websocket send err:", err)
+			break
 		}
 	}
+	ws.Close()
 }
 
 func AddHandlers(m *marvin.Marvin) {
@@ -173,5 +179,6 @@ func AddHandlers(m *marvin.Marvin) {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
-	http.Handle("/state", websocket.Handler(StateServer(m)))
+	s := &stateServer{marvin: m}
+	http.Handle("/state", websocket.Handler(s.wsHandler))
 }

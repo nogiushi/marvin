@@ -1,6 +1,7 @@
 package marvin
 
 import (
+	"bytes"
 	"encoding/json"
 	"log"
 	"os"
@@ -56,6 +57,63 @@ type activity struct {
 	Next map[string]bool
 }
 
+type State Marvin
+
+type listeners struct {
+	changes chan State
+	last    State
+	m       map[*chan State]bool
+	sync.Mutex
+}
+
+func (sc *listeners) notify() {
+	for s := range sc.changes {
+		sc.Lock()
+		for o := range sc.m {
+			sc.last = s
+			*o <- s
+		}
+		sc.Unlock()
+	}
+}
+
+func (sc *listeners) Register(c *chan State) {
+	sc.Lock()
+	defer sc.Unlock()
+	sc.m[c] = true
+	*c <- sc.last
+}
+
+func (sc *listeners) Unregister(c *chan State) {
+	sc.Lock()
+	defer sc.Unlock()
+	delete(sc.m, c)
+	close(*c)
+}
+
+func (m *Marvin) StateChanged() {
+	for len(m.changes) > 0 {
+		select {
+		case <-m.changes:
+			log.Println("ignoring previous change since there's a new one")
+		default:
+		}
+	}
+	// encode and decode to make copy
+	var buf bytes.Buffer
+	ec := json.NewEncoder(&buf)
+	if err := ec.Encode(m); err != nil {
+		return
+	}
+	var c Marvin
+	dec := json.NewDecoder(&buf)
+	if err := dec.Decode(&c); err != nil {
+		return
+	}
+
+	m.changes <- State(c)
+}
+
 type Marvin struct {
 	Hue            hue.Hue
 	Activities     map[string]*activity
@@ -82,12 +140,12 @@ type Marvin struct {
 	RecentMessages cb
 
 	do, persist   chan Message
-	cond          *sync.Cond // a rendezvous point for goroutines waiting for or announcing state changed
 	lightSensor   *tsl2561.TSL2561
 	motionChannel <-chan bool
 	lightChannel  <-chan int
 	path          string
 	db            dynamodb.DynamoDB
+	*listeners
 }
 
 func NewMarvinFromFile(path string) (*Marvin, error) {
@@ -187,6 +245,8 @@ func (m *Marvin) Do(who, what, why string) {
 }
 
 func (m *Marvin) Run() {
+	m.listeners = &listeners{changes: make(chan State, 2), m: make(map[*chan State]bool)}
+	go m.listeners.notify()
 	m.StartedOn = time.Now()
 	m.RecentMessages = cb{Buffer: make([]Message, 3)}
 	var createUserChan <-chan time.Time
@@ -195,6 +255,7 @@ func (m *Marvin) Run() {
 	} else {
 		m.Messages = m.Messages[0:0]
 	}
+	m.StateChanged()
 	if m.Switch == nil {
 		m.Switch = make(map[string]bool)
 	}
@@ -270,6 +331,11 @@ func (m *Marvin) Run() {
 						log.Println("json decode err:", err)
 					} else {
 						m.Hue.Set(address, s)
+						err := m.Hue.GetState()
+						if err != nil {
+							log.Println("ERROR:", err)
+						}
+						m.StateChanged()
 					}
 				} else {
 					log.Println("unexpected number of words in:", message)
@@ -395,31 +461,6 @@ Done:
 	} else {
 		log.Println("ERROR: saving config", err)
 	}
-}
-
-func (m *Marvin) getStateCond() *sync.Cond {
-	if m.cond == nil {
-		m.cond = sync.NewCond(&sync.Mutex{})
-	}
-	return m.cond
-}
-
-func (m *Marvin) StateChanged() {
-	err := m.Hue.GetState()
-	if err != nil {
-		log.Println("ERROR:", err)
-	}
-	c := m.getStateCond()
-	c.L.Lock()
-	c.Broadcast()
-	c.L.Unlock()
-}
-
-func (m *Marvin) WaitStateChanged() {
-	c := m.getStateCond()
-	c.L.Lock()
-	c.Wait()
-	c.L.Unlock()
 }
 
 func (m *Marvin) Save(path string) error {
