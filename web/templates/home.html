@@ -16,16 +16,16 @@
 
     <div class="col-12 col-sm-6 col-lg-8">
       <h1></h1>
-      <ul class="list-group" ng-switch on="state.RecentMessages.Start > 0">
-	<li ng-switch-when="true" class="list-group-item">...</li>
-	<li class="list-group-item" ng-repeat="message in recentMessages(false)">[[message.Who]]: <span class="text-primary">[[message.What]]</span> <span class="text-muted">([[message.Why]])</span> at <small>[[formatWhen(message.When)]]</small></li>
-      </ul>
-      <br>
       <form class="form-inline" ng-submit="sendMessage(message)" autocomplete="off">
 	  <input id="iAm" class="form-control" type="text" typeahead="activity for activity in allMessages() | filter:$viewValue" ng-model="message" placeholder="message to Marvin">
 	  <input type="hidden" ng-model="state.Activity">
 	  <!--<button type="submit" class="btn">Add</button>-->
       </form>
+      <br>
+      <ul class="list-group" ng-switch on="state.RecentMessages.Start > 0">
+	<li class="list-group-item" ng-repeat="message in recentMessages(true)">[[message.Who]]: <span class="text-primary">[[message.What]]</span> <span class="text-muted">([[message.Why]])</span> at <small>[[formatWhen(message.When)]]</small></li>
+	<li ng-switch-when="true" class="list-group-item">...</li>
+      </ul>
       <br>
       <p>Marvin running since {{.StartedOn.Format "Monday, January 2 2006 at 15:04"}}.{{if .MotionSensor}} Last motion was at {{.MotionOn.Format "15:04"}}.{{end}}</p>
     </div>
