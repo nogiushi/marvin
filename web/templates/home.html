@@ -14,9 +14,9 @@
 
   <div class="row">
 
-    <div class="col-12 col-sm-6 col-lg-8">
+    <div class="col-xs-12 col-sm-6 col-lg-8">
       <h1></h1>
-      <form class="form-inline" ng-submit="sendMessage(message)" autocomplete="off">
+      <form xclass="form-inline" ng-submit="sendMessage(message)" autocomplete="off">
 	  <input id="iAm" class="form-control" type="text" typeahead="activity for activity in allMessages() | filter:$viewValue" ng-model="message" placeholder="message to Marvin">
 	  <input type="hidden" ng-model="state.Activity">
 	  <!--<button type="submit" class="btn">Add</button>-->
@@ -30,7 +30,7 @@
       <p>Marvin running since {{.StartedOn.Format "Monday, January 2 2006 at 15:04"}}.{{if .MotionSensor}} Last motion was at {{.MotionOn.Format "15:04"}}.{{end}}</p>
     </div>
 
-    <div class="col-12 col-sm-6 col-lg-4">
+    <div class="col-xs-12 col-sm-6 col-lg-4">
       <h2>Switches</h2>
       <form ng-submit="changeState()">
 	{{range $k, $v := .Switch}}
@@ -41,7 +41,7 @@
   </div>
   <div class="row">
 
-    <div class="col-12 col-sm-6 col-lg-4">
+    <div class="col-xs-12 col-sm-6 col-lg-4">
       <h2>Lights</h2>
       <div class="alert alert-error" ng-repeat="error in state.Hue.Errors">
 	[[error.Error.Description]]
@@ -122,17 +122,17 @@
       </table>
     </div>
 
-    <div class="col-12 col-sm-6 col-lg-4">
+    <div class="col-xs-12 col-sm-6 col-lg-4">
       <h2>Schedule</h2>
       {{template "schedule" .}}
     </div>
 
-    <div class="col-6 col-lg-2">
+    <div class="col-xs-6 col-lg-2">
       <h2>Presence</h2>
       {{template "presence" .}}
     </div>
 
-    <div class="col-6 col-lg-2">
+    <div class="col-xs-6 col-lg-2">
       <h2>Sensors</h2>
       {{template "sensors" .}}
     </div>

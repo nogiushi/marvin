@@ -36,32 +36,45 @@
   </head>
 
   <body>
-    <div class="navbar navbar-fixed-top">
-      <div class="container">
-	<!-- .navbar-toggle is used as the toggle for collapsed navbar content -->
-	<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
-	  <span class="icon-bar"></span>
-	  <span class="icon-bar"></span>
-	  <span class="icon-bar"></span>
-	</button>
-	<a class="navbar-brand" href="/">Marvin</a>
-	<!-- Place everything within .navbar-collapse to hide it until above 768px -->
-	<div class="nav-collapse collapse navbar-responsive-collapse">
-	  <ul class="nav navbar-nav">
-            <li><a href="/">Home</a></li>
-            <li><a href="/messages/">Messages</a></li>
-            <li><a href="/schedule/">Schedule</a></li>
-            <li><a href="/senses/">Senses</a></li>
-            <li><a href="/lightstates/">Light States</a></li>
-            <li><a href="/transitions/">Transitions</a></li>
-	  </ul>
-	</div><!-- /.nav-collapse -->
+
+<!-- Wrap all page content here -->
+    <div id="wrap">
+
+      <div class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+	    <a class="navbar-brand" href="/">Marvin</a>
+          </div>
+          <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+              <li><a href="/">Home</a></li>
+              <li><a href="/messages/">Messages</a></li>
+              <li><a href="/schedule/">Schedule</a></li>
+              <li><a href="/senses/">Senses</a></li>
+              <li><a href="/lightstates/">Light States</a></li>
+              <li><a href="/transitions/">Transitions</a></li>
+            </ul>
+          </div>
+        </div>
       </div>
+
+      <div class="container">
+	{{if .}}{{template "content" .}}{{else}}<h1>Not Found</h1>{{end}}
+      </div>
+
+      <div id="footer">
+	<div class="container">
+          <p class="text-muted credit"><a href="http://github.com/eikeon/Marvin">Marvin</a></p>
+	</div>
+      </div>
+
     </div>
 
-    <div class="container">
-      {{if .}}{{template "content" .}}{{else}}<h1>Not Found</h1>{{end}}
-    </div>
     <script>
 (function($) {
     function initPage() {
