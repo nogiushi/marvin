@@ -69,8 +69,8 @@ type listeners struct {
 func (sc *listeners) notify() {
 	for s := range sc.changes {
 		sc.Lock()
+		sc.last = s
 		for o := range sc.m {
-			sc.last = s
 			*o <- s
 		}
 		sc.Unlock()
