@@ -73,3 +73,9 @@ dependencies using [Bower](https://github.com/bower/bower).
     sudo cp conf/marvin.conf /etc/init/marvin.conf
     sudo start marvin
     # point browser at http://{your-hostname}:8000
+
+### Other Marvin channels
+
+[Marvin Magazine](http://flip.it/MBhif)
+
+![Marvin](https://raw.github.com/eikeon/marvin/master/web/images/robot.png)
