@@ -18,9 +18,11 @@ function MarvinCtrl($scope) {
         connection = new WebSocket(wsproto+"://"+document.location.host+'/state');
 
         connection.onopen = function () {
+            $scope.connection = connection;
         };
 
         connection.onclose = function (e) {
+            $scope.connection = null;
         };
 
         connection.onerror = function (error) {
@@ -35,7 +37,6 @@ function MarvinCtrl($scope) {
                 $scope.state = JSON.parse(e.data);
             });
         };
-        $scope.connection = connection;
     };
 
     $(window).on("pageshow", function() {
@@ -43,7 +44,9 @@ function MarvinCtrl($scope) {
     });
 
     $(window).on("pagehide", function() {
-        $scope.connection.close();
+        if ($scope.connection !== null) {
+            $scope.connection.close();
+        }
     });
 
     $scope.changeState = function(name, value) {
@@ -92,8 +95,12 @@ function MarvinCtrl($scope) {
 
     $scope.sendMessage = function(message) {
         var m = {"message": message};
-        $scope.connection.send(JSON.stringify(m));
-        $scope.message = "";
+        if ($scope.connection !== null) {
+            if ($scope.connection.readyState == 1) {
+                $scope.connection.send(JSON.stringify(m));
+            }
+            $scope.message = "";
+        }
     };
 
     $scope.getBrightness = function(state) {
