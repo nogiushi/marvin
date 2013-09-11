@@ -68,8 +68,9 @@
       </div>
 
       <div id="footer">
+	<hr>
 	<div class="container">
-          <p class="text-muted credit"><a href="http://github.com/eikeon/Marvin">Marvin</a></p>
+          <p class="text-muted credit"><a href="http://github.com/eikeon/Marvin">Marvin</a> {{.Version}} was last started {{.Marvin.StartedOn.Format "Monday, January 2 2006 at 15:04"}}.</p>
 	</div>
       </div>
 
@@ -111,16 +112,12 @@ $('.transition').on('tap click', function (e) {
       <thead>
 	<tr>
 	  <th scope="col">Time</th>
-	  <th scope="col">On</th>
-	  <th scope="col">Except</th>
 	  <th scope="col">Transition</th>
 	</tr>
       </thead>
       <tbody>{{range .Schedule}}
 	<tr>
-	  <td>{{.When}}</td>
-	  <td>{{if .On}}{{.On}}{{end}}</td>
-	  <td>{{if .ExceptOn}}{{.ExceptOn}}{{end}}</td>
+	  <td>{{.When}}{{if .On}} <small>on</small> {{.On}}{{end}}{{if .ExceptOn}} <small>except</small> {{.ExceptOn}}{{end}}</td>
 	  <td><a class="transition btn btn-block btn-primary" data-transition="{{.What}}">{{.What}} <i class="icon-play"></i></a></td>
 	</tr>{{end}}
       </tbody>

@@ -26,8 +26,6 @@
 	<li class="list-group-item" ng-repeat="message in recentMessages(true)">[[message.Who]]: <span class="text-primary">[[message.What]]</span> <span class="text-muted">([[message.Why]])</span> at <small>[[formatWhen(message.When)]]</small></li>
 	<li ng-switch-when="true" class="list-group-item">...</li>
       </ul>
-      <br>
-      <p>Marvin running since {{.StartedOn.Format "Monday, January 2 2006 at 15:04"}}.{{if .MotionSensor}} Last motion was at {{.MotionOn.Format "15:04"}}.{{end}}</p>
     </div>
 
     <div class="col-xs-12 col-sm-6 col-lg-4">
@@ -41,7 +39,7 @@
   </div>
   <div class="row">
 
-    <div class="col-xs-12 col-sm-6 col-lg-4">
+    <div class="col-xs-12 col-sm-6 col-lg-3">
       <h2>Lights</h2>
       <div class="alert alert-error" ng-repeat="error in state.Hue.Errors">
 	[[error.Error.Description]]
@@ -62,19 +60,19 @@
 	      <div ng-switch on="group.action.on" class="btn-group">
 		<button
 		   ng-switch-when="true"
-		   type="button" class="btn btn-default"
+		   type="button" class="btn btn-default btn-lg"
 		   style="color: black; background-color: [[getColor(group.action)]]"
 		   ng-click="setHue('/groups/'+name+'/action', OFF)">On</button>
 		<button
 		   ng-switch-when="false"
-		   type="button" class="btn btn-default"
+		   type="button" class="btn btn-default btn-lg"
 		   ng-click="setHue('/groups/'+name+'/action', ON)">Off</button>
-		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+		<button type="button" class="btn btn-default btn-lg dropdown-toggle" data-toggle="dropdown">
 		  <span class="caret"></span>
 		</button>
 		<ul class="dropdown-menu" role="menu">
 		  <li ng-repeat="choice in allStates()">
-		    <a class="btn btn-large" ng-click="setHue('/groups/'+name+'/action', state.States[choice])"
+		    <a class="btn btn-lg" ng-click="setHue('/groups/'+name+'/action', state.States[choice])"
 		       style="color: black; background-color: [[getColor(state.States[choice])]]">[[choice]]</a>
 		  </li>
 		</ul>
@@ -83,7 +81,7 @@
 	  </tr>
 	</tbody>
       </table>
-      <table class="table">
+      <table class="table table-condensed">
 	<caption>Light Bulbs</caption>
 	<thead>
 	  <tr>
@@ -98,20 +96,20 @@
 	      <div ng-switch on="light.state.on" class="btn-group">
 		<button
 		   ng-switch-when="true"
-		   type="button" class="btn btn-default"
+		   type="button" class="btn btn-default btn-lg"
 		   style="color: black; background-color: [[getColor(light.state)]]"
 		   ng-click="setHue('/lights/'+name+'/state', OFF)">On</button>
 		<button
 		   ng-switch-when="false"
-		   type="button" class="btn btn-default"
+		   type="button" class="btn btn-default btn-lg"
 		   ng-click="setHue('/lights/'+name+'/state', ON)">Off</button>
-		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+		<button type="button" class="btn btn-default btn-lg dropdown-toggle" data-toggle="dropdown"
 			style="color: black; background-color: [[getColor(light.state)]]">
 		  <span class="caret"></span>
 		</button>
 		<ul class="dropdown-menu" role="menu">
 		  <li ng-repeat="choice in allStates()">
-		    <a class="btn btn-large" ng-click="setHue('/lights/'+name+'/state', state.States[choice])"
+		    <a class="btn btn-lg" ng-click="setHue('/lights/'+name+'/state', state.States[choice])"
 		       style="color: black; background-color: [[getColor(state.States[choice])]]">[[choice]]</a>
 		  </li>
 		</ul>
@@ -122,17 +120,17 @@
       </table>
     </div>
 
-    <div class="col-xs-12 col-sm-6 col-lg-4">
+    <div class="col-xs-12 col-sm-6 col-lg-3">
       <h2>Schedule</h2>
       {{template "schedule" .}}
     </div>
 
-    <div class="col-xs-6 col-lg-2">
+    <div class="col-xs-6 col-lg-3">
       <h2>Presence</h2>
       {{template "presence" .}}
     </div>
 
-    <div class="col-xs-6 col-lg-2">
+    <div class="col-xs-6 col-lg-3">
       <h2>Sensors</h2>
       {{template "sensors" .}}
     </div>
