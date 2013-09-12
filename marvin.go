@@ -71,7 +71,11 @@ func (sc *listeners) notify() {
 		sc.Lock()
 		sc.last = s
 		for o := range sc.m {
-			*o <- s
+			select {
+			case *o <- s:
+			default:
+				log.Println("unable to send to channel:", *o)
+			}
 		}
 		sc.Unlock()
 	}
