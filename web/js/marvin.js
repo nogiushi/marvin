@@ -178,6 +178,6 @@ function MarvinCtrl($scope) {
     };
 
     $scope.formatWhen = function(when) {
-        return when;
+        return when.substring(11,19);
     };
 }
