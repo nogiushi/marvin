@@ -12,7 +12,7 @@
     <link href="/{{.Version}}/images/robot.png" rel="apple-touch-icon">
     <style>
       body {
-        padding-top: 50px; /* 60px to make the container go all the way to the bottom of the topbar */
+        padding-top: 70px;
       }
     </style>
     <style>
@@ -67,8 +67,9 @@
 	{{if .}}{{template "content" .}}{{else}}<h1>Not Found</h1>{{end}}
       </div>
 
+      <hr>
+
       <div id="footer">
-	<hr>
 	<div class="container">
           <p class="text-muted credit"><a href="http://github.com/eikeon/Marvin">Marvin</a> {{.Version}} was last started {{.Marvin.StartedOn.Format "Monday, January 2 2006 at 15:04"}}.</p>
 	</div>

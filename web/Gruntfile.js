@@ -56,7 +56,7 @@ module.exports = function(grunt) {
             },
             marvin: {
                 files: {
-                    'static/<%= pkg.version %>/css/<%= pkg.name %>.css': ['bower_components/bootstrap/less/bootstrap.less']
+                    'static/<%= pkg.version %>/css/<%= pkg.name %>.css': ['less/marvin.less']
                 }
             },
             min: {
@@ -64,7 +64,7 @@ module.exports = function(grunt) {
                     compress: true
                 },
                 files: {
-                    'static/<%= pkg.version %>/css/<%= pkg.name %>.min.css': ['bower_components/bootstrap/less/bootstrap.less']
+                    'static/<%= pkg.version %>/css/<%= pkg.name %>.min.css': ['less/marvin.less']
                 }
             }
         },

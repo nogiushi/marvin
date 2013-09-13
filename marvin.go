@@ -128,7 +128,6 @@ type Marvin struct {
 	Present        map[string]bool
 	Switch         map[string]bool
 	Schedule       scheduler.Schedule
-	Messages       []string
 	States         map[string]interface{}
 	Transitions    map[string]struct {
 		Switch   map[string]bool
@@ -252,12 +251,12 @@ func (m *Marvin) Run() {
 	m.listeners = &listeners{changes: make(chan State, 2), m: make(map[*chan State]bool)}
 	go m.listeners.notify()
 	m.StartedOn = time.Now()
-	m.RecentMessages = cb{Buffer: make([]Message, 3)}
+	m.RecentMessages = cb{Buffer: make([]Message, 8)}
 	var createUserChan <-chan time.Time
 	if err := m.Hue.GetState(); err != nil {
 		createUserChan = time.NewTicker(1 * time.Second).C
 	} else {
-		m.Messages = m.Messages[0:0]
+		// TODO:
 	}
 	m.StateChanged()
 	if m.Switch == nil {
@@ -307,11 +306,8 @@ func (m *Marvin) Run() {
 		case <-createUserChan:
 			if err := m.Hue.CreateUser(m.Hue.Username, "Marvin"); err == nil {
 				createUserChan = nil
-				m.Messages = m.Messages[0:0]
-				m.StateChanged()
 			} else {
-				m.Messages = []string{"press hue link button to authenticate"}
-				log.Println(err, m.Messages)
+				m.Do("Marvin", "press hue link button to authenticate", "setup")
 			}
 		case message := <-m.do:
 			log.Println("Message:", message)
@@ -394,7 +390,7 @@ func (m *Marvin) Run() {
 					m.DayLight = true
 					dayLightTime = time.Now()
 					m.StateChanged()
-					m.Do("Marvin", "it is light", "ambient light sensor")
+					m.Do("Marvin", "it is light", "sensors")
 					if m.Switch["Daylights"] {
 						m.Do("Marvin", "daylight", "it is light")
 					}
@@ -402,7 +398,7 @@ func (m *Marvin) Run() {
 					m.DayLight = false
 					dayLightTime = time.Now()
 					m.StateChanged()
-					m.Do("Marvin", "it is dark", "ambient light sensor")
+					m.Do("Marvin", "it is dark", "sensors")
 					if m.Switch["Daylights"] {
 						m.Do("Marvin", "daylight off", "it is dark")
 					}
@@ -410,7 +406,7 @@ func (m *Marvin) Run() {
 			}
 		case motion := <-m.motionChannel:
 			if motion {
-				m.Do("Marvin", "motion detected", "motion sensor")
+				m.Do("Marvin", "motion detected", "sensors")
 				m.MotionOn = time.Now()
 				if m.Switch["Nightlights"] && m.LastTransition != "all nightlight" {
 					m.Do("Marvin", "all nightlight", "motion detected")

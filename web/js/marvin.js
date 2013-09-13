@@ -49,19 +49,19 @@ function MarvinCtrl($scope) {
         }
     });
 
-    $scope.changeState = function(name, value) {
+    $scope.changeState = function(name, value, why) {
         if (value === true) {
-            $scope.sendMessage("turn on " + name);
+            $scope.sendMessage("turn on " + name, "switches", why);
         } else {
-            $scope.sendMessage("turn off " + name);
+            $scope.sendMessage("turn off " + name, "switches", why);
         }
     };
 
     $scope.ON = {"on": true};
     $scope.OFF = {"on": false};
 
-    $scope.setHue = function(address, value) {
-        $scope.sendMessage("set hue address " + address + " to " + JSON.stringify(value));
+    $scope.setHue = function(address, value, why) {
+        $scope.sendMessage("set hue address " + address + " to " + JSON.stringify(value), why);
     };
 
     $scope.allMessages = function() {
@@ -93,8 +93,8 @@ function MarvinCtrl($scope) {
         }
     };
 
-    $scope.sendMessage = function(message) {
-        var m = {"message": message};
+    $scope.sendMessage = function(message, why) {
+        var m = {"message": message, "why": why};
         if ($scope.connection !== null) {
             if ($scope.connection.readyState == 1) {
                 $scope.connection.send(JSON.stringify(m));

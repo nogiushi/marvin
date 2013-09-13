@@ -1,0 +1,102 @@
+@import "bower_components/bootstrap/less/bootstrap.less";
+
+@schedule:         plum;
+
+@panel-schedule-text:          @gray-dark;
+@panel-schedule-border:        darken(@schedule, 5%);
+@panel-schedule-heading-bg:    @schedule;
+
+.panel-schedule {
+  .panel-variant(@panel-schedule-border; @panel-schedule-text; @panel-schedule-heading-bg; @panel-schedule-border);
+}
+
+@sensors:         pink;
+
+@panel-sensors-text:          @gray-dark;
+@panel-sensors-border:        darken(@sensors, 5%);
+@panel-sensors-heading-bg:    @sensors;
+
+.panel-sensors {
+  .panel-variant(@panel-sensors-border; @panel-sensors-text; @panel-sensors-heading-bg; @panel-sensors-border);
+}
+
+@presence:         lightblue;
+
+@panel-presence-text:          @gray-dark;
+@panel-presence-border:        darken(@presence, 5%);
+@panel-presence-heading-bg:    @presence;
+
+.panel-presence {
+  .panel-variant(@panel-presence-border; @panel-presence-text; @panel-presence-heading-bg; @panel-presence-border);
+}
+
+@switches:         lighten(lightgreen, 20%);
+
+@panel-switches-text:          @gray-dark;
+@panel-switches-border:        darken(@switches, 5%);
+@panel-switches-heading-bg:    @switches;
+
+.panel-switches {
+  .panel-variant(@panel-switches-border; @panel-switches-text; @panel-switches-heading-bg; @panel-switches-border);
+}
+
+@lightgroups:         lighten(yellow, 20%);
+
+@panel-lightgroups-text:          @gray-dark;
+@panel-lightgroups-border:        darken(@lightgroups, 5%);
+@panel-lightgroups-heading-bg:    @lightgroups;
+
+.panel-lightgroups {
+  .panel-variant(@panel-lightgroups-border; @panel-lightgroups-text; @panel-lightgroups-heading-bg; @panel-lightgroups-border);
+}
+
+@lightbulbs:         lighten(orange, 20%);
+
+@panel-lightbulbs-text:          @gray-dark;
+@panel-lightbulbs-border:        darken(@lightbulbs, 5%);
+@panel-lightbulbs-heading-bg:    @lightbulbs;
+
+.panel-lightbulbs {
+  .panel-variant(@panel-lightbulbs-border; @panel-lightbulbs-text; @panel-lightbulbs-heading-bg; @panel-lightbulbs-border);
+}
+
+li.message {
+  padding: 10px;
+}
+
+.message span {
+  xmargin :7px;
+  xpadding: 7px;
+  border-radius: 5px;
+  xfont-size: 14pt;  
+}
+
+.switches {
+  background-color: @switches;
+}
+
+.lightgroups {
+  background-color: @lightgroups;
+}
+
+.lightbulbs {
+  background-color: @lightbulbs;
+}
+
+.presence {
+  background-color: @presence;
+}
+
+.sensors {
+  background-color: @sensors;
+}
+
+.schedule {
+  background-color: @schedule;
+}
+
+.overflowvisible {
+  .panel {
+    overflow: visible;
+  }
+}

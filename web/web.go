@@ -133,7 +133,7 @@ func (s stateServer) wsHandler(ws *websocket.Conn) {
 							who = c.Subject.CommonName
 						}
 					}
-					s.marvin.Do(who, msg["message"].(string), "web")
+					s.marvin.Do(who, msg["message"].(string), msg["why"].(string))
 				} else {
 					log.Printf("ignoring: %#v\n", msg)
 				}
