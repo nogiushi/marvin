@@ -164,7 +164,7 @@ $('.transition').on('tap click', function (e) {
 	    <td>
 	      {{if .LightSensor}}<span ng-switch on="state.DayLight">
 		<span ng-switch-when="true" class="label label-success">daylight</span>
-		<span ng-switch-when="false" class="label">dark</span>
+		<span ng-switch-when="false" class="label label-default">dark</span>
 		<span ng-switch-default>-</span>
 	      </span>{{else}}<span class="label label-danger">no sensor</span>{{end}}
 	    </td>
