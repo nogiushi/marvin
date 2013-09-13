@@ -168,12 +168,14 @@ function MarvinCtrl($scope) {
     $scope.recentMessages = function(reverse) {
         var rm = $scope.state.RecentMessages;
         var messages = [];
-        for (var i=rm.Start; i<rm.End; i++) {
-            messages.push(rm.Buffer[i%rm.Buffer.length]);
-        }
-        if (reverse) {
-            messages.reverse();
-        }
+	if (rm !== undefined) {
+            for (var i=rm.Start; i<rm.End; i++) {
+		messages.push(rm.Buffer[i%rm.Buffer.length]);
+            }
+            if (reverse) {
+		messages.reverse();
+            }
+	}
         return messages;
     };
 
