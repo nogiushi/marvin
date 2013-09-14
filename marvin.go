@@ -57,6 +57,39 @@ type activity struct {
 	Next map[string]bool
 }
 
+type messagelisteners struct {
+	pendingmessages chan Message
+	m               map[*chan Message]bool
+	sync.Mutex
+}
+
+func (sc *messagelisteners) notifymessagelisteners() {
+	for s := range sc.pendingmessages {
+		sc.Lock()
+		for o := range sc.m {
+			select {
+			case *o <- s:
+			default:
+				log.Println("unable to send to channel:", *o)
+			}
+		}
+		sc.Unlock()
+	}
+}
+
+func (sc *messagelisteners) RegisterMessageListener(c *chan Message) {
+	sc.Lock()
+	defer sc.Unlock()
+	sc.m[c] = true
+}
+
+func (sc *messagelisteners) UnregisterMessageListener(c *chan Message) {
+	sc.Lock()
+	defer sc.Unlock()
+	delete(sc.m, c)
+	close(*c)
+}
+
 type State Marvin
 
 type listeners struct {
@@ -149,6 +182,7 @@ type Marvin struct {
 	path          string
 	db            dynamodb.DynamoDB
 	*listeners
+	*messagelisteners
 }
 
 func NewMarvinFromFile(path string) (*Marvin, error) {
@@ -250,8 +284,10 @@ func (m *Marvin) Do(who, what, why string) {
 func (m *Marvin) Run() {
 	m.listeners = &listeners{changes: make(chan State, 2), m: make(map[*chan State]bool)}
 	go m.listeners.notify()
+	m.messagelisteners = &messagelisteners{pendingmessages: make(chan Message, 10), m: make(map[*chan Message]bool)}
+	go m.messagelisteners.notifymessagelisteners()
 	m.StartedOn = time.Now()
-	m.RecentMessages = cb{Buffer: make([]Message, 8)}
+	m.RecentMessages = cb{Buffer: make([]Message, 30)}
 	var createUserChan <-chan time.Time
 	if err := m.Hue.GetState(); err != nil {
 		createUserChan = time.NewTicker(1 * time.Second).C
@@ -310,6 +346,7 @@ func (m *Marvin) Run() {
 				m.Do("Marvin", "press hue link button to authenticate", "setup")
 			}
 		case message := <-m.do:
+			m.messagelisteners.pendingmessages <- message
 			log.Println("Message:", message)
 			m.RecentMessages.Write(message)
 			what := ""

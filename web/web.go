@@ -121,6 +121,23 @@ func (s stateServer) wsHandler(ws *websocket.Conn) {
 	stateChanges := make(chan marvin.State, 10)
 	s.marvin.Register(&stateChanges)
 	defer func() { s.marvin.Unregister(&stateChanges) }()
+	for state := range stateChanges {
+		if err := websocket.JSON.Send(ws, state); err != nil {
+			log.Println("State Websocket send err:", err)
+			break
+		}
+	}
+	ws.Close()
+}
+
+type messageServer struct {
+	marvin *marvin.Marvin
+}
+
+func (s messageServer) wsHandler(ws *websocket.Conn) {
+	messageChanges := make(chan marvin.Message, 10)
+	s.marvin.RegisterMessageListener(&messageChanges)
+	defer func() { s.marvin.UnregisterMessageListener(&messageChanges) }()
 	go func() {
 		for {
 			var msg message
@@ -138,16 +155,16 @@ func (s stateServer) wsHandler(ws *websocket.Conn) {
 					log.Printf("ignoring: %#v\n", msg)
 				}
 			} else {
-				log.Println("State Websocket receive err:", err)
+				log.Println("Message Websocket receive err:", err)
 				return
 			}
 		}
 
 	}()
 
-	for state := range stateChanges {
-		if err := websocket.JSON.Send(ws, state); err != nil {
-			log.Println("State Websocket send err:", err)
+	for message := range messageChanges {
+		if err := websocket.JSON.Send(ws, message); err != nil {
+			log.Println("Message Websocket send err:", err)
 			break
 		}
 	}
@@ -181,4 +198,7 @@ func AddHandlers(m *marvin.Marvin) {
 	})
 	s := &stateServer{marvin: m}
 	http.Handle("/state", websocket.Handler(s.wsHandler))
+
+	ms := &messageServer{marvin: m}
+	http.Handle("/message", websocket.Handler(ms.wsHandler))
 }

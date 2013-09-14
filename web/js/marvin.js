@@ -7,6 +7,7 @@ function MarvinCtrl($scope) {
     $scope.state = {};
     $scope.errors = [];
     $scope.connection = null;
+    $scope.messageconnection = null;
 
     $scope.NewConnection = function() {
         var wsproto = "";
@@ -39,11 +40,47 @@ function MarvinCtrl($scope) {
         };
     };
 
+    $scope.NewMessageConnection = function() {
+        var wsproto = "";
+        if (document.location.protocol == "https:") {
+            wsproto = "wss";
+        } else {
+            wsproto = "ws";
+        }
+        messageconnection = new WebSocket(wsproto+"://"+document.location.host+'/message');
+
+        messageconnection.onopen = function () {
+            $scope.messageconnection = messageconnection;
+        };
+
+        messageconnection.onclose = function (e) {
+            $scope.messageconnection = null;
+        };
+
+        messageconnection.onerror = function (error) {
+            console.log('WebSocket Error ' + error);
+            $scope.$apply(function () {
+                $scope.errors.push(error);
+            });
+        };
+
+        messageconnection.onmessage = function(e) {
+            $scope.$apply(function () {
+                var msg = JSON.parse(e.data);
+		$scope.displayMessage(msg);
+            });
+        };
+    };
+
     $(window).on("pageshow", function() {
+        $scope.NewMessageConnection();
         $scope.NewConnection();
     });
 
     $(window).on("pagehide", function() {
+        if ($scope.messageconnection !== null) {
+            $scope.messageconnection.close();
+        }
         if ($scope.connection !== null) {
             $scope.connection.close();
         }
@@ -94,7 +131,7 @@ function MarvinCtrl($scope) {
     };
 
     $scope.displayMessage = function(message) {
-	var u = $('<li class="list-group-item message">[[message.Who]]: <span class="what [[message.Why]]">' + message.What + '</span> <span class="pull-right"><small>[[formatWhen(message.When)]]</small></span></li>');
+	var u = $('<li class="list-group-item message">' + message.Who + ': <span class="what ' + message.Why + '">' + message.What + '</span> </li>');
 	u.append(message);
 	u.hide();
         $("#messageinputitem").before(u);
@@ -102,12 +139,12 @@ function MarvinCtrl($scope) {
     };
 
     $scope.sendMessage = function(message, why) {
-	//$scope.displayMessage({What: message});
-
         var m = {"message": message, "why": why};
-        if ($scope.connection !== null) {
-            if ($scope.connection.readyState == 1) {
-                $scope.connection.send(JSON.stringify(m));
+        if ($scope.messageconnection !== null) {
+            if ($scope.messageconnection.readyState == 1) {
+                $scope.messageconnection.send(JSON.stringify(m));
+            } else {
+                $scope.errors.push("not ready");
             }
             $scope.message = "";
         }
