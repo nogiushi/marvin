@@ -93,7 +93,17 @@ function MarvinCtrl($scope) {
         }
     };
 
+    $scope.displayMessage = function(message) {
+	var u = $('<li class="list-group-item message">[[message.Who]]: <span class="what [[message.Why]]">' + message.What + '</span> <span class="pull-right"><small>[[formatWhen(message.When)]]</small></span></li>');
+	u.append(message);
+	u.hide();
+        $("#messageinputitem").before(u);
+        u.slideDown().delay(10000).animate({opacity: 0}, {duration: 500, always: function() { $(this).remove(); }});
+    };
+
     $scope.sendMessage = function(message, why) {
+	//$scope.displayMessage({What: message});
+
         var m = {"message": message, "why": why};
         if ($scope.connection !== null) {
             if ($scope.connection.readyState == 1) {

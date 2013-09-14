@@ -23,13 +23,15 @@
       <li class="list-group-item message" ng-repeat="message in recentMessages(false)">[[message.Who]]: <span class="what [[message.Why]]">[[message.What]]</span> <span class="pull-right"><small>[[formatWhen(message.When)]]</small></span></li>
     </ul>
 
-    <form xclass="form-inline" ng-submit="sendMessage(message, 'input')" autocomplete="off">
-      <input id="iAm" class="form-control" type="text" typeahead="activity for activity in allMessages() | filter:$viewValue" ng-model="message" placeholder="message to Marvin">
-      <input type="hidden" ng-model="state.Activity">
-      <!--<button type="submit" class="btn">Add</button>-->
-    </form>
-
-    <br>
+    <ul id="messages" class="list-group">
+      <li id="messageinputitem" class="list-group-item">
+	<form xclass="form-inline" ng-submit="sendMessage(message, 'input')" autocomplete="off">
+	  <input id="iAm" class="form-control" type="text" typeahead="activity for activity in allMessages() | filter:$viewValue" ng-model="message" placeholder="message to Marvin">
+	  <input type="hidden" ng-model="state.Activity">
+	  <!--<button type="submit" class="btn">Add</button>-->
+	</form>
+      </li>
+    </ul>
 
     <div class="panel panel-schedule">
       <div class="panel-heading">Schedule</div>
