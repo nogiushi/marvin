@@ -67,7 +67,7 @@ function MarvinCtrl($scope) {
         messageconnection.onmessage = function(e) {
             $scope.$apply(function () {
                 var msg = JSON.parse(e.data);
-		$scope.displayMessage(msg);
+                $scope.displayMessage(msg);
             });
         };
     };
@@ -131,9 +131,9 @@ function MarvinCtrl($scope) {
     };
 
     $scope.displayMessage = function(message) {
-	var u = $('<li class="list-group-item message">' + message.Who + ': <span class="what ' + message.Why + '">' + message.What + '</span> </li>');
-	u.append(message);
-	u.hide();
+        var u = $('<li class="list-group-item message">' + message.Who + ': <span class="what ' + message.Why + '">' + message.What + '</span> </li>');
+        u.append(message);
+        u.hide();
         $("#messageinputitem").before(u);
         u.slideDown().delay(10000).animate({opacity: 0}, {duration: 500, always: function() { $(this).remove(); }});
     };
@@ -215,18 +215,22 @@ function MarvinCtrl($scope) {
     $scope.recentMessages = function(reverse) {
         var rm = $scope.state.RecentMessages;
         var messages = [];
-	if (rm !== undefined) {
+        if (rm !== undefined) {
             for (var i=rm.Start; i<rm.End; i++) {
-		messages.push(rm.Buffer[i%rm.Buffer.length]);
+                messages.push(rm.Buffer[i%rm.Buffer.length]);
             }
             if (reverse) {
-		messages.reverse();
+                messages.reverse();
             }
-	}
+        }
         return messages;
     };
 
     $scope.formatWhen = function(when) {
         return when.substring(11,19);
+    };
+
+    $scope.nowThenFlip = function() {
+        $("#nowthen").toggleClass("flip");
     };
 }

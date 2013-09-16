@@ -1,19 +1,57 @@
-{{define "html"}}<!DOCTYPE html>
-<html lang="en" ng-app="MarvinApp">
-  <head>
-    <script src="/{{.Version}}/js/marvin.js"></script>
+ {{define "html"}}<!DOCTYPE html>
+ <html lang="en" ng-app="MarvinApp">
+   <head>
+     <script src="/{{.Version}}/js/marvin.js"></script>
 
-    <meta charset="utf-8">
-    <title>{{if .}}{{with .Title}}{{.}} « {{end}}Marvin{{else}}Not Found{{end}}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <meta charset="utf-8">
+     <title>{{if .}}{{with .Title}}{{.}} « {{end}}Marvin{{else}}Not Found{{end}}</title>
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="/{{.Version}}/css/marvin.min.css" rel="stylesheet">
-    <link href="/{{.Version}}/images/robot.png" rel="icon" type="image/png">
-    <link href="/{{.Version}}/images/robot.png" rel="apple-touch-icon">
-    <style>
-      body {
-        padding-top: 70px;
-      }
+     <link href="/{{.Version}}/css/marvin.min.css" rel="stylesheet">
+     <link href="/{{.Version}}/images/robot.png" rel="icon" type="image/png">
+     <link href="/{{.Version}}/images/robot.png" rel="apple-touch-icon">
+     <style>
+       body {
+	 padding-top: 70px;
+       }
+
+       .flip-container {
+	   -webkit-perspective: 1000;
+	   perspective: 1000;
+       }
+       .flip-container.flip .flipper {
+           -webkit-transform: rotateY(180deg);
+	   transform: rotateY(180deg);
+       }
+       .flip-container, .front, .back {
+           width: 100%;
+	   height: 240px;
+	   xheight: 100%
+       }
+       .flipper {
+           -webkit-transition: 0.6s;
+	   transition: 0.6s;
+	   -webkit-transform-style: preserve-3d;
+	   transform-style: preserve-3d;
+
+	   position: relative;
+       }
+       .front, .back {
+	   -webkit-backface-visibility: hidden;
+	   backface-visibility: hidden;
+	   position: absolute;
+	   top: 0;
+	   left: 0;
+	   overflow-y: scroll;
+       }
+       .front {
+	   z-index: 2;
+       }
+       .back {
+	   -webkit-transform: rotateY(180deg);
+	   transform: rotateY(180deg);
+       }
+
     </style>
     <style>
 @media (max-width: 767px) {
@@ -71,7 +109,7 @@
 
       <div id="footer">
 	<div class="container">
-          <p class="text-muted credit"><a href="http://github.com/eikeon/Marvin">Marvin</a> {{.Version}} was last started {{.Marvin.StartedOn.Format "Monday, January 2 2006 at 15:04"}}.</p>
+          <p class="text-muted credit"><a href="http://github.com/eikeon/Marvin">Marvin</a> {{.Version}} was last started {{.Marvin.StartedOn.Format "Monday, January 2 2006 at 15:04"}}. Glyphicons by <a href="http://glyphicons.com">GLYPHICONS</a>.</p>
 	</div>
       </div>
 

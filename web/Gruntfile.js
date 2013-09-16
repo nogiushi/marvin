@@ -80,6 +80,12 @@ module.exports = function(grunt) {
                     {
                         src: 'images/*',
                         dest: 'static/<%= pkg.version %>/'
+                    },
+                    {
+			expand: true,
+			cwd: 'bower_components/bootstrap/dist/',
+                        src: ['fonts/*'],
+                        dest: 'static/<%= pkg.version %>/'
                     }
                 ]
             }
