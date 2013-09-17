@@ -9,8 +9,5 @@ script:
   - sudo apt-get install --yes nodejs
   - npm install -g grunt-cli bower
   - pushd web; npm install; bower install; grunt; popd
-  - go get -v github.com/eikeon/marvin
-  - go get -v github.com/eikeon/marvin/marvin
-  - pushd `go list -f '{{.Dir}}' github.com/eikeon/marvin/web`; make; popd
   - go list -f '{{range .XTestImports}}{{.}}{{"\n"}}{{end}}' | xargs go get
   - go test ./...
