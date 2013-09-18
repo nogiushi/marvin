@@ -2,7 +2,7 @@
     <div class="panel panel-primary">
       <div class="panel-heading">
 	<h4 class="panel-title">
-	  Now
+	  Messages <small>Now</small>
 	  <span class="glyphicon glyphicon-retweet pull-right" ng-click="nowThenFlip()"></span>
 	</h4>
       </div>
@@ -17,19 +17,13 @@
       </ul>
     </div>
 
-    <div class="panel panel-schedule">
-      <div class="panel-heading">Schedule</div>
-      <div class="panel-body">
-	<p>11:00PM <span class="text-primary">Goodnight</span></p>
-      </div>
-    </div>
 {{end}}
 
 {{define "then"}}
     <div class="panel panel-default">
       <div class="panel-heading">
 	<h4 class="panel-title">
-	  Then <span class="glyphicon glyphicon-retweet pull-right" ng-click="nowThenFlip()"></span>
+	  Messages <small>Then</small> <span class="glyphicon glyphicon-retweet pull-right" ng-click="nowThenFlip()"></span>
 	</h4>
       </div>
       <ul class="list-group" ng-switch on="state.RecentMessages.Start > 0">
@@ -80,6 +74,19 @@
   <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
 
     <div class="panel-group overflowvisible">
+
+      <div class="panel panel-schedule">
+	<div class="panel-heading">
+	  <h4 class="panel-title">
+            <a data-toggle="collapse" data-target="#collapseSchedule">
+	      Schedule
+            </a>
+	  </h4>
+	</div>
+	<div id="collapseSchedule" class="panel-collapse collapse">
+	  {{template "schedule" .}}
+	</div>
+      </div>
 
       <div class="panel panel-switches">
 	<div class="panel-heading">
