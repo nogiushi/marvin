@@ -173,11 +173,8 @@ func (s messageServer) wsHandler(ws *websocket.Conn) {
 
 func AddHandlers(m *marvin.Marvin) {
 	handleTemplate("/", "home", templateData{"Marvin": m})
-	handleTemplate("/schedule/", "schedule", templateData{"Marvin": m})
-	handleTemplate("/senses/", "senses", templateData{"Marvin": m})
 	handleTemplate("/lightstates/", "lightstates", templateData{"Marvin": m})
 	handleTemplate("/transitions/", "transitions", templateData{"Marvin": m})
-	handleTemplate("/messages/", "messages", templateData{"Marvin": m})
 
 	fs := longExpire(http.FileServer(http.Dir(path.Join(Root, "static/"))))
 	http.Handle("/"+pkg.Version+"/", fs)
