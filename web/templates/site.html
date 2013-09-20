@@ -12,44 +12,57 @@
      <link href="/{{.Version}}/images/robot.png" rel="apple-touch-icon">
      <style>
        body {
-	 padding-top: 70px;
+         padding-top: 20px;
+       }
+
+       #brand {
+           background-image: url('{{.Version}}/images/robot.png');
+           background-size: 100% auto;
+           background-repeat:no-repeat;
+           position: fixed;
+           top: 10;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           -webkit-filter: blur(5px);
+           filter: blur(5px);
        }
 
        .flip-container {
-	   -webkit-perspective: 1000;
-	   perspective: 1000;
+           -webkit-perspective: 1000;
+           perspective: 1000;
        }
        .flip-container.flip .flipper {
            -webkit-transform: rotateY(180deg);
-	   transform: rotateY(180deg);
+           transform: rotateY(180deg);
        }
        .flip-container, .front, .back {
            width: 100%;
-	   height: 300px;
+           height: 300px;
        }
        .flipper {
            -webkit-transition: 0.6s;
-	   transition: 0.6s;
-	   -webkit-transform-style: preserve-3d;
-	   transform-style: preserve-3d;
+           transition: 0.6s;
+           -webkit-transform-style: preserve-3d;
+           transform-style: preserve-3d;
 
-	   position: relative;
+           position: relative;
        }
        .front, .back {
-	   -webkit-backface-visibility: hidden;
-	   backface-visibility: hidden;
-	   position: absolute;
-	   top: 0;
-	   left: 0;
-	   overflow-y: scroll;
-	   overflow-x: hidden;
+           -webkit-backface-visibility: hidden;
+           backface-visibility: hidden;
+           position: absolute;
+           top: 0;
+           left: 0;
+           overflow-y: scroll;
+           overflow-x: hidden;
        }
        .front {
-	   z-index: 2;
+           z-index: 2;
        }
        .back {
-	   -webkit-transform: rotateY(180deg);
-	   transform: rotateY(180deg);
+           -webkit-transform: rotateY(180deg);
+           transform: rotateY(180deg);
        }
 
     </style>
@@ -79,28 +92,10 @@
 
   <body>
 
+    <div id="brand"></div>
+
 <!-- Wrap all page content here -->
     <div id="wrap">
-
-      <div class="navbar navbar-default navbar-fixed-top">
-        <div class="container">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-	    <a class="navbar-brand" href="/">Marvin</a>
-          </div>
-          <div class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-              <li><a href="/">Home</a></li>
-              <li><a href="/lightstates/">Light States</a></li>
-              <li><a href="/transitions/">Transitions</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
 
       <div class="container">
 	{{if .}}{{template "content" .}}{{else}}<h1>Not Found</h1>{{end}}
@@ -110,7 +105,7 @@
 
       <div id="footer">
 	<div class="container">
-          <p class="text-muted credit"><a href="http://github.com/eikeon/Marvin">Marvin</a> {{.Version}} was last started {{.Marvin.StartedOn.Format "Monday, January 2 2006 at 15:04"}}. Glyphicons by <a href="http://glyphicons.com">GLYPHICONS</a>.</p>
+          <p class="text-muted credit"><a href="http://github.com/eikeon/Marvin">Marvin</a> {{.Version}} was last started {{.Marvin.StartedOn.Format "Monday, January 2 2006 at 15:04"}}. Glyphicons by <a href="http://glyphicons.com">GLYPHICONS</a>.               <a href="/lightstates/">Light States</a> | <a href="/transitions/">Transitions</a></p>
 	</div>
       </div>
 
