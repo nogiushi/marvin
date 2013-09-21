@@ -8,6 +8,18 @@ module.exports = function(grunt) {
                 '* <%= bower.name %>.js v<%= bower.version %> \n' +
                 '* <%= grunt.template.today("yyyy/mm/dd") %> \n' +
                 '*/\n',
+	shell: {
+            goinstall: {
+                options: {
+                    failOnError: true,
+                    stdout: true,
+                    execOptions: {
+			cwd: '..'
+                    }
+		},
+		command: 'go install -v ./...'
+            }
+	},
         clean: {
             static: ['static', 'build']
         },
@@ -100,6 +112,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-ngmin');
     grunt.loadNpmTasks('grunt-recess');
+    grunt.loadNpmTasks('grunt-shell');
     grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-contrib-copy');
 
@@ -108,9 +121,6 @@ module.exports = function(grunt) {
 
     // JS distribution task.
     grunt.registerTask('static-js', ['typescript', 'ngmin', 'concat', 'uglify']); 
-
-    // Default task(s).
-    grunt.registerTask('default', ['uglify']);
 
     // CSS distribution task.
     grunt.registerTask('static-css', ['recess']);
@@ -122,6 +132,6 @@ module.exports = function(grunt) {
     grunt.registerTask('static', ['clean', 'static-css', 'static-js', 'static-images']);
 
     // Default task.
-    grunt.registerTask('default', ['test', 'static']);
+    grunt.registerTask('default', ['shell', 'test', 'static']);
 
 };
