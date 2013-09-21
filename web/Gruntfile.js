@@ -3,8 +3,9 @@ module.exports = function(grunt) {
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        bower: grunt.file.readJSON('bower.json'),
         banner: '/**\n' +
-                '* <%= pkg.name %>.js v<%= pkg.version %> \n' +
+                '* <%= bower.name %>.js v<%= bower.version %> \n' +
                 '* <%= grunt.template.today("yyyy/mm/dd") %> \n' +
                 '*/\n',
         clean: {
@@ -12,8 +13,8 @@ module.exports = function(grunt) {
         },
         ngmin: {
             marvin: {
-                src: ['js/<%= pkg.name %>.js'],
-                dest: 'build/js/<%= pkg.name %>.annotate.js'
+                src: ['js/<%= bower.name %>.js'],
+                dest: 'build/js/<%= bower.name %>.annotate.js'
             },
         },
         concat: {
@@ -23,7 +24,7 @@ module.exports = function(grunt) {
             },
             marvin: {
                 src: ['bower_components/jquery/jquery.min.js', 'bower_components/angularjs/index.js', 'bower_components/angular-ui-bootstrap/index.js', 'build/js/colorconverter.js',  'js/marvin.js', 'bower_components/bootstrap/dist/js/bootstrap.min.js'],
-                dest: 'static/<%= pkg.version %>/js/<%= pkg.name %>.js'
+                dest: 'static/<%= bower.version %>/js/<%= bower.name %>.js'
             }
         },
         uglify: {
@@ -32,7 +33,7 @@ module.exports = function(grunt) {
             },
             marvin: {
                 files: {
-                    'static/<%= pkg.version %>/js/<%= pkg.name %>.min.js': ['<%= concat.marvin.dest %>']
+                    'static/<%= bower.version %>/js/<%= bower.name %>.min.js': ['<%= concat.marvin.dest %>']
                 }
             }
         },
@@ -56,7 +57,7 @@ module.exports = function(grunt) {
             },
             marvin: {
                 files: {
-                    'static/<%= pkg.version %>/css/<%= pkg.name %>.css': ['less/marvin.less']
+                    'static/<%= bower.version %>/css/<%= bower.name %>.css': ['less/marvin.less']
                 }
             },
             min: {
@@ -64,7 +65,7 @@ module.exports = function(grunt) {
                     compress: true
                 },
                 files: {
-                    'static/<%= pkg.version %>/css/<%= pkg.name %>.min.css': ['less/marvin.less']
+                    'static/<%= bower.version %>/css/<%= bower.name %>.min.css': ['less/marvin.less']
                 }
             }
         },
@@ -79,13 +80,13 @@ module.exports = function(grunt) {
                 files: [
                     {
                         src: 'images/*',
-                        dest: 'static/<%= pkg.version %>/'
+                        dest: 'static/<%= bower.version %>/'
                     },
                     {
 			expand: true,
 			cwd: 'bower_components/bootstrap/dist/',
                         src: ['fonts/*'],
-                        dest: 'static/<%= pkg.version %>/'
+                        dest: 'static/<%= bower.version %>/'
                     }
                 ]
             }
