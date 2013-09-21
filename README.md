@@ -66,7 +66,6 @@ dependencies using [Bower](https://github.com/bower/bower).
 ### install marvin
 
     go get -v -u github.com/eikeon/marvin
-    go install -v github.com/eikeon/marvin/...
     pushd `go list -f '{{.Dir}}' github.com/eikeon/marvin/web`; grunt; popd
     sudo cp conf/marvin.json /etc/marvin.json
     sudo cp conf/marvin.conf /etc/init/marvin.conf
