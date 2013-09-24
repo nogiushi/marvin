@@ -37,21 +37,6 @@ func NewMessage(who, what, why string) Message {
 	return Message{Hash: hash, When: when, What: what, Who: who, Why: why}
 }
 
-type cb struct {
-	Buffer []Message
-	Start  int
-	End    int
-}
-
-func (b *cb) Write(v Message) {
-	C := cap(b.Buffer)
-	b.Buffer[b.End%C] = v
-	b.End += 1
-	if b.End-b.Start > C {
-		b.Start = b.End - C
-	}
-}
-
 type activity struct {
 	Name string
 	Next map[string]bool
@@ -173,8 +158,6 @@ type Marvin struct {
 	StartedOn      time.Time
 	MotionOn       time.Time
 
-	RecentMessages cb
-
 	do, persist   chan Message
 	lightSensor   *tsl2561.TSL2561
 	motionChannel <-chan bool
@@ -287,7 +270,6 @@ func (m *Marvin) Run() {
 	m.messagelisteners = &messagelisteners{pendingmessages: make(chan Message, 10), m: make(map[*chan Message]bool)}
 	go m.messagelisteners.notifymessagelisteners()
 	m.StartedOn = time.Now()
-	m.RecentMessages = cb{Buffer: make([]Message, 30)}
 	var createUserChan <-chan time.Time
 	if err := m.Hue.GetState(); err != nil {
 		createUserChan = time.NewTicker(1 * time.Second).C
@@ -348,7 +330,6 @@ func (m *Marvin) Run() {
 		case message := <-m.do:
 			m.messagelisteners.pendingmessages <- message
 			log.Println("Message:", message)
-			m.RecentMessages.Write(message)
 			what := ""
 			const IAM = "I am "
 			const SETHUE = "set hue address "

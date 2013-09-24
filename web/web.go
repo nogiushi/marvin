@@ -179,6 +179,27 @@ func AddHandlers(m *marvin.Marvin) {
 	fs := longExpire(http.FileServer(http.Dir(path.Join(Root, "static/"))))
 	http.Handle("/"+pkg.Version+"/", fs)
 
+	http.HandleFunc("/messages", func(w http.ResponseWriter, req *http.Request) {
+		if req.Method == "GET" {
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			if err := req.ParseForm(); err == nil {
+				_, ok := req.Form["since"]
+				if true || ok {
+					log := m.Log()
+					ec := json.NewEncoder(w)
+					if err := ec.Encode(log); err != nil {
+						return
+					}
+
+				}
+			} else {
+				log.Println("Error parsing form:", err)
+			}
+		} else {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	})
+
 	http.HandleFunc("/post", func(w http.ResponseWriter, req *http.Request) {
 		if req.Method == "POST" {
 			if err := req.ParseForm(); err == nil {

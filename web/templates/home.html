@@ -26,15 +26,7 @@
 	  Messages <small>Then</small> <span class="glyphicon glyphicon-retweet pull-right" ng-click="nowThenFlip()"></span>
 	</h4>
       </div>
-      <ul class="list-group" ng-switch on="state.RecentMessages.Start > 0">{{range $m := .Log}}
-	<li class="list-group-item message">{{$m.Who}}: <span class="what {{$m.Why}}">{{$m.What}}</span> at <small>{{$m.When}}</small></li>{{end}}
-	<li ng-switch-when="true" class="list-group-item">... more ...</li>
-	<li class="list-group-item message" ng-repeat="message in recentMessages(false)">
-	  <div class="row">
-	    <div class="col-lg-10">[[message.Who]]: <span class="what [[message.Why]]">[[message.What]]</span></div>
-	    <div class="col-lg-2 text-right"><small>[[formatWhen(message.When)]]</small></div>
-	  </div>
-	</li>
+      <ul id="messagesthen" class="list-group">
       </ul>
     </div>
 {{end}}
