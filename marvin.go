@@ -17,7 +17,6 @@ import (
 	"github.com/eikeon/gpio"
 	"github.com/eikeon/hue"
 	"github.com/eikeon/presence"
-	"github.com/eikeon/scheduler"
 	"github.com/eikeon/tsl2561"
 )
 
@@ -137,17 +136,16 @@ func (m *Marvin) StateChanged() {
 }
 
 type Marvin struct {
-	Hue            hue.Hue
-	Activities     map[string]*activity
-	Activity       string
-	Motion         bool
-	DayLight       bool
-	LastTransition string
-	Present        map[string]bool
-	Switch         map[string]bool
-	Schedule       scheduler.Schedule
-	States         map[string]interface{}
-	Transitions    map[string]struct {
+	Hue         hue.Hue
+	Activities  map[string]*activity
+	Activity    string
+	Motion      bool
+	DayLight    bool
+	Present     map[string]bool
+	Switch      map[string]bool
+	Schedule    interface{}
+	States      map[string]interface{}
+	Transitions map[string]struct {
 		Switch   map[string]bool
 		Commands []struct {
 			Address string
@@ -155,8 +153,6 @@ type Marvin struct {
 		}
 	}
 	StatHatUserKey string
-	StartedOn      time.Time
-	MotionOn       time.Time
 
 	do, persist   chan Message
 	lightSensor   *tsl2561.TSL2561
@@ -269,7 +265,6 @@ func (m *Marvin) Run() {
 	go m.listeners.notify()
 	m.messagelisteners = &messagelisteners{pendingmessages: make(chan Message, 10), m: make(map[*chan Message]bool)}
 	go m.messagelisteners.notifymessagelisteners()
-	m.StartedOn = time.Now()
 	var createUserChan <-chan time.Time
 	if err := m.Hue.GetState(); err != nil {
 		createUserChan = time.NewTicker(1 * time.Second).C
@@ -289,12 +284,12 @@ func (m *Marvin) Run() {
 	m.do = make(chan Message, 100)
 	m.Do("Marvin", "chime", "startup")
 
-	var scheduledEventsChannel <-chan scheduler.Event
-	if c, err := m.Schedule.Run(); err == nil {
-		scheduledEventsChannel = c
-	} else {
-		log.Println("Warning: Scheduled events off:", err)
-	}
+	go func() {
+		stateChanges := make(chan State, 10)
+		m.Register(&stateChanges)
+		schedule(m.do, stateChanges)
+		m.Unregister(&stateChanges)
+	}()
 
 	var dayLightTime time.Time
 	if t, err := tsl2561.NewTSL2561(1, tsl2561.ADDRESS_FLOAT); err == nil {
@@ -381,7 +376,6 @@ func (m *Marvin) Run() {
 					m.Switch[k] = v
 				}
 			}
-			m.LastTransition = what
 			for _, command := range t.Commands {
 				address := command.Address
 				if strings.Contains(command.Address, "/light") {
@@ -397,10 +391,6 @@ func (m *Marvin) Run() {
 				}
 			}
 			m.StateChanged()
-		case e := <-scheduledEventsChannel:
-			if m.Switch["Schedule"] {
-				m.Do("Marvin", e.What, "schedule")
-			}
 		case light := <-m.lightChannel:
 			go m.postStatValue("light broadband", float64(light))
 			if time.Since(dayLightTime) > time.Duration(60*time.Second) {
@@ -425,8 +415,7 @@ func (m *Marvin) Run() {
 		case motion := <-m.motionChannel:
 			if motion {
 				m.Do("Marvin", "motion detected", "sensors")
-				m.MotionOn = time.Now()
-				if m.Switch["Nightlights"] && m.LastTransition != "all nightlight" {
+				if m.Switch["Nightlights"] {
 					m.Do("Marvin", "all nightlight", "motion detected")
 				}
 				const duration = 60 * time.Second
