@@ -19,7 +19,7 @@ func schedule(messages chan Message, states chan State) {
 		case sc := <-states:
 			on = sc.Switch["Schedule"]
 			if scheduledEventsChannel == nil {
-				sr := sc.Schedule.(scheduler.Schedule)
+				sr := sc.Schedule
 				if c, err := sr.Run(); err == nil {
 					scheduledEventsChannel = c
 				} else {

@@ -3,6 +3,7 @@ package marvin
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -13,8 +14,10 @@ import (
 
 	"github.com/eikeon/dynamodb"
 	"github.com/eikeon/gpio"
+	"github.com/eikeon/hu"
 	"github.com/eikeon/hue"
 	"github.com/eikeon/presence"
+	"github.com/eikeon/scheduler"
 	"github.com/eikeon/tsl2561"
 )
 
@@ -134,6 +137,7 @@ func (m *Marvin) StateChanged() {
 }
 
 type Marvin struct {
+	Environment *hu.Environment
 	Hue         hue.Hue
 	Activities  map[string]*activity
 	Activity    string
@@ -141,7 +145,7 @@ type Marvin struct {
 	DayLight    bool
 	Present     map[string]bool
 	Switch      map[string]bool
-	Schedule    interface{}
+	Schedule    scheduler.Schedule
 	States      map[string]interface{}
 	Transitions map[string]struct {
 		Switch   map[string]bool
@@ -175,6 +179,16 @@ func NewMarvinFromFile(path string) (*Marvin, error) {
 	}
 	marvin.initDB()
 	return &marvin, nil
+}
+
+func (m *Marvin) String() string {
+	return fmt.Sprintf("#<Marvin> %p", m)
+}
+
+func goodnight(environment *hu.Environment, term hu.Term) hu.Term {
+	m := environment.Get(hu.Symbol("Marvin")).(*Marvin)
+	m.Do("Marvin", "I am sleeping", "hu")
+	return nil
 }
 
 var messageTableName string = "MarvinMessage"
@@ -280,6 +294,9 @@ func (m *Marvin) Run() {
 	}
 	m.do = make(chan Message, 100)
 	m.Do("Marvin", "chime", "startup")
+	m.Environment = hu.NewEnvironment()
+	m.Environment.Define(hu.Symbol("Marvin"), m)
+	m.Environment.AddPrimitive("goodnight", goodnight)
 
 	go func() {
 		stateChanges := make(chan State, 10)
@@ -322,6 +339,14 @@ func (m *Marvin) Run() {
 		case message := <-m.do:
 			m.messagelisteners.pendingmessages <- message
 			log.Println("Message:", message)
+			if message.Who != "Marvin" {
+				reader := strings.NewReader(message.What)
+				expression := hu.Read(reader)
+				expression = hu.Application([]hu.Term{expression})
+				result := m.Environment.Evaluate(expression)
+				log.Println("result:", result)
+			}
+
 			what := ""
 			const IAM = "I am "
 			const SETHUE = "set hue address "
