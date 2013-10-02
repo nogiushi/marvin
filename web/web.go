@@ -15,6 +15,7 @@ import (
 
 	"code.google.com/p/go.net/websocket"
 	"github.com/eikeon/marvin"
+	"github.com/eikeon/marvin/nog"
 )
 
 var pkg struct {
@@ -113,31 +114,14 @@ func handleTemplate(prefix, name string, data templateData) {
 
 type message map[string]interface{}
 
-type stateServer struct {
-	marvin *marvin.Marvin
-}
-
-func (s stateServer) wsHandler(ws *websocket.Conn) {
-	stateChanges := make(chan marvin.State, 10)
-	s.marvin.Register(&stateChanges)
-	defer func() { s.marvin.Unregister(&stateChanges) }()
-	for state := range stateChanges {
-		if err := websocket.JSON.Send(ws, state); err != nil {
-			log.Println("State Websocket send err:", err)
-			break
-		}
-	}
-	ws.Close()
-}
-
 type messageServer struct {
 	marvin *marvin.Marvin
 }
 
 func (s messageServer) wsHandler(ws *websocket.Conn) {
-	messageChanges := make(chan marvin.Message, 10)
-	s.marvin.RegisterMessageListener(&messageChanges)
-	defer func() { s.marvin.UnregisterMessageListener(&messageChanges) }()
+	messageChanges := make(chan nog.Message, 10)
+	s.marvin.Register(&messageChanges)
+	defer func() { s.marvin.Unregister(&messageChanges) }()
 	go func() {
 		for {
 			var msg message
@@ -150,7 +134,7 @@ func (s messageServer) wsHandler(ws *websocket.Conn) {
 							who = c.Subject.CommonName
 						}
 					}
-					s.marvin.Do(who, msg["message"].(string), msg["why"].(string))
+					s.marvin.In <- nog.NewMessage(who, msg["message"].(string), msg["why"].(string))
 				} else {
 					log.Printf("ignoring: %#v\n", msg)
 				}
@@ -206,7 +190,7 @@ func AddHandlers(m *marvin.Marvin) {
 				name, ok := req.Form["do_transition"]
 				if ok {
 					who := req.RemoteAddr
-					m.Do(who, name[0], "web")
+					m.In <- nog.NewMessage(who, name[0], "web")
 				}
 			}
 			// TODO: write a response
@@ -214,8 +198,6 @@ func AddHandlers(m *marvin.Marvin) {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
-	s := &stateServer{marvin: m}
-	http.Handle("/state", websocket.Handler(s.wsHandler))
 
 	ms := &messageServer{marvin: m}
 	http.Handle("/message", websocket.Handler(ms.wsHandler))

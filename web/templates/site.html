@@ -154,11 +154,11 @@ $('.transition').on('tap click', function (e) {
 	  <th scope="col">Transition</th>
 	</tr>
       </thead>
-      <tbody>{{range .Schedule}}
-	<tr>
-	  <td>{{.When}}{{if .On}} <small>on</small> {{.On}}{{end}}{{if .ExceptOn}} <small>except</small> {{.ExceptOn}}{{end}}</td>
-	  <td><a class="transition btn btn-block btn-primary" data-transition="{{.What}}">{{.What}} <i class="icon-play"></i></a></td>
-	</tr>{{end}}
+      <tbody>
+	<tr ng-repeat="event in state.Schedule">
+	  <td>[[event.When]]</td>
+	  <td><a class="transition btn btn-block btn-primary" data-transition="[[event.What]]">[[event.What]] <i class="icon-play"></i></a></td>
+	</tr>
       </tbody>
     </table>
 
@@ -200,7 +200,7 @@ $('.transition').on('tap click', function (e) {
 	  <tr>
 	    <td>Ambient Light</td>
 	    <td>
-	      {{if .LightSensor}}<span ng-switch on="state.DayLight">
+	      {{if .AmbientLight.LightSensor}}<span ng-switch on="state.DayLight">
 		<span ng-switch-when="true" class="label label-success">daylight</span>
 		<span ng-switch-when="false" class="label label-default">dark</span>
 		<span ng-switch-default>-</span>
@@ -210,7 +210,7 @@ $('.transition').on('tap click', function (e) {
 	  <tr>
 	    <td>Motion</td>
 	    <td>
-	      {{if .MotionSensor}}
+	      {{if .Motion.MotionSensor}}
 	      <span ng-switch on="state.Motion">
 		<span ng-switch-when="true" class="label label-success">motion</span>
 		<span ng-switch-when="false" class="label label-danger">no motion</span>

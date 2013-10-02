@@ -9,37 +9,6 @@ function MarvinCtrl($scope) {
     $scope.connection = null;
     $scope.messageconnection = null;
 
-    $scope.NewConnection = function() {
-        var wsproto = "";
-        if (document.location.protocol == "https:") {
-            wsproto = "wss";
-        } else {
-            wsproto = "ws";
-        }
-        connection = new WebSocket(wsproto+"://"+document.location.host+'/state');
-
-        connection.onopen = function () {
-            $scope.connection = connection;
-        };
-
-        connection.onclose = function (e) {
-            $scope.connection = null;
-        };
-
-        connection.onerror = function (error) {
-            console.log('WebSocket Error ' + error);
-            $scope.$apply(function () {
-                $scope.errors.push(error);
-            });
-        };
-
-        connection.onmessage = function(e) {
-            $scope.$apply(function () {
-                $scope.state = JSON.parse(e.data);
-            });
-        };
-    };
-
     $scope.NewMessageConnection = function() {
         var wsproto = "";
         if (document.location.protocol == "https:") {
@@ -67,6 +36,9 @@ function MarvinCtrl($scope) {
         messageconnection.onmessage = function(e) {
             $scope.$apply(function () {
                 var msg = JSON.parse(e.data);
+                if (msg.Who == "Nog" && msg.Why == "statechanged") {
+                    $scope.state = JSON.parse(msg.What);
+                }
                 $scope.displayMessage(msg);
             });
         };
@@ -74,7 +46,6 @@ function MarvinCtrl($scope) {
 
     $(window).on("pageshow", function() {
         $scope.NewMessageConnection();
-        $scope.NewConnection();
     });
 
     $(window).on("pagehide", function() {
@@ -103,22 +74,22 @@ function MarvinCtrl($scope) {
 
     $scope.allMessages = function() {
         var choices = [];
-        var states = Object.keys($scope.state.Activities);
-        for (var i = 0; i < states.length; i++) {
-            choices.push("I am " + states[i]);
-        }
-        var transition = Object.keys($scope.state.Transitions);
-        for (i = 0; i < transition.length; i++) {
-            choices.push("do transition " + transition[i]);
-        }
-        var switches = Object.keys($scope.state.Switch);
-        for (i = 0; i < switches.length; i++) {
-            if ($scope.state.Switch[switches[i]] === true) {
-                choices.push("turn off " + switches[i]);
-            } else {
-                choices.push("turn on " + switches[i]);
-            }
-        }
+        // var states = Object.keys($scope.state.Activities);
+        // for (var i = 0; i < states.length; i++) {
+        //     choices.push("I am " + states[i]);
+        // }
+        // var transition = Object.keys($scope.state.Transitions);
+        // for (i = 0; i < transition.length; i++) {
+        //     choices.push("do transition " + transition[i]);
+        // }
+        // var switches = Object.keys($scope.state.Switch);
+        // for (i = 0; i < switches.length; i++) {
+        //     if ($scope.state.Switch[switches[i]] === true) {
+        //         choices.push("turn off " + switches[i]);
+        //     } else {
+        //         choices.push("turn on " + switches[i]);
+        //     }
+        // }
         return choices;
     };
 

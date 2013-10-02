@@ -69,157 +69,157 @@
     <div class="panel-group overflowvisible">
 
       <div class="panel panel-schedule">
-	<div class="panel-heading">
-	  <h4 class="panel-title">
+		<div class="panel-heading">
+		  <h4 class="panel-title">
             <a data-toggle="collapse" data-target="#collapseSchedule">
-	      Schedule
+			  Schedule
             </a>
-	  </h4>
-	</div>
-	<div id="collapseSchedule" class="panel-collapse collapse">
-	  {{template "schedule" .}}
-	</div>
+		  </h4>
+		</div>
+		<div id="collapseSchedule" class="panel-collapse collapse">
+		  {{template "schedule" .}}
+		</div>
       </div>
 
       <div class="panel panel-switches">
-	<div class="panel-heading">
-	  <h4 class="panel-title">
+		<div class="panel-heading">
+		  <h4 class="panel-title">
             <a data-toggle="collapse" data-target="#collapseSwitches">
-	      Switches
+			  Switches
             </a>
-	  </h4>
-	</div>
-	<div id="collapseSwitches" class="panel-collapse collapse">
-	  <div class="panel-body">
-	    <form ng-submit="changeState()">
-	      {{range $k, $v := .Switch}}
-	      <label class="checkbox"><input type=checkbox ng-model="state.Switch['{{$k}}']" ng-change="changeState('{{$k}}', state.Switch['{{$k}}'])">{{$k}}</label>{{end}}
-	    </form>
-	  </div>
-	</div>
+		  </h4>
+		</div>
+		<div id="collapseSwitches" class="panel-collapse collapse">
+		  <div class="panel-body">
+			<form ng-submit="changeState()">
+			  <label ng-repeat="(k, v) in state.Switch track by $index" class="checkbox"><input type=checkbox ng-model="state.Switch[k]" ng-change="changeState(k, state.Switch[k])">[[k]]</label>
+			</form>
+		  </div>
+		</div>
       </div>
 
       <div class="panel panel-lightgroups">
-	<div class="panel-heading">
-	  <h4 class="panel-title">
+		<div class="panel-heading">
+		  <h4 class="panel-title">
             <a data-toggle="collapse" data-target="#collapseLightgroups">
-	      Light Groups
+			  Light Groups
             </a>
-	  </h4>
-	</div>
-	<div id="collapseLightgroups" class="panel-collapse collapse">
-	  <table class="table">
-	    <thead>
-	      <tr>
-		<th>Name</th>
-		<th><i class="icon-off"></i> State</th>
-	      </tr>
-	    </thead>
-	    <tbody>
-	      <tr ng-repeat="(name, group) in state.Hue.Datastore.groups">
-		<td>[[group.name]]</td>
-		<td>
-		  <div ng-switch on="group.action.on" class="btn-group">
-		    <button
-		       ng-switch-when="true"
-		       type="button" class="btn btn-default btn-lg"
-		       style="color: black; background-color: [[getColor(group.action)]]"
-		       ng-click="setHue('/groups/'+name+'/action', OFF, 'lightgroups')">On</button>
-		    <button
-		       ng-switch-when="false"
-		       type="button" class="btn btn-default btn-lg"
-		       ng-click="setHue('/groups/'+name+'/action', ON, 'lightgroups')">Off</button>
-		    <button type="button" class="btn btn-default btn-lg dropdown-toggle" data-toggle="dropdown">
-		      <span class="caret"></span>
-		    </button>
-		    <ul class="dropdown-menu" role="menu">
-		      <li ng-repeat="choice in allStates()">
-			<a class="btn btn-lg" ng-click="setHue('/groups/'+name+'/action', state.States[choice], 'lightgroups')"
-			   style="color: black; background-color: [[getColor(state.States[choice])]]">[[choice]]</a>
-		      </li>
-		    </ul>
-		  </div>
-		</td>
-	      </tr>
-	    </tbody>
-	  </table>
-	</div>
+		  </h4>
+		</div>
+		<div id="collapseLightgroups" class="panel-collapse collapse">
+		  <table class="table">
+			<thead>
+			  <tr>
+				<th>Name</th>
+				<th><i class="icon-off"></i> State</th>
+			  </tr>
+			</thead>
+			<tbody>
+			  <tr ng-repeat="(name, group) in state.Hue.Datastore.groups">
+				<td>[[group.name]]</td>
+				<td>
+				  <div ng-switch on="group.action.on" class="btn-group">
+					<button
+					   ng-switch-when="true"
+					   type="button" class="btn btn-default btn-lg"
+					   style="color: black; background-color: [[getColor(group.action)]]"
+					   ng-click="setHue('/groups/'+name+'/action', OFF, 'lightgroups')">On</button>
+					<button
+					   ng-switch-when="false"
+					   type="button" class="btn btn-default btn-lg"
+					   ng-click="setHue('/groups/'+name+'/action', ON, 'lightgroups')">Off</button>
+					<button type="button" class="btn btn-default btn-lg dropdown-toggle" data-toggle="dropdown">
+					  <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" role="menu">
+					  <li ng-repeat="choice in allStates()">
+						<a class="btn btn-lg" ng-click="setHue('/groups/'+name+'/action', state.States[choice], 'lightgroups')"
+						   style="color: black; background-color: [[getColor(state.States[choice])]]">[[choice]]</a>
+					  </li>
+					</ul>
+				  </div>
+				</td>
+			  </tr>
+			</tbody>
+		  </table>
+		</div>
       </div>
 
       <div class="panel panel-lightbulbs">
-	<div class="panel-heading">
-	  <h4 class="panel-title">
+		<div class="panel-heading">
+		  <h4 class="panel-title">
             <a data-toggle="collapse" data-target="#collapseLightbulbs">
-	      Light Bulbs
+			  Light Bulbs
             </a>
-	  </h4>
-	</div>
+		  </h4>
+		</div>
 
-	<div id="collapseLightbulbs" class="panel-collapse collapse">
-	  <table class="table table-condensed">
-	    <thead>
-	      <tr>
-		<th>Name</th>
-		<th><i class="icon-off"></i> State</th>
-	      </tr>
-	    </thead>
-	    <tbody>
-	      <tr ng-repeat="(name, light) in state.Hue.Datastore.lights">
-		<td>[[light.name]]</td>
-		<td>
-		  <div ng-switch on="light.state.on" class="btn-group">
-		    <button
-		       ng-switch-when="true"
-		       type="button" class="btn btn-default btn-lg"
-		       style="color: black; background-color: [[getColor(light.state)]]"
-		       ng-click="setHue('/lights/'+name+'/state', OFF, 'lightbulbs')">On</button>
-		    <button
-		       ng-switch-when="false"
-		       type="button" class="btn btn-default btn-lg"
-		       ng-click="setHue('/lights/'+name+'/state', ON, 'lightbulbs')">Off</button>
-		    <button type="button" class="btn btn-default btn-lg dropdown-toggle" data-toggle="dropdown"
-			    style="color: black; background-color: [[getColor(light.state)]]">
-		      <span class="caret"></span>
-		    </button>
-		    <ul class="dropdown-menu" role="menu">
-		      <li ng-repeat="choice in allStates()">
-			<a class="btn btn-lg" ng-click="setHue('/lights/'+name+'/state', state.States[choice], 'lightbulbs')"
-			   style="color: black; background-color: [[getColor(state.States[choice])]]">[[choice]]</a>
-		      </li>
-		    </ul>
-		  </div>
-		</td>
-	      </tr>
-	    </tbody>
-	  </table>
-	</div>
+		<div id="collapseLightbulbs" class="panel-collapse collapse">
+		  <table class="table table-condensed">
+			<thead>
+			  <tr>
+				<th>Name</th>
+				<th><i class="icon-off"></i> State</th>
+			  </tr>
+			</thead>
+			<tbody>
+			  <tr ng-repeat="(name, light) in state.Hue.Datastore.lights">
+				<td>[[light.name]]</td>
+				<td>
+				  <div ng-switch on="light.state.on" class="btn-group">
+					<button
+					   ng-switch-when="true"
+					   type="button" class="btn btn-default btn-lg"
+					   style="color: black; background-color: [[getColor(light.state)]]"
+					   ng-click="setHue('/lights/'+name+'/state', OFF, 'lightbulbs')">On</button>
+					<button
+					   ng-switch-when="false"
+					   type="button" class="btn btn-default btn-lg"
+					   ng-click="setHue('/lights/'+name+'/state', ON, 'lightbulbs')">Off</button>
+					<button type="button" class="btn btn-default btn-lg dropdown-toggle" data-toggle="dropdown"
+							style="color: black; background-color: [[getColor(light.state)]]">
+					  <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" role="menu">
+					  <li ng-repeat="choice in allStates()">
+						<a class="btn btn-lg" ng-click="setHue('/lights/'+name+'/state', state.States[choice], 'lightbulbs')"
+						   style="color: black; background-color: [[getColor(state.States[choice])]]">[[choice]]</a>
+					  </li>
+					</ul>
+				  </div>
+				</td>
+			  </tr>
+			</tbody>
+		  </table>
+		</div>
       </div>
 
       <div class="panel panel-presence">
-	<div class="panel-heading">
-	  <h4 class="panel-title">
-            <a data-toggle="collapse" data-target="#collapsePresence">
-	      Presence
+		<div class="panel-heading">
+		  <h4 class="panel-title">
+			<a data-toggle="collapse" data-target="#collapsePresence">
+			  Presence
             </a>
-	  </h4>
-	</div>
-	<div id="collapsePresence" class="panel-collapse collapse">
-	  {{template "presence" .}}
-	</div>
+		  </h4>
+		</div>
+		<div id="collapsePresence" class="panel-collapse collapse">
+		  {{template "presence" .}}
+		</div>
       </div>
 
       <div class="panel panel-sensors">
-	<div class="panel-heading">
-	  <h4 class="panel-title">
+		<div class="panel-heading">
+		  <h4 class="panel-title">
             <a data-toggle="collapse" data-target="#collapseSensors">
-	      Sensors
+			  Sensors
             </a>
-	  </h4>
-	</div>
-	<div id="collapseSensors" class="panel-collapse collapse">
-	  {{template "sensors" .}}
-	</div>
+		  </h4>
+		</div>
+		<div id="collapseSensors" class="panel-collapse collapse">
+		  {{template "sensors" .}}
+		</div>
       </div>
+
     </div>
 
   </div>
