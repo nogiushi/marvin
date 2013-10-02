@@ -63,6 +63,7 @@ type Nog struct {
 	In  chan<- Message
 	out <-chan Message
 	*listeners
+	*persist
 	path  string
 	state map[string]interface{}
 }
@@ -73,7 +74,8 @@ func NewNogFromFile(path string) (*Nog, error) {
 	n.In = ch
 	n.out = ch
 	n.listeners = &listeners{m: make(map[*chan Message]bool)}
-
+	n.persist = &persist{}
+	go n.Add(n.persist)
 	n.path = path
 	if j, err := os.OpenFile(n.path, os.O_RDONLY, 0666); err == nil {
 		dec := json.NewDecoder(j)

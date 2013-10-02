@@ -1,4 +1,4 @@
-package persist
+package nog
 
 import (
 	"log"
@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/eikeon/dynamodb"
-	"github.com/eikeon/marvin/nog"
 )
 
 var messageTableName string = "MarvinMessage"
@@ -19,10 +18,10 @@ func init() {
 	}
 }
 
-func (p *Persist) initDB() dynamodb.DynamoDB {
+func (p *persist) initDB() dynamodb.DynamoDB {
 	db := dynamodb.NewDynamoDB()
 	if db != nil {
-		t, err := db.Register(messageTableName, (*nog.Message)(nil))
+		t, err := db.Register(messageTableName, (*Message)(nil))
 		if err != nil {
 			panic(err)
 		}
@@ -45,11 +44,11 @@ func (p *Persist) initDB() dynamodb.DynamoDB {
 	return db
 }
 
-type Persist struct {
+type persist struct {
 	db dynamodb.DynamoDB
 }
 
-func (p *Persist) Run(in <-chan nog.Message, out chan<- nog.Message) {
+func (p *persist) Run(in <-chan Message, out chan<- Message) {
 	for {
 		select {
 		case m := <-in:
@@ -57,7 +56,7 @@ func (p *Persist) Run(in <-chan nog.Message, out chan<- nog.Message) {
 				if db := p.initDB(); db != nil {
 					p.db = db
 				} else {
-					log.Println("WARNING: could not create database to persist message.")
+					log.Println("WARNING: could not create database to persist messages.")
 					goto DONE
 				}
 			}
@@ -67,14 +66,14 @@ func (p *Persist) Run(in <-chan nog.Message, out chan<- nog.Message) {
 DONE:
 }
 
-func (p *Persist) Log() (messages []*nog.Message) {
+func (p *persist) Log() (messages []*Message) {
 	if p.db != nil {
 		when := time.Now().Format(time.RFC3339Nano)
 		hash := when[0:10]
 		conditions := dynamodb.KeyConditions{"Hash": {[]dynamodb.AttributeValue{{"S": hash}}, "EQ"}}
 		if sr, err := p.db.Query(messageTableName, &dynamodb.QueryOptions{KeyConditions: conditions}); err == nil {
 			for i := 0; i < sr.Count; i++ {
-				messages = append(messages, p.db.FromItem(messageTableName, sr.Items[i]).(*nog.Message))
+				messages = append(messages, p.db.FromItem(messageTableName, sr.Items[i]).(*Message))
 			}
 		} else {
 			log.Println("scan error:", err)
