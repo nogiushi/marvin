@@ -2,11 +2,22 @@ package activity
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"log"
+	"os"
+	"path"
+	"runtime"
 	"strings"
 
 	"github.com/eikeon/marvin/nog"
 )
+
+var Root = ""
+
+func init() {
+	_, filename, _, _ := runtime.Caller(0)
+	Root = path.Dir(filename)
+}
 
 type activity struct {
 	Name string
@@ -14,8 +25,17 @@ type activity struct {
 }
 
 type Activity struct {
-	Activities map[string]*activity
-	Activity   string
+	nog.InOut
+	Activities  map[string]*activity
+	Activity    string
+	Switch      map[string]bool
+	Transitions map[string]struct {
+		Switch   map[string]bool
+		Commands []struct {
+			Address string
+			State   string
+		}
+	}
 }
 
 func (m *Activity) GetActivity(name string) *activity {
@@ -41,19 +61,33 @@ func (m *Activity) UpdateActivity(name string) {
 }
 
 func (a *Activity) Run(in <-chan nog.Message, out chan<- nog.Message) {
+	name := "activity.html"
+	if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
+		if b, err := ioutil.ReadAll(j); err == nil {
+			out <- nog.NewMessage("Marvin", string(b), "template")
+		} else {
+			log.Println("ERROR reading:", err)
+		}
+	} else {
+		log.Println("WARNING: could not open ", name, err)
+	}
+
 	for {
 		select {
 		case m := <-in:
 			if m.Why == "statechanged" {
 				dec := json.NewDecoder(strings.NewReader(m.What))
 				if err := dec.Decode(a); err != nil {
-					log.Println("switches decode err:", err)
+					log.Println("activity decode err:", err)
 				}
-			}
-			const IAM = "I am "
-			if strings.HasPrefix(m.What, IAM) {
-				what := m.What[len(IAM):]
-				a.UpdateActivity(what)
+			} else {
+				const IAM = "I am "
+				what := m.What
+				if strings.HasPrefix(m.What, IAM) {
+					what = m.What[len(IAM):]
+					a.UpdateActivity(what)
+					out <- nog.NewMessage("Marvin", "do "+what, "Activity")
+				}
 			}
 		}
 	}

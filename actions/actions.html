@@ -1,0 +1,18 @@
+<div class="table-responsive">
+  <table class="table table-condensed table-striped col-lg-12">
+    <thead>
+      <tr>
+	<th scope="col">Name</th>
+	<th scope="col">Commands</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="(action, commands) in state.Actions">
+	<td>[[action]]</td>
+	<td>
+	  <p><span ng-repeat="command in commands">[[command]]. </span></p>
+	</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

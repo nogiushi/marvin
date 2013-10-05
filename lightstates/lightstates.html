@@ -1,0 +1,18 @@
+<table class="table table-condensed">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>State</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="(light, definition) in state.States">
+      <td>[[light]]</td>
+      <td>
+	<a style="color: black; background-color: [[getColor(state.States[light])]]" class="btn btn-block btn-link" ng-click="openEditState(light)">
+	  [[getStateLabel(state.States[light])]]
+	</a>
+      </td>
+    </tr>
+  </tbody>
+</table>

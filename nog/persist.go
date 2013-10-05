@@ -45,13 +45,14 @@ func (p *persist) initDB() dynamodb.DynamoDB {
 }
 
 type persist struct {
+	InOut
 	db dynamodb.DynamoDB
 }
 
 func (p *persist) Run(in <-chan Message, out chan<- Message) {
 	for {
 		select {
-		case m := <-in:
+		case m := <-p.in:
 			if p.db == nil {
 				if db := p.initDB(); db != nil {
 					p.db = db

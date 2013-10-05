@@ -1,7 +1,37 @@
-angular.module('MarvinApp', ['ui.bootstrap'], function ($interpolateProvider) {
+var myModule = angular.module('MarvinApp', ['ui.bootstrap'], function ($interpolateProvider) {
   $interpolateProvider.startSymbol('[[');
   $interpolateProvider.endSymbol(']]');
 });
+
+// configure existing services inside initialization blocks.
+myModule.config(function($compileProvider) {
+  // configure new 'compile' directive by passing a directive
+  // factory function. The factory function injects the '$compile'
+  $compileProvider.directive('compile', function($compile) {
+
+    // directive factory creates a link function
+    return function(scope, element, attrs) {
+      scope.$watch(
+        function(scope) {
+           // watch the 'compile' expression for changes
+          return scope.$eval(attrs.compile);
+        },
+        function(value) {
+          // when the 'compile' expression changes
+          // assign it into the current DOM
+          element.html(value);
+ 
+          // compile the new DOM and link it to the current
+          // scope.
+          // NOTE: we only compile .childNodes so that
+          // we don't get into infinite loop compiling ourselves
+          $compile(element.contents())(scope);
+        }
+      );
+    };
+  });
+});
+
 
 function MarvinCtrl($scope) {
     $scope.state = {};
@@ -36,10 +66,13 @@ function MarvinCtrl($scope) {
         messageconnection.onmessage = function(e) {
             $scope.$apply(function () {
                 var msg = JSON.parse(e.data);
-                if (msg.Who == "Nog" && msg.Why == "statechanged") {
-                    $scope.state = JSON.parse(msg.What);
+                if (msg.Why == "statechanged") {
+                    if (msg.Who == "Nog") {
+                        $scope.state = JSON.parse(msg.What);
+                    }
+                } else {
+                    $scope.displayMessage(msg);
                 }
-                $scope.displayMessage(msg);
             });
         };
     };
@@ -74,22 +107,22 @@ function MarvinCtrl($scope) {
 
     $scope.allMessages = function() {
         var choices = [];
-        // var states = Object.keys($scope.state.Activities);
-        // for (var i = 0; i < states.length; i++) {
-        //     choices.push("I am " + states[i]);
-        // }
-        // var transition = Object.keys($scope.state.Transitions);
-        // for (i = 0; i < transition.length; i++) {
-        //     choices.push("do transition " + transition[i]);
-        // }
-        // var switches = Object.keys($scope.state.Switch);
-        // for (i = 0; i < switches.length; i++) {
-        //     if ($scope.state.Switch[switches[i]] === true) {
-        //         choices.push("turn off " + switches[i]);
-        //     } else {
-        //         choices.push("turn on " + switches[i]);
-        //     }
-        // }
+        var states = Object.keys($scope.state.Activities);
+        for (var i = 0; i < states.length; i++) {
+            choices.push("I am " + states[i]);
+        }
+        var action = Object.keys($scope.state.Actions);
+        for (i = 0; i < action.length; i++) {
+            choices.push("do " + action[i]);
+        }
+        var switches = Object.keys($scope.state.Switch);
+        for (i = 0; i < switches.length; i++) {
+            if ($scope.state.Switch[switches[i]] === true) {
+                choices.push("turn off " + switches[i]);
+            } else {
+                choices.push("turn on " + switches[i]);
+            }
+        }
         return choices;
     };
 
@@ -118,7 +151,9 @@ function MarvinCtrl($scope) {
     $.getJSON("/messages", function(messages) {
         var length = messages.length;
         for (var i = 0; i < length; i++) {
-            $scope.displayMessageThen(messages[i]);
+            if (messages[i].Why != "statechanged") {
+                $scope.displayMessageThen(messages[i]);
+            }
         }
     });
 

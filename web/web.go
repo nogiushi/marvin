@@ -14,7 +14,6 @@ import (
 	"path"
 
 	"code.google.com/p/go.net/websocket"
-	"github.com/eikeon/marvin"
 	"github.com/eikeon/marvin/nog"
 )
 
@@ -115,13 +114,13 @@ func handleTemplate(prefix, name string, data templateData) {
 type message map[string]interface{}
 
 type messageServer struct {
-	marvin *marvin.Marvin
+	nog *nog.Nog
 }
 
 func (s messageServer) wsHandler(ws *websocket.Conn) {
 	messageChanges := make(chan nog.Message, 10)
-	s.marvin.Register(&messageChanges)
-	defer func() { s.marvin.Unregister(&messageChanges) }()
+	s.nog.Register(messageChanges, &nog.BitOptions{Name: "Web", Required: true})
+	defer func() { s.nog.Unregister(messageChanges) }()
 	go func() {
 		for {
 			var msg message
@@ -134,7 +133,7 @@ func (s messageServer) wsHandler(ws *websocket.Conn) {
 							who = c.Subject.CommonName
 						}
 					}
-					s.marvin.In <- nog.NewMessage(who, msg["message"].(string), msg["why"].(string))
+					s.nog.In <- nog.NewMessage(who, msg["message"].(string), msg["why"].(string))
 				} else {
 					log.Printf("ignoring: %#v\n", msg)
 				}
@@ -155,7 +154,7 @@ func (s messageServer) wsHandler(ws *websocket.Conn) {
 	ws.Close()
 }
 
-func AddHandlers(m *marvin.Marvin) {
+func AddHandlers(m *nog.Nog) {
 	handleTemplate("/", "home", templateData{"Marvin": m})
 	handleTemplate("/lightstates/", "lightstates", templateData{"Marvin": m})
 	handleTemplate("/transitions/", "transitions", templateData{"Marvin": m})
@@ -199,6 +198,6 @@ func AddHandlers(m *marvin.Marvin) {
 		}
 	})
 
-	ms := &messageServer{marvin: m}
+	ms := &messageServer{nog: m}
 	http.Handle("/message", websocket.Handler(ms.wsHandler))
 }

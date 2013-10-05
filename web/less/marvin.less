@@ -1,63 +1,63 @@
 @import "bower_components/bootstrap/less/bootstrap.less";
 
-@schedule:         plum;
+@Schedule:         rgba(168,209,0,0.7);
 
-@panel-schedule-text:          @gray-dark;
-@panel-schedule-border:        darken(@schedule, 5%);
-@panel-schedule-heading-bg:    @schedule;
+@panel-Schedule-text:          @gray-dark;
+@panel-Schedule-border:        darken(@Schedule, 5%);
+@panel-Schedule-heading-bg:    @Schedule;
 
-.panel-schedule {
-  .panel-variant(@panel-schedule-border; @panel-schedule-text; @panel-schedule-heading-bg; @panel-schedule-border);
+.panel-Schedule {
+  .panel-variant(@panel-Schedule-border; @panel-Schedule-text; @panel-Schedule-heading-bg; @panel-Schedule-border);
 }
 
-@sensors:         pink;
+@Activity:         rgba(247,201,0,0.7);
 
-@panel-sensors-text:          @gray-dark;
-@panel-sensors-border:        darken(@sensors, 5%);
-@panel-sensors-heading-bg:    @sensors;
+@panel-Activity-text:          @gray-dark;
+@panel-Activity-border:        darken(@Activity, 5%);
+@panel-Activity-heading-bg:    @Activity;
 
-.panel-sensors {
-  .panel-variant(@panel-sensors-border; @panel-sensors-text; @panel-sensors-heading-bg; @panel-sensors-border);
+.panel-Activity {
+  .panel-variant(@panel-Activity-border; @panel-Activity-text; @panel-Activity-heading-bg; @panel-Activity-border);
 }
 
-@presence:         lightblue;
+@Presence:         rgba(0,142,207,0.7);
 
-@panel-presence-text:          @gray-dark;
-@panel-presence-border:        darken(@presence, 5%);
-@panel-presence-heading-bg:    @presence;
+@panel-Presence-text:          @gray-dark;
+@panel-Presence-border:        darken(@Presence, 5%);
+@panel-Presence-heading-bg:    @Presence;
 
-.panel-presence {
-  .panel-variant(@panel-presence-border; @panel-presence-text; @panel-presence-heading-bg; @panel-presence-border);
+.panel-Presence {
+  .panel-variant(@panel-Presence-border; @panel-Presence-text; @panel-Presence-heading-bg; @panel-Presence-border);
 }
 
-@switches:         lighten(lightgreen, 20%);
+@Actions:         rgba(219,0,0,0.7);
 
-@panel-switches-text:          @gray-dark;
-@panel-switches-border:        darken(@switches, 5%);
-@panel-switches-heading-bg:    @switches;
+@panel-Actions-text:          @gray-dark;
+@panel-Actions-border:        darken(@Actions, 5%);
+@panel-Actions-heading-bg:    @Actions;
 
-.panel-switches {
-  .panel-variant(@panel-switches-border; @panel-switches-text; @panel-switches-heading-bg; @panel-switches-border);
+.panel-Actions {
+  .panel-variant(@panel-Actions-border; @panel-Actions-text; @panel-Actions-heading-bg; @panel-Actions-border);
 }
 
-@lightgroups:         lighten(yellow, 20%);
+@AmbientLight:         rgba(138,0,0,0.7);
 
-@panel-lightgroups-text:          @gray-dark;
-@panel-lightgroups-border:        darken(@lightgroups, 5%);
-@panel-lightgroups-heading-bg:    @lightgroups;
+@panel-AmbientLight-text:          @gray-dark;
+@panel-AmbientLight-border:        darken(@AmbientLight, 5%);
+@panel-AmbientLight-heading-bg:    @AmbientLight;
 
-.panel-lightgroups {
-  .panel-variant(@panel-lightgroups-border; @panel-lightgroups-text; @panel-lightgroups-heading-bg; @panel-lightgroups-border);
+.panel-AmbientLight {
+  .panel-variant(@panel-AmbientLight-border; @panel-AmbientLight-text; @panel-AmbientLight-heading-bg; @panel-AmbientLight-border);
 }
 
-@lightbulbs:         lighten(orange, 20%);
+@Lights:         rgba(255,123,0,0.7);
 
-@panel-lightbulbs-text:          @gray-dark;
-@panel-lightbulbs-border:        darken(@lightbulbs, 5%);
-@panel-lightbulbs-heading-bg:    @lightbulbs;
+@panel-Lights-text:          @gray-dark;
+@panel-Lights-border:        darken(@Lights, 5%);
+@panel-Lights-heading-bg:    @Lights;
 
-.panel-lightbulbs {
-  .panel-variant(@panel-lightbulbs-border; @panel-lightbulbs-text; @panel-lightbulbs-heading-bg; @panel-lightbulbs-border);
+.panel-Lights {
+  .panel-variant(@panel-Lights-border; @panel-Lights-text; @panel-Lights-heading-bg; @panel-Lights-border);
 }
 
 li.message {
@@ -71,28 +71,28 @@ li.message {
   xfont-size: 14pt;  
 }
 
-.switches {
-  background-color: @switches;
+.Actions {
+  background-color: @Actions;
 }
 
-.lightgroups {
-  background-color: @lightgroups;
+.AmbientLight {
+  background-color: @AmbientLight;
 }
 
-.lightbulbs {
-  background-color: @lightbulbs;
+.Lights {
+  background-color: @Lights;
 }
 
-.presence {
-  background-color: @presence;
+.Presence {
+  background-color: @Presence;
 }
 
-.sensors {
-  background-color: @sensors;
+.Activity {
+  background-color: @Activity;
 }
 
-.schedule {
-  background-color: @schedule;
+.Schedule {
+  background-color: @Schedule;
 }
 
 .overflowvisible {
