@@ -114,7 +114,7 @@
 
       <div id="footer">
 	<div class="container">
-          <p class="text-muted credit"><a href="http://github.com/eikeon/Marvin">Marvin</a> {{.Version}}. Glyphicons by <a href="http://glyphicons.com">GLYPHICONS</a>. <a href="/lightstates/">Light States</a> | <a href="/transitions/">Transitions</a></p>
+          <p class="text-muted credit"><a href="http://github.com/eikeon/Marvin">Marvin</a> {{.Version}}. Glyphicons by <a href="http://glyphicons.com">GLYPHICONS</a>.</p>
 	</div>
       </div>
 
@@ -130,144 +130,7 @@
 
 })(jQuery)
 
-$('.transition').on('tap click', function (e) {
-    var transition = $(this).data("transition")
-    $.ajax({
-	url: "/post?" + $.now(),
-	type: "POST",
-	cache: false,
-	data: {"do_transition": transition},
-	statusCode: {
-	    404: function() {
-	    },
-	    200: function() {
-	    }
-	},
-	dataType: "html"
-    });
-});
-
     </script>
   </body>
 </html>{{end}}
 
-{{define "schedule"}}
-    <table class="table">
-      <thead>
-	<tr>
-	  <th scope="col">Time</th>
-	  <th scope="col">Transition</th>
-	</tr>
-      </thead>
-      <tbody>
-	<tr ng-repeat="event in state.Schedule">
-	  <td>[[event.When]]</td>
-	  <td><a class="transition btn btn-block btn-primary" data-transition="[[event.What]]">[[event.What]] <i class="icon-play"></i></a></td>
-	</tr>
-      </tbody>
-    </table>
-
-{{end}}
-
-
-{{define "presence"}}
-      <table class="table">
-	<thead>
-	  <tr>
-	    <th>Name</th>
-	    <th>Status</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  <tr ng-repeat="(k, v) in state.Present track by $index">
-	    <td>[[k]]</td>
-	    <td ng-switch on="v">
-	      <span ng-switch-when="true" class="label label-success">Home</span>
-	      <span ng-switch-when="false" class="label label-danger">Away</span>
-	      <span ng-switch-default>-</span>
-	    </td>
-	  </tr>
-	</tbody>
-      </table>
-{{end}}
-
-
-{{define "sensors"}}
-
-      <table class="table">
-	<thead>
-	  <tr>
-	    <th scope="col">Name</th>
-	    <th scope="col">Status</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  <tr>
-	    <td>Ambient Light</td>
-	    <td>
-	      {{if .AmbientLight.LightSensor}}<span ng-switch on="state.DayLight">
-		<span ng-switch-when="true" class="label label-success">daylight</span>
-		<span ng-switch-when="false" class="label label-default">dark</span>
-		<span ng-switch-default>-</span>
-	      </span>{{else}}<span class="label label-danger">no sensor</span>{{end}}
-	    </td>
-	  </tr>
-	  <tr>
-	    <td>Motion</td>
-	    <td>
-	      {{if .Motion.MotionSensor}}
-	      <span ng-switch on="state.Motion">
-		<span ng-switch-when="true" class="label label-success">motion</span>
-		<span ng-switch-when="false" class="label label-danger">no motion</span>
-		<span ng-switch-default>-</span>
-	      </span>{{else}}<span class="label label-danger">no sensor</span>{{end}}
-	    </td>
-	  </tr>
-	  </tbody>
-      </table>
-
-{{end}}
-
-{{define "transitions"}}
-
-      <table class="table table-condensed table-striped">
-	<thead>
-	  <tr>
-	    <th scope="col">Name</th>
-	    <th scope="col">Commands</th>
-	  </tr>
-	</thead>
-	<tbody>{{range $k,$v := .Transitions}}
-	  <tr>
-	    <td><a class="transition btn btn-block" data-transition="{{$k}}">{{$k}} <i class="icon-play"></i></a></td>
-	    <td>
-	      <dl class="dl-horizontal">{{range $v.Commands}}
-		<dt>{{.Address}}</dt><dd>{{.State}}</dd>{{end}}
-	      </dl>
-	    </td>
-	  </tr>{{end}}
-	</tbody>
-      </table>
-{{end}}
-
-{{define "lightstates"}}
-
-      <table class="table table-condensed">
-	<thead>
-	  <tr>
-	    <th>Name</th>
-	    <th>State</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  <tr ng-repeat="choice in allStates()">
-	    <td>[[choice]]</td>
-	    <td>
-	      <a style="color: black; background-color: [[getColor(state.States[choice])]]" class="btn btn-block btn-link" ng-click="openEditState(choice)">
-		[[getStateLabel(state.States[choice])]]
-	      </a>
-	    </td>
-	  </tr>
-	</tbody>
-      </table>
-{{end}}

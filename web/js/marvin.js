@@ -37,33 +37,32 @@ function MarvinCtrl($scope) {
     $scope.state = {};
     $scope.errors = [];
     $scope.connection = null;
-    $scope.messageconnection = null;
 
-    $scope.NewMessageConnection = function() {
+    $scope.NewConnection = function() {
         var wsproto = "";
         if (document.location.protocol == "https:") {
             wsproto = "wss";
         } else {
             wsproto = "ws";
         }
-        messageconnection = new WebSocket(wsproto+"://"+document.location.host+'/message');
+        connection = new WebSocket(wsproto+"://"+document.location.host+'/message');
 
-        messageconnection.onopen = function () {
-            $scope.messageconnection = messageconnection;
+        connection.onopen = function () {
+            $scope.connection = connection;
         };
 
-        messageconnection.onclose = function (e) {
-            $scope.messageconnection = null;
+        connection.onclose = function (e) {
+            $scope.connection = null;
         };
 
-        messageconnection.onerror = function (error) {
+        connection.onerror = function (error) {
             console.log('WebSocket Error ' + error);
             $scope.$apply(function () {
                 $scope.errors.push(error);
             });
         };
 
-        messageconnection.onmessage = function(e) {
+        connection.onmessage = function(e) {
             $scope.$apply(function () {
                 var msg = JSON.parse(e.data);
                 if (msg.Why == "statechanged") {
@@ -78,13 +77,10 @@ function MarvinCtrl($scope) {
     };
 
     $(window).on("pageshow", function() {
-        $scope.NewMessageConnection();
+        $scope.NewConnection();
     });
 
     $(window).on("pagehide", function() {
-        if ($scope.messageconnection !== null) {
-            $scope.messageconnection.close();
-        }
         if ($scope.connection !== null) {
             $scope.connection.close();
         }
@@ -159,9 +155,9 @@ function MarvinCtrl($scope) {
 
     $scope.sendMessage = function(message, why) {
         var m = {"message": message, "why": why};
-        if ($scope.messageconnection !== null) {
-            if ($scope.messageconnection.readyState == 1) {
-                $scope.messageconnection.send(JSON.stringify(m));
+        if ($scope.connection !== null) {
+            if ($scope.connection.readyState == 1) {
+                $scope.connection.send(JSON.stringify(m));
             } else {
                 $scope.errors.push("not ready");
             }
@@ -229,20 +225,6 @@ function MarvinCtrl($scope) {
         } else {
             return "";
         }
-    };
-
-    $scope.recentMessages = function(reverse) {
-        var rm = $scope.state.RecentMessages;
-        var messages = [];
-        if (rm !== undefined) {
-            for (var i=rm.Start; i<rm.End; i++) {
-                messages.push(rm.Buffer[i%rm.Buffer.length]);
-            }
-            if (reverse) {
-                messages.reverse();
-            }
-        }
-        return messages;
     };
 
     $scope.formatWhen = function(when) {

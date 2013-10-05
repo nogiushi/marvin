@@ -156,8 +156,6 @@ func (s messageServer) wsHandler(ws *websocket.Conn) {
 
 func AddHandlers(m *nog.Nog) {
 	handleTemplate("/", "home", templateData{"Marvin": m})
-	handleTemplate("/lightstates/", "lightstates", templateData{"Marvin": m})
-	handleTemplate("/transitions/", "transitions", templateData{"Marvin": m})
 
 	fs := longExpire(http.FileServer(http.Dir(path.Join(Root, "static/"))))
 	http.Handle("/"+pkg.Version+"/", fs)
@@ -178,21 +176,6 @@ func AddHandlers(m *nog.Nog) {
 			} else {
 				log.Println("Error parsing form:", err)
 			}
-		} else {
-			w.WriteHeader(http.StatusMethodNotAllowed)
-		}
-	})
-
-	http.HandleFunc("/post", func(w http.ResponseWriter, req *http.Request) {
-		if req.Method == "POST" {
-			if err := req.ParseForm(); err == nil {
-				name, ok := req.Form["do_transition"]
-				if ok {
-					who := req.RemoteAddr
-					m.In <- nog.NewMessage(who, name[0], "web")
-				}
-			}
-			// TODO: write a response
 		} else {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
