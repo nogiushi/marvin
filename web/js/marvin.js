@@ -103,20 +103,27 @@ function MarvinCtrl($scope) {
 
     $scope.allMessages = function() {
         var choices = [];
-        var states = Object.keys($scope.state.Activities);
-        for (var i = 0; i < states.length; i++) {
-            choices.push("I am " + states[i]);
+	var i;
+        if ($scope.state.Activities) {
+            var states = Object.keys($scope.state.Activities);
+            for (i = 0; i < states.length; i++) {
+                choices.push("I am " + states[i]);
+            }
         }
-        var action = Object.keys($scope.state.Actions);
-        for (i = 0; i < action.length; i++) {
-            choices.push("do " + action[i]);
+        if ($scope.state.Actions) {
+            var action = Object.keys($scope.state.Actions);
+            for (i = 0; i < action.length; i++) {
+                choices.push("do " + action[i]);
+            }
         }
-        var switches = Object.keys($scope.state.Switch);
-        for (i = 0; i < switches.length; i++) {
-            if ($scope.state.Switch[switches[i]] === true) {
-                choices.push("turn off " + switches[i]);
-            } else {
-                choices.push("turn on " + switches[i]);
+        if ($scope.state.Switch) {
+            var switches = Object.keys($scope.state.Switch);
+            for (i = 0; i < switches.length; i++) {
+                if ($scope.state.Switch[switches[i]] === true) {
+                    choices.push("turn off " + switches[i]);
+                } else {
+                    choices.push("turn on " + switches[i]);
+                }
             }
         }
         return choices;
