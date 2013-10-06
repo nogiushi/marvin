@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/eikeon/hu"
 	"github.com/eikeon/marvin/nog"
 )
 
@@ -19,9 +20,19 @@ func init() {
 	Root = path.Dir(filename)
 }
 
+type Sentence []hu.Term
+
+func (sentence Sentence) String() string {
+	var terms []string
+	for _, term := range sentence {
+		terms = append(terms, term.String())
+	}
+	return strings.Join(terms, " ")
+}
+
 type Actions struct {
 	nog.InOut
-	Actions map[string][]string
+	Actions map[string]string
 }
 
 func (a *Actions) Run(in <-chan nog.Message, out chan<- nog.Message) {
@@ -43,6 +54,10 @@ func (a *Actions) Run(in <-chan nog.Message, out chan<- nog.Message) {
 				dec := json.NewDecoder(strings.NewReader(m.What))
 				if err := dec.Decode(a); err != nil {
 					log.Println("actions decode err:", err)
+				} else {
+					if a.Actions == nil {
+						a.Actions = make(map[string]string)
+					}
 				}
 			}
 
@@ -55,10 +70,30 @@ func (a *Actions) Run(in <-chan nog.Message, out chan<- nog.Message) {
 
 			t, ok := a.Actions[what]
 			if ok {
-				for _, m := range t {
+				reader := strings.NewReader(t)
+				for {
+					expression := hu.ReadSentence(reader)
+					if expression == nil {
+						break
+					}
+					m := Sentence(expression).String()
 					out <- nog.NewMessage("Marvin", m, "Actions")
 				}
 			}
+
+			const SET = "set action "
+			if strings.HasPrefix(m.What, SET) {
+				e := strings.SplitN(m.What[len(SET):], " to ", 2)
+				if len(e) == 2 {
+					a.Actions[e[0]] = e[1]
+				}
+				if what, err := json.Marshal(a); err == nil {
+					out <- nog.NewMessage("Marvin", string(what), "statechanged")
+				} else {
+					log.Println("StateChanged err:", err)
+				}
+			}
+
 		}
 	}
 }

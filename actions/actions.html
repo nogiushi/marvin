@@ -7,10 +7,10 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="(action, commands) in state.Actions">
-	<td>[[action]]</td>
+      <tr ng-repeat="(name, para) in state.Actions">
+	<td>[[name]]</td>
 	<td>
-	  <p><span ng-repeat="command in commands">[[command]]. </span></p>
+	  <p>[[para]]</p>
 	</td>
       </tr>
     </tbody>
