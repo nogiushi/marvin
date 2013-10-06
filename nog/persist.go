@@ -52,19 +52,18 @@ type persist struct {
 func (p *persist) Run(in <-chan Message, out chan<- Message) {
 	for {
 		select {
-		case m := <-p.in:
+		case m := <-in:
 			if p.db == nil {
 				if db := p.initDB(); db != nil {
 					p.db = db
 				} else {
 					log.Println("WARNING: could not create database to persist messages.")
-					goto DONE
+					return
 				}
 			}
 			p.db.PutItem(messageTableName, p.db.ToItem(&m), nil)
 		}
 	}
-DONE:
 }
 
 func (p *persist) Log() (messages []*Message) {
