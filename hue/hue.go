@@ -97,12 +97,12 @@ func (h *Hue) Run(in <-chan nog.Message, out chan<- nog.Message) {
 					log.Println("unexpected number of words in:", m)
 				}
 			}
-			const SETLIGHT = "set light "
-			if strings.HasPrefix(m.What, SETLIGHT) {
-				words := strings.Split(m.What[len(SETLIGHT):], " ")
-				if len(words) == 3 {
-					address := h.Nouns[words[0]]
-					state := h.States[words[2]]
+			const SET = "set light "
+			if strings.HasPrefix(m.What, SET) {
+				e := strings.SplitN(m.What[len(SET):], " to ", 2)
+				if len(e) == 2 {
+					address := h.Nouns[e[0]]
+					state := h.States[e[1]]
 					if strings.Contains(address, "/light") {
 						address += "/state"
 					} else {
