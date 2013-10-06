@@ -62,7 +62,7 @@ func (s *Motion) Run(in <-chan nog.Message, out chan<- nog.Message) {
 			if motion {
 				out <- nog.NewMessage("Marvin", "motion detected", "Motion")
 				if s.Switch["Nightlights"] {
-					out <- nog.NewMessage("Marvin", "all nightlight", "motion detected")
+					out <- nog.NewMessage("Marvin", "do nightlights on", "motion detected")
 				}
 				const duration = 60 * time.Second
 				if motionTimer == nil {
@@ -78,7 +78,7 @@ func (s *Motion) Run(in <-chan nog.Message, out chan<- nog.Message) {
 			motionTimer = nil
 			motionTimeout = nil
 			if s.Switch["Nightlights"] {
-				out <- nog.NewMessage("Marvin", "all off", "motion timeout")
+				out <- nog.NewMessage("Marvin", "set light All to off", "motion timeout")
 			}
 		}
 	}
