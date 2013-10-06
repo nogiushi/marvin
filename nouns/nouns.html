@@ -1,0 +1,16 @@
+<table class="table table-condensed table-striped">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Definition</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="(noun, definition) in state.Nouns">
+      <td>[[noun]]</td>
+      <td>
+	[[definition]]
+      </td>
+    </tr>
+  </tbody>
+</table>

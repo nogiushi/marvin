@@ -1,13 +1,42 @@
-angular.module('MarvinApp', ['ui.bootstrap'], function ($interpolateProvider) {
+var myModule = angular.module('MarvinApp', ['ui.bootstrap'], function ($interpolateProvider) {
   $interpolateProvider.startSymbol('[[');
   $interpolateProvider.endSymbol(']]');
 });
+
+// configure existing services inside initialization blocks.
+myModule.config(function($compileProvider) {
+  // configure new 'compile' directive by passing a directive
+  // factory function. The factory function injects the '$compile'
+  $compileProvider.directive('compile', function($compile) {
+
+    // directive factory creates a link function
+    return function(scope, element, attrs) {
+      scope.$watch(
+        function(scope) {
+           // watch the 'compile' expression for changes
+          return scope.$eval(attrs.compile);
+        },
+        function(value) {
+          // when the 'compile' expression changes
+          // assign it into the current DOM
+          element.html(value);
+ 
+          // compile the new DOM and link it to the current
+          // scope.
+          // NOTE: we only compile .childNodes so that
+          // we don't get into infinite loop compiling ourselves
+          $compile(element.contents())(scope);
+        }
+      );
+    };
+  });
+});
+
 
 function MarvinCtrl($scope) {
     $scope.state = {};
     $scope.errors = [];
     $scope.connection = null;
-    $scope.messageconnection = null;
 
     $scope.NewConnection = function() {
         var wsproto = "";
@@ -16,7 +45,7 @@ function MarvinCtrl($scope) {
         } else {
             wsproto = "ws";
         }
-        connection = new WebSocket(wsproto+"://"+document.location.host+'/state');
+        connection = new WebSocket(wsproto+"://"+document.location.host+'/message');
 
         connection.onopen = function () {
             $scope.connection = connection;
@@ -35,52 +64,23 @@ function MarvinCtrl($scope) {
 
         connection.onmessage = function(e) {
             $scope.$apply(function () {
-                $scope.state = JSON.parse(e.data);
-            });
-        };
-    };
-
-    $scope.NewMessageConnection = function() {
-        var wsproto = "";
-        if (document.location.protocol == "https:") {
-            wsproto = "wss";
-        } else {
-            wsproto = "ws";
-        }
-        messageconnection = new WebSocket(wsproto+"://"+document.location.host+'/message');
-
-        messageconnection.onopen = function () {
-            $scope.messageconnection = messageconnection;
-        };
-
-        messageconnection.onclose = function (e) {
-            $scope.messageconnection = null;
-        };
-
-        messageconnection.onerror = function (error) {
-            console.log('WebSocket Error ' + error);
-            $scope.$apply(function () {
-                $scope.errors.push(error);
-            });
-        };
-
-        messageconnection.onmessage = function(e) {
-            $scope.$apply(function () {
                 var msg = JSON.parse(e.data);
-                $scope.displayMessage(msg);
+                if (msg.Why == "statechanged") {
+                    if (msg.Who == "Nog") {
+                        $scope.state = JSON.parse(msg.What);
+                    }
+                } else {
+                    $scope.displayMessage(msg);
+                }
             });
         };
     };
 
     $(window).on("pageshow", function() {
-        $scope.NewMessageConnection();
         $scope.NewConnection();
     });
 
     $(window).on("pagehide", function() {
-        if ($scope.messageconnection !== null) {
-            $scope.messageconnection.close();
-        }
         if ($scope.connection !== null) {
             $scope.connection.close();
         }
@@ -107,9 +107,9 @@ function MarvinCtrl($scope) {
         for (var i = 0; i < states.length; i++) {
             choices.push("I am " + states[i]);
         }
-        var transition = Object.keys($scope.state.Transitions);
-        for (i = 0; i < transition.length; i++) {
-            choices.push("do transition " + transition[i]);
+        var action = Object.keys($scope.state.Actions);
+        for (i = 0; i < action.length; i++) {
+            choices.push("do " + action[i]);
         }
         var switches = Object.keys($scope.state.Switch);
         for (i = 0; i < switches.length; i++) {
@@ -147,15 +147,17 @@ function MarvinCtrl($scope) {
     $.getJSON("/messages", function(messages) {
         var length = messages.length;
         for (var i = 0; i < length; i++) {
-            $scope.displayMessageThen(messages[i]);
+            if (messages[i].Why != "statechanged") {
+                $scope.displayMessageThen(messages[i]);
+            }
         }
     });
 
     $scope.sendMessage = function(message, why) {
         var m = {"message": message, "why": why};
-        if ($scope.messageconnection !== null) {
-            if ($scope.messageconnection.readyState == 1) {
-                $scope.messageconnection.send(JSON.stringify(m));
+        if ($scope.connection !== null) {
+            if ($scope.connection.readyState == 1) {
+                $scope.connection.send(JSON.stringify(m));
             } else {
                 $scope.errors.push("not ready");
             }
@@ -223,20 +225,6 @@ function MarvinCtrl($scope) {
         } else {
             return "";
         }
-    };
-
-    $scope.recentMessages = function(reverse) {
-        var rm = $scope.state.RecentMessages;
-        var messages = [];
-        if (rm !== undefined) {
-            for (var i=rm.Start; i<rm.End; i++) {
-                messages.push(rm.Buffer[i%rm.Buffer.length]);
-            }
-            if (reverse) {
-                messages.reverse();
-            }
-        }
-        return messages;
     };
 
     $scope.formatWhen = function(when) {

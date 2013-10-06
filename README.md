@@ -23,10 +23,9 @@ This github repository contains Marvin's software. Marvin currently has the foll
 
 ## Components ##
 
-* marvin - package containing core functionality
+* marvin - program containing the server daemon
+* marvin/nog - package containing the message center
 * marvin/web - package containing web interface
-* marvin/marvin - package containing program
-
 
 ## Install [![Build Status](https://api.travis-ci.org/eikeon/marvin.png?branch=master)](https://travis-ci.org/eikeon/marvin) ##
 

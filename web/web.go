@@ -14,7 +14,7 @@ import (
 	"path"
 
 	"code.google.com/p/go.net/websocket"
-	"github.com/eikeon/marvin"
+	"github.com/eikeon/marvin/nog"
 )
 
 var pkg struct {
@@ -113,31 +113,14 @@ func handleTemplate(prefix, name string, data templateData) {
 
 type message map[string]interface{}
 
-type stateServer struct {
-	marvin *marvin.Marvin
-}
-
-func (s stateServer) wsHandler(ws *websocket.Conn) {
-	stateChanges := make(chan marvin.State, 10)
-	s.marvin.Register(&stateChanges)
-	defer func() { s.marvin.Unregister(&stateChanges) }()
-	for state := range stateChanges {
-		if err := websocket.JSON.Send(ws, state); err != nil {
-			log.Println("State Websocket send err:", err)
-			break
-		}
-	}
-	ws.Close()
-}
-
 type messageServer struct {
-	marvin *marvin.Marvin
+	nog *nog.Nog
 }
 
 func (s messageServer) wsHandler(ws *websocket.Conn) {
-	messageChanges := make(chan marvin.Message, 10)
-	s.marvin.RegisterMessageListener(&messageChanges)
-	defer func() { s.marvin.UnregisterMessageListener(&messageChanges) }()
+	messageChanges := make(chan nog.Message, 10)
+	s.nog.Register(messageChanges, &nog.BitOptions{Name: "Web", Required: true})
+	defer func() { s.nog.Unregister(messageChanges) }()
 	go func() {
 		for {
 			var msg message
@@ -150,7 +133,7 @@ func (s messageServer) wsHandler(ws *websocket.Conn) {
 							who = c.Subject.CommonName
 						}
 					}
-					s.marvin.Do(who, msg["message"].(string), msg["why"].(string))
+					s.nog.In <- nog.NewMessage(who, msg["message"].(string), msg["why"].(string))
 				} else {
 					log.Printf("ignoring: %#v\n", msg)
 				}
@@ -171,10 +154,8 @@ func (s messageServer) wsHandler(ws *websocket.Conn) {
 	ws.Close()
 }
 
-func AddHandlers(m *marvin.Marvin) {
+func AddHandlers(m *nog.Nog) {
 	handleTemplate("/", "home", templateData{"Marvin": m})
-	handleTemplate("/lightstates/", "lightstates", templateData{"Marvin": m})
-	handleTemplate("/transitions/", "transitions", templateData{"Marvin": m})
 
 	fs := longExpire(http.FileServer(http.Dir(path.Join(Root, "static/"))))
 	http.Handle("/"+pkg.Version+"/", fs)
@@ -200,23 +181,6 @@ func AddHandlers(m *marvin.Marvin) {
 		}
 	})
 
-	http.HandleFunc("/post", func(w http.ResponseWriter, req *http.Request) {
-		if req.Method == "POST" {
-			if err := req.ParseForm(); err == nil {
-				name, ok := req.Form["do_transition"]
-				if ok {
-					who := req.RemoteAddr
-					m.Do(who, name[0], "web")
-				}
-			}
-			// TODO: write a response
-		} else {
-			w.WriteHeader(http.StatusMethodNotAllowed)
-		}
-	})
-	s := &stateServer{marvin: m}
-	http.Handle("/state", websocket.Handler(s.wsHandler))
-
-	ms := &messageServer{marvin: m}
+	ms := &messageServer{nog: m}
 	http.Handle("/message", websocket.Handler(ms.wsHandler))
 }

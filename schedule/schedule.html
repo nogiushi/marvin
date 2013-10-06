@@ -1,0 +1,16 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Time</th>
+      <th scope="col">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="event in state.Schedule">
+      <td>[[event.When]]</td>
+      <td>
+	<a class="transition btn btn-block btn-primary" data-transition="[[event.What]]">[[event.What]] <i class="icon-play"></i></a>
+      </td>
+    </tr>
+  </tbody>
+</table>
