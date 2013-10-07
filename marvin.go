@@ -34,7 +34,7 @@ func main() {
 		go n.Add(&activity.Activity{}, &nog.BitOptions{Name: "Activity"})
 		go n.Add(&schedule.Schedule{}, &nog.BitOptions{Name: "Schedule"})
 		go n.Add(&hue.Hue{}, &nog.BitOptions{Name: "Lights"})
-		go n.Add(&lightstates.Lightstates{}, &nog.BitOptions{Name: "LightStates"})
+		go n.Add(&lightstates.Lightstates{}, &nog.BitOptions{Name: "Light States"})
 		go n.Add(&presence.Presence{}, &nog.BitOptions{Name: "Presence"})
 		go n.Add(&motion.Motion{}, &nog.BitOptions{Name: "Motion"})
 		go n.Add(&nouns.Nouns{}, &nog.BitOptions{Name: "Nouns"})

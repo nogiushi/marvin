@@ -7,7 +7,7 @@
 	</h4>
       </div>
       <ul id="messages" class="list-group">
-	<li ng-repeat="message in nowMessages" ng-animate=" 'animate' " class="list-group-item message">[[message.Who]]: <span class="what [[message.Why]]">[[message.What]]</span>
+	<li ng-repeat="message in nowMessages" ng-animate=" 'animate' " class="list-group-item message">[[message.Who]]: <span class="what [[bitClass(message.Why)]]">[[message.What]]</span>
 	</li>
 	<li class="list-group-item">
 	  <form xclass="form-inline" ng-submit="sendMessage(message, 'input')" autocomplete="off">
@@ -29,7 +29,7 @@
 	</h4>
       </div>
       <ul class="list-group">
-	<li ng-repeat="message in thenMessages" ng-animate=" 'animate' " class="list-group-item message">[[message.Who]]: <span class="what [[message.Why]]">[[message.What]]</span>
+	<li ng-repeat="message in thenMessages" ng-animate=" 'animate' " class="list-group-item message">[[message.Who]]: <span class="what [[bitClass(message.Why)]]">[[message.What]]</span>
 	</li>
       </ul>
     </div>
@@ -55,7 +55,7 @@
 
   <div class="bits col-xs-12 col-sm-5 col-md-5 col-lg-5 col-sm-push-7 col-md-push-7 col-lg-push-7">
     <div class="panel-group overflowvisible">
-      <div ng-repeat="(k, v) in state.Bits track by $index" class="panel panel-default panel-[[k.replace(' ', '')]]">
+      <div ng-repeat="(k, v) in state.Bits track by $index" class="panel panel-default panel-[[bitClass(k)]]">
 	<div class="panel-heading">
 	  <h4 class="panel-title">
             <a data-toggle="collapse" data-target="#collapse[[k.replace(' ', '')]]">

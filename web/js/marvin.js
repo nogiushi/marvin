@@ -243,4 +243,9 @@ function MarvinCtrl($scope, $timeout) {
     $scope.nowThenFlip = function() {
         $("#nowthen").toggleClass("flip");
     };
+
+    $scope.bitClass = function(name) {
+        return "c" + (Object.keys($scope.state.Bits).indexOf(name) % 6 + 1);
+    };
+
 }

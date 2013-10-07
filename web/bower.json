@@ -1,6 +1,6 @@
 {
   "name": "marvin",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "dependencies": {
     "bootstrap": "git://github.com/twbs/bootstrap.git#3.0.0",
     "angularjs": "https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js",
