@@ -175,7 +175,7 @@ func (n *Nog) Run() {
 
 			const TURN = "turn "
 			if strings.HasPrefix(m.What, TURN) {
-				words := strings.Split(m.What[len(TURN):], " ")
+				words := strings.SplitN(m.What[len(TURN):], " ", 2)
 				if len(words) == 2 {
 					var value bool
 					if words[0] == "on" {
