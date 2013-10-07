@@ -1,6 +1,21 @@
 @import "bower_components/bootstrap/less/bootstrap.less";
 
-@c2:         rgba(255,123,0,0.7);
+@gray-light:            #fff;
+
+@panel-bg:                    transparent;
+@list-group-bg:               transparent;
+
+@message:         rgba(33,33,33,0.3);
+
+@panel-message-text:          @gray-dark;
+@panel-message-border:        darken(@message, 5%);
+@panel-message-heading-bg:    @message;
+
+.panel-message {
+  .panel-variant(@panel-message-border; @panel-message-text; @panel-message-heading-bg; @panel-message-border);
+}
+
+@c2:         rgba(255,123,0,0.3);
 
 @panel-c2-text:          @gray-dark;
 @panel-c2-border:        darken(@c2, 5%);
@@ -10,7 +25,7 @@
   .panel-variant(@panel-c2-border; @panel-c2-text; @panel-c2-heading-bg; @panel-c2-border);
 }
 
-@c4:         rgba(168,209,0,0.7);
+@c4:         rgba(168,209,0,0.3);
 
 @panel-c4-text:          @gray-dark;
 @panel-c4-border:        darken(@c4, 5%);
@@ -20,7 +35,7 @@
   .panel-variant(@panel-c4-border; @panel-c4-text; @panel-c4-heading-bg; @panel-c4-border);
 }
 
-@c3:         rgba(247,201,0,0.7);
+@c3:         rgba(247,201,0,0.3);
 
 @panel-c3-text:          @gray-dark;
 @panel-c3-border:        darken(@c3, 5%);
@@ -30,7 +45,7 @@
   .panel-variant(@panel-c3-border; @panel-c3-text; @panel-c3-heading-bg; @panel-c3-border);
 }
 
-@c1:         rgba(219,0,0,0.7);
+@c1:         rgba(219,0,0,0.3);
 
 @panel-c1-text:          @gray-dark;
 @panel-c1-border:        darken(@c1, 5%);
@@ -40,7 +55,7 @@
   .panel-variant(@panel-c1-border; @panel-c1-text; @panel-c1-heading-bg; @panel-c1-border);
 }
 
-@c6:         rgba(138,0,0,0.7);
+@c6:         rgba(138,0,0,0.3);
 
 @panel-c6-text:          @gray-dark;
 @panel-c6-border:        darken(@c6, 5%);
@@ -50,7 +65,7 @@
   .panel-variant(@panel-c6-border; @panel-c6-text; @panel-c6-heading-bg; @panel-c6-border);
 }
 
-@c5:         rgba(0,142,207,0.7);
+@c5:         rgba(0,142,207,0.3);
 
 @panel-c5-text:          @gray-dark;
 @panel-c5-border:        darken(@c5, 5%);
