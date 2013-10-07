@@ -7,7 +7,9 @@
 	</h4>
       </div>
       <ul id="messages" class="list-group">
-	<li id="messageinputitem" class="list-group-item">
+	<li ng-repeat="message in nowMessages" ng-animate=" 'animate' " class="list-group-item message">[[message.Who]]: <span class="what [[message.Why]]">[[message.What]]</span>
+	</li>
+	<li class="list-group-item">
 	  <form xclass="form-inline" ng-submit="sendMessage(message, 'input')" autocomplete="off">
 	    <input id="iAm" class="form-control" type="text" typeahead="activity for activity in allMessages() | filter:$viewValue" ng-model="message" placeholder="message to Marvin">
 	    <input type="hidden" ng-model="state.Activity">
@@ -26,7 +28,9 @@
 	  Messages <small>Then</small> <span class="glyphicon glyphicon-retweet pull-right" ng-click="nowThenFlip()"></span>
 	</h4>
       </div>
-      <ul id="messagesthen" class="list-group">
+      <ul class="list-group">
+	<li ng-repeat="message in thenMessages" ng-animate=" 'animate' " class="list-group-item message">[[message.Who]]: <span class="what [[message.Why]]">[[message.What]]</span>
+	</li>
       </ul>
     </div>
 {{end}}

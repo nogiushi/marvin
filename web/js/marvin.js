@@ -33,10 +33,12 @@ myModule.config(function($compileProvider) {
 });
 
 
-function MarvinCtrl($scope) {
+function MarvinCtrl($scope, $timeout) {
     $scope.state = {};
     $scope.errors = [];
     $scope.connection = null;
+    $scope.nowMessages = [];
+    $scope.thenMessages = [];
 
     $scope.NewConnection = function() {
         var wsproto = "";
@@ -138,24 +140,24 @@ function MarvinCtrl($scope) {
     };
 
     $scope.displayMessage = function(message) {
-        var u = $('<li class="list-group-item message">' + message.Who + ': <span class="what ' + message.Why + '">' + message.What + '</span> </li>');
-        u.append(message);
-        u.hide();
-        $("#messageinputitem").before(u);
-        u.slideDown().delay(10000).animate({opacity: 0}, {duration: 500, always: function() { $(this).remove(); }});
+        $scope.nowMessages.push(message);
+        $timeout(function() {
+            $scope.nowMessages.shift();
+        }, 10000);
         $scope.displayMessageThen(message);
     };
 
     $scope.displayMessageThen = function(message) {
-        var uu = $('<li class="list-group-item message">' + message.Who + ': <span class="what ' + message.Why + '">' + message.What + '</span> </li>');
-        $("#messagesthen").prepend(uu);
+        $scope.thenMessages.unshift(message);
     };
 
     $.getJSON("/messages", function(messages) {
-        var length = messages.length;
-        for (var i = 0; i < length; i++) {
-            if (messages[i].Why != "statechanged") {
-                $scope.displayMessageThen(messages[i]);
+        if (messages !== null) {
+            var length = messages.length;
+            for (var i = 0; i < length; i++) {
+                if (messages[i].Why != "statechanged") {
+                    $scope.displayMessageThen(messages[i]);
+                }
             }
         }
     });
