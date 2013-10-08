@@ -1,1 +1,20 @@
-<div class="panel-body">TODO</div>
+<div class="panel-body">
+  <form class="form-inline" ng-submit='' autocomplete="off">
+    <span class="form-group">
+      <label for="iAm">I am:</label>
+      <span class="btn-group">
+	<button id="iAm" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+          [[state.Activity]] <span class="caret"></span>
+	</button>
+	<ul class="dropdown-menu">
+          <li ng-repeat="(next, v) in state.Activities[state.Activity].Next track by $index"
+	      ng-click="sendMessage('I am ' + next, 'Activity', 'Activity')">
+	    <a class="btn btn-large btn-block btn-primary" data-transition="[[next]]">[[next]] <i class="icon-play"></i></a>
+          </li>
+          <li ng-repeat="(name, v) in state.Activities track by $index">
+	    <a ng-click="sendMessage('I am ' + name, 'Activity', 'Activity')">[[name]]</a>
+          </li>
+	</ul>
+    </span>
+  </form>
+</div>

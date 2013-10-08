@@ -86,6 +86,12 @@ func (a *Activity) Run(in <-chan nog.Message, out chan<- nog.Message) {
 				if strings.HasPrefix(m.What, IAM) {
 					what = m.What[len(IAM):]
 					a.UpdateActivity(what)
+					if what, err := json.Marshal(a); err == nil {
+						out <- nog.NewMessage("Marvin", string(what), "statechanged")
+					} else {
+						log.Println("StateChanged err:", err)
+					}
+
 					out <- nog.NewMessage("Marvin", "do "+what, "Activity")
 				}
 			}
