@@ -9,7 +9,7 @@
     <tr ng-repeat="event in state.Schedule">
       <td>[[event.When]]</td>
       <td>
-	<a class="transition btn btn-block btn-primary" data-transition="[[event.What]]">[[event.What]] <i class="icon-play"></i></a>
+	<a class="transition btn btn-block btn-primary" ng-click="sendMessage(event.What, 'Schedule', 'Schedule')">[[event.What]] <i class="icon-play"></i></a>
       </td>
     </tr>
   </tbody>
