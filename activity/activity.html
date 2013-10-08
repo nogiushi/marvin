@@ -8,11 +8,11 @@
 	</button>
 	<ul class="dropdown-menu">
           <li ng-repeat="(next, v) in state.Activities[state.Activity].Next track by $index"
-	      ng-click="sendMessage('I am ' + next, 'Activity', 'Activity')">
+	      ng-click="sendMessage('I am ' + next, 'Activity')">
 	    <a class="btn btn-large btn-block btn-primary" data-transition="[[next]]">[[next]] <i class="icon-play"></i></a>
           </li>
           <li ng-repeat="(name, v) in state.Activities track by $index">
-	    <a ng-click="sendMessage('I am ' + name, 'Activity', 'Activity')">[[name]]</a>
+	    <a ng-click="sendMessage('I am ' + name, 'Activity')">[[name]]</a>
           </li>
 	</ul>
     </span>
