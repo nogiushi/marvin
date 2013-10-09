@@ -111,46 +111,47 @@ func handleTemplate(prefix, name string, data templateData) {
 	})
 }
 
-type message map[string]interface{}
-
 type messageServer struct {
 	nog *nog.Nog
 }
 
 func (s messageServer) wsHandler(ws *websocket.Conn) {
 	messageChanges := make(chan nog.Message, 10)
-	s.nog.Register(messageChanges, &nog.BitOptions{Name: "Web", Required: true})
-	defer func() { s.nog.Unregister(messageChanges) }()
+
 	go func() {
-		for {
-			var msg message
-			if err := websocket.JSON.Receive(ws, &msg); err == nil {
-				if msg["message"] != nil {
-					req := ws.Request()
-					who := req.RemoteAddr
-					if req.TLS != nil {
-						for _, c := range req.TLS.PeerCertificates {
-							who = c.Subject.CommonName
-						}
-					}
-					s.nog.In <- nog.NewMessage(who, msg["message"].(string), msg["why"].(string))
-				} else {
-					log.Printf("ignoring: %#v\n", msg)
-				}
-			} else {
-				log.Println("Message Websocket receive err:", err)
-				return
+		for message := range messageChanges {
+			if err := websocket.JSON.Send(ws, message); err != nil {
+				log.Println("Message Websocket send err:", err)
+				break
 			}
 		}
-
 	}()
 
-	for message := range messageChanges {
-		if err := websocket.JSON.Send(ws, message); err != nil {
-			log.Println("Message Websocket send err:", err)
+	for {
+		var msg nog.Message
+		if err := websocket.JSON.Receive(ws, &msg); err == nil {
+			if msg.Why == "register" {
+				var options nog.BitOptions
+				if err := json.Unmarshal([]byte(msg.What), &options); err == nil {
+					s.nog.Register(messageChanges, &options)
+				} else {
+					log.Println("error:", err)
+				}
+			}
+			req := ws.Request()
+			who := req.RemoteAddr
+			if req.TLS != nil {
+				for _, c := range req.TLS.PeerCertificates {
+					who = c.Subject.CommonName
+				}
+			}
+			s.nog.In <- nog.NewMessage(who, msg.What, msg.Why)
+		} else {
+			log.Println("Message Websocket receive err:", err)
 			break
 		}
 	}
+	s.nog.Unregister(messageChanges)
 	ws.Close()
 }
 

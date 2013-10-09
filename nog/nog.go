@@ -224,37 +224,28 @@ func (n *Nog) Save(path string) error {
 }
 
 func (n *Nog) Add(r Rudiment, options *BitOptions) {
-	if options != nil && options.Name != "" && options.Required == false {
-		name := options.Name
-		switches := n.state["Switch"].(map[string]interface{})
-		if _, ok := switches[name].(bool); !ok {
-			switches[name] = true
+	n.Register(r.SendIn(), options)
+
+	go r.Run(r.ReceiveIn(), r.SendOut())
+
+	for m := range r.ReceiveOut() {
+
+		if m.Why == "template" {
+			if t, ok := n.state["templates"].(map[string]interface{}); ok {
+				t[options.Name] = m.What
+			} else {
+				n.state["templates"] = make(map[string]string)
+			}
+			n.StateChanged()
+			continue
+		}
+
+		if options != nil && n.isOn(options.Name) {
+			n.In <- m
 		}
 	}
-	n.Register(r.SendIn(), options)
-	n.state["Bits"].(map[string]bool)[options.Name] = true
-	go func() {
-		for m := range r.ReceiveOut() {
 
-			if m.Why == "template" {
-				if t, ok := n.state["templates"].(map[string]interface{}); ok {
-					t[options.Name] = m.What
-				} else {
-					n.state["templates"] = make(map[string]string)
-				}
-				n.StateChanged()
-				continue
-			}
-
-			switches := n.state["Switch"].(map[string]interface{})
-			if options != nil && switches[options.Name].(bool) {
-				n.In <- m
-			}
-		}
-	}()
-	r.Run(r.ReceiveIn(), r.SendOut())
 	n.listeners.Unregister(r.SendIn())
-	delete(n.state["Bits"].(map[string]bool), options.Name)
 	n.StateChanged()
 }
 
@@ -269,7 +260,22 @@ func (n *Nog) statechanged() *Message {
 
 func (n *Nog) Register(c chan<- Message, options *BitOptions) {
 	n.listeners.Register(c, options)
+	n.state["Bits"].(map[string]bool)[options.Name] = true
+	if options != nil && options.Name != "" && options.Required == false {
+		name := options.Name
+		switches := n.state["Switch"].(map[string]interface{})
+		if _, ok := switches[name].(bool); !ok {
+			switches[name] = true
+		}
+	}
 	c <- *n.statechanged()
+}
+
+func (n *Nog) Unregister(c chan<- Message) {
+	name := n.listeners.m[c].Name
+	delete(n.state["Bits"].(map[string]bool), name)
+	n.listeners.Unregister(c)
+	n.StateChanged()
 }
 
 func (n *Nog) StateChanged() {

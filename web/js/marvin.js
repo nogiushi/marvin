@@ -51,6 +51,7 @@ function MarvinCtrl($scope, $timeout) {
 
         connection.onopen = function () {
             $scope.connection = connection;
+            $scope.sendMessage(JSON.stringify({"Name": "Web", "Required": true}), "register");
         };
 
         connection.onclose = function (e) {
@@ -163,7 +164,7 @@ function MarvinCtrl($scope, $timeout) {
     });
 
     $scope.sendMessage = function(message, why) {
-        var m = {"message": message, "why": why};
+        var m = {"What": message, "Why": why};
         if ($scope.connection !== null) {
             if ($scope.connection.readyState == 1) {
                 $scope.connection.send(JSON.stringify(m));
