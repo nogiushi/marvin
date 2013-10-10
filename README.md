@@ -62,10 +62,15 @@ dependencies using [Bower](https://github.com/bower/bower).
     ./configure --without-snapshot
     sudo make install
 
+### install grunt and bower
+
+	sudo npm install -g grunt-cli
+	sudo npm install -g bower
+
 ### install marvin
 
     go get -v -u github.com/eikeon/marvin
-    pushd `go list -f '{{.Dir}}' github.com/eikeon/marvin/web`; grunt; popd
+    pushd `go list -f '{{.Dir}}' github.com/eikeon/marvin/web`; npm install; bower install; grunt
     sudo cp conf/marvin.json /etc/marvin.json
     sudo cp conf/marvin.conf /etc/init/marvin.conf
     sudo start marvin
