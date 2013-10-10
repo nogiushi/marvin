@@ -66,16 +66,16 @@ func (a *AmbientLight) Run(in <-chan nog.Message, out chan<- nog.Message) {
 				if light > 5000 && (a.DayLight != true) {
 					a.DayLight = true
 					dayLightTime = time.Now()
-					out <- nog.NewMessage("Marvin", "it is light", "AmbientLight")
+					out <- nog.NewMessage("Marvin", "it is light", "Ambient Light")
 					if a.Switch["Daylights"] {
-						out <- nog.NewMessage("Marvin", "do daylights off", "AmbientLight")
+						out <- nog.NewMessage("Marvin", "do daylights off", "Ambient Light")
 					}
 				} else if light < 4900 && (a.DayLight != false) {
 					a.DayLight = false
 					dayLightTime = time.Now()
-					out <- nog.NewMessage("Marvin", "it is dark", "AmbientLight")
+					out <- nog.NewMessage("Marvin", "it is dark", "Ambient Light")
 					if a.Switch["Daylights"] {
-						out <- nog.NewMessage("Marvin", "do daylights on", "AmbientLight")
+						out <- nog.NewMessage("Marvin", "do daylights on", "Ambient Light")
 					}
 				}
 			}
