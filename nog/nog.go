@@ -95,8 +95,8 @@ type Nog struct {
 	state map[string]interface{}
 }
 
-func NewNogFromFile(path string) (*Nog, error) {
-	n := Nog{}
+func NewNogFromFile(path string) (n *Nog, err error) {
+	n = &Nog{}
 	ch := make(chan Message, 10)
 	n.In = ch
 	n.out = ch
@@ -113,18 +113,20 @@ func NewNogFromFile(path string) (*Nog, error) {
 	n.path = path
 	if j, err := os.OpenFile(n.path, os.O_RDONLY, 0666); err == nil {
 		dec := json.NewDecoder(j)
-		if err = dec.Decode(&n.state); err != nil {
-			return nil, err
-		}
+		err = dec.Decode(&n.state)
 		j.Close()
-	} else {
-		return nil, err
+	}
+	if n.state == nil {
+		n.state = make(map[string]interface{})
 	}
 	if n.state["Switch"] == nil {
-		n.state["Switch"] = make(map[string]bool)
+		n.state["Switch"] = make(map[string]interface{})
+	}
+	if n.state["templates"] == nil {
+		n.state["templates"] = make(map[string]interface{})
 	}
 	n.state["Bits"] = make(map[string]bool)
-	return &n, nil
+	return n, err
 }
 
 func (n *Nog) isOn(name string) bool {
@@ -231,11 +233,7 @@ func (n *Nog) Add(r Rudiment, options *BitOptions) {
 	for m := range r.ReceiveOut() {
 
 		if m.Why == "template" {
-			if t, ok := n.state["templates"].(map[string]interface{}); ok {
-				t[options.Name] = m.What
-			} else {
-				n.state["templates"] = make(map[string]string)
-			}
+			n.state["templates"].(map[string]interface{})[options.Name] = m.What
 			n.StateChanged()
 			continue
 		}
