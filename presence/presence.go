@@ -47,6 +47,9 @@ func (s *Presence) Run(in <-chan nog.Message, out chan<- nog.Message) {
 				if err := dec.Decode(s); err != nil {
 					log.Println("presence decode err:", err)
 				}
+				if s.Present == nil {
+					s.Present = make(map[string]bool)
+				}
 				if presenceChannel == nil {
 					presenceChannel = presence.Listen(s.Present)
 				}
