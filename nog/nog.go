@@ -243,8 +243,7 @@ func (n *Nog) Add(r Bit, options *BitOptions) {
 		}
 	}
 
-	n.listeners.Unregister(r.SendIn())
-	n.StateChanged()
+	n.Unregister(r.SendIn())
 }
 
 func (n *Nog) statechanged() *Message {

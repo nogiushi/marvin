@@ -49,6 +49,8 @@ func (a *AmbientLight) Run(in <-chan nog.Message, out chan<- nog.Message) {
 		a.lightChannel = t.Broadband()
 	} else {
 		log.Println("Warning: Light sensor off: ", err)
+		out <- nog.NewMessage("Marvin", "no light sensor found", "Ambient Light")
+		close(out)
 		return
 	}
 

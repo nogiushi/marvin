@@ -44,6 +44,8 @@ func (s *Motion) Run(in <-chan nog.Message, out chan<- nog.Message) {
 		s.motionChannel = c
 	} else {
 		log.Println("Warning: Motion sensor off:", err)
+		out <- nog.NewMessage("Marvin", "no motion sensor found", "Motion")
+		close(out)
 		return
 	}
 	var motionTimer *time.Timer
