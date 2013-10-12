@@ -54,7 +54,7 @@ func (b *InOut) SendIn() chan<- Message {
 	return b.in
 }
 
-type Rudiment interface {
+type Bit interface {
 	Run(in <-chan Message, out chan<- Message)
 	ReceiveOut() <-chan Message
 	SendIn() chan<- Message
@@ -225,7 +225,7 @@ func (n *Nog) Save(path string) error {
 	return nil
 }
 
-func (n *Nog) Add(r Rudiment, options *BitOptions) {
+func (n *Nog) Add(r Bit, options *BitOptions) {
 	n.Register(r.SendIn(), options)
 
 	go r.Run(r.ReceiveIn(), r.SendOut())

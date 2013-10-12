@@ -6,7 +6,7 @@ import (
 	"code.google.com/p/go.net/websocket"
 )
 
-func RemoteAdd(url_, protocol, origin string, r Rudiment) {
+func RemoteAdd(url_, protocol, origin string, r Bit) {
 	ws, err := websocket.Dial(url_, protocol, origin)
 	if err != nil {
 		log.Fatal(err)
