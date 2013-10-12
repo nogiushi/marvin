@@ -27,7 +27,7 @@ This github repository contains Marvin's software. Marvin currently has the foll
 * marvin/nog - package containing the message center
 * marvin/web - package containing web interface
 
-## Install [![Build Status](https://api.travis-ci.org/eikeon/marvin.png?branch=master)](https://travis-ci.org/eikeon/marvin) ##
+## Install [![Build Status](https://api.travis-ci.org/nogiushi/marvin.png?branch=master)](https://travis-ci.org/nogiushi/marvin) ##
 
 ### get ubuntu 
 
@@ -69,8 +69,8 @@ dependencies using [Bower](https://github.com/bower/bower).
 
 ### install marvin
 
-    go get -v -u github.com/eikeon/marvin
-    pushd `go list -f '{{.Dir}}' github.com/eikeon/marvin/web`; npm install; bower install; grunt
+    go get -v -u github.com/nogiushi/marvin
+    pushd `go list -f '{{.Dir}}' github.com/nogiushi/marvin/web`; npm install; bower install; grunt
     sudo cp conf/marvin.json /etc/marvin.json
     sudo cp conf/marvin.conf /etc/init/marvin.conf
     sudo start marvin
@@ -80,4 +80,4 @@ dependencies using [Bower](https://github.com/bower/bower).
 
 [Marvin Magazine](http://flip.it/MBhif)
 
-![Marvin](https://raw.github.com/eikeon/marvin/master/web/images/robot.png)
+![Marvin](https://raw.github.com/nogiushi/marvin/master/web/images/robot.png)

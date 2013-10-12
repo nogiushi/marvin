@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/eikeon/hu"
-	"github.com/eikeon/marvin/nog"
+	"github.com/nogiushi/marvin/nog"
 )
 
 var Root = ""

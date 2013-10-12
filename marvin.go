@@ -7,17 +7,17 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/eikeon/marvin/actions"
-	"github.com/eikeon/marvin/activity"
-	"github.com/eikeon/marvin/ambientlight"
-	"github.com/eikeon/marvin/hue"
-	"github.com/eikeon/marvin/lightstates"
-	"github.com/eikeon/marvin/motion"
-	"github.com/eikeon/marvin/nog"
-	"github.com/eikeon/marvin/nouns"
-	"github.com/eikeon/marvin/presence"
-	"github.com/eikeon/marvin/schedule"
-	"github.com/eikeon/marvin/web"
+	"github.com/nogiushi/marvin/actions"
+	"github.com/nogiushi/marvin/activity"
+	"github.com/nogiushi/marvin/ambientlight"
+	"github.com/nogiushi/marvin/hue"
+	"github.com/nogiushi/marvin/lightstates"
+	"github.com/nogiushi/marvin/motion"
+	"github.com/nogiushi/marvin/nog"
+	"github.com/nogiushi/marvin/nouns"
+	"github.com/nogiushi/marvin/presence"
+	"github.com/nogiushi/marvin/schedule"
+	"github.com/nogiushi/marvin/web"
 )
 
 func main() {

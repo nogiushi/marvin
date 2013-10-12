@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/eikeon/marvin/nog"
+	"github.com/nogiushi/marvin/nog"
 )
 
 var Root = ""

@@ -71,7 +71,8 @@ func (p *persist) Log() (messages []*Message) {
 		when := time.Now().Format(time.RFC3339Nano)
 		hash := when[0:10]
 		conditions := dynamodb.KeyConditions{"Hash": {[]dynamodb.AttributeValue{{"S": hash}}, "EQ"}}
-		if sr, err := p.db.Query(messageTableName, &dynamodb.QueryOptions{KeyConditions: conditions}); err == nil {
+		forward := false
+		if sr, err := p.db.Query(messageTableName, &dynamodb.QueryOptions{KeyConditions: conditions, ScanIndexForward: &forward}); err == nil {
 			for i := 0; i < sr.Count; i++ {
 				messages = append(messages, p.db.FromItem(messageTableName, sr.Items[i]).(*Message))
 			}

@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/eikeon/gpio"
-	"github.com/eikeon/marvin/nog"
+	"github.com/nogiushi/marvin/nog"
 )
 
 var Root = ""

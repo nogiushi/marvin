@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/eikeon/marvin/nog"
 	"github.com/eikeon/tsl2561"
+	"github.com/nogiushi/marvin/nog"
 )
 
 var Root = ""
