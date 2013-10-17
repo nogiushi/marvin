@@ -56,11 +56,12 @@ func (h *Hue) Run(in <-chan nog.Message, out chan<- nog.Message) {
 		log.Println("WARNING: could not open ", name, err)
 	}
 
+	first := true
 	for {
 		select {
 		case <-createUserChan:
 			if err := h.Hue.CreateUser(h.Hue.Username, "Marvin"); err == nil {
-				createUserChan.Stop()
+				createUserChan = nil
 			} else {
 				out <- nog.NewMessage("Marvin", fmt.Sprintf("%s: press hue link button to authenticate", err), "Lights")
 			}
@@ -70,7 +71,8 @@ func (h *Hue) Run(in <-chan nog.Message, out chan<- nog.Message) {
 				if err := dec.Decode(h); err != nil {
 					log.Println("hue decode err:", err)
 				}
-				if createUserChan == nil {
+				if first {
+					first = false
 					if err := h.Hue.GetState(); err != nil {
 						createUserChan = time.NewTicker(1 * time.Second).C
 					} else {
