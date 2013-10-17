@@ -168,7 +168,7 @@ func AddHandlers(m *nog.Nog) {
 		for m := range in {
 			if err := websocket.JSON.Send(ws, &m); err != nil {
 				log.Println("Message Websocket send err:", err)
-
+				break
 			}
 		}
 
