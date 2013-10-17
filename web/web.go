@@ -160,6 +160,7 @@ func AddHandlers(m *nog.Nog) {
 					out <- m
 				} else {
 					log.Println("Message Websocket receive err:", err)
+					close(out)
 					return
 				}
 			}
