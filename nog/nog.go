@@ -169,6 +169,7 @@ func (n *Nog) Run() {
 					n.state[k] = v
 				}
 				n.StateChanged()
+				continue
 			}
 
 			const TURN = "turn "
