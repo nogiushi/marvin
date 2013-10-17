@@ -20,11 +20,17 @@ func init() {
 }
 
 type Nouns struct {
-	nog.InOut
 	Nouns map[string]string
 }
 
 func (a *Nouns) Run(in <-chan nog.Message, out chan<- nog.Message) {
+	options := nog.BitOptions{Name: "Nouns", Required: false}
+	if what, err := json.Marshal(&options); err == nil {
+		out <- nog.NewMessage("Nouns", string(what), "register")
+	} else {
+		log.Println("StateChanged err:", err)
+	}
+
 	name := "nouns.html"
 	if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
 		if b, err := ioutil.ReadAll(j); err == nil {

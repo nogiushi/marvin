@@ -25,7 +25,6 @@ type activity struct {
 }
 
 type Activity struct {
-	nog.InOut
 	Activities  map[string]*activity
 	Activity    string
 	Switch      map[string]bool
@@ -61,6 +60,13 @@ func (m *Activity) UpdateActivity(name string) {
 }
 
 func (a *Activity) Run(in <-chan nog.Message, out chan<- nog.Message) {
+	options := nog.BitOptions{Name: "Activity", Required: false}
+	if what, err := json.Marshal(&options); err == nil {
+		out <- nog.NewMessage("Activity", string(what), "register")
+	} else {
+		log.Println("StateChanged err:", err)
+	}
+
 	name := "activity.html"
 	if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
 		if b, err := ioutil.ReadAll(j); err == nil {

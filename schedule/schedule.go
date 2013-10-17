@@ -21,12 +21,18 @@ func init() {
 }
 
 type Schedule struct {
-	nog.InOut
 	Schedule scheduler.Schedule
 	Switch   map[string]bool
 }
 
 func (s *Schedule) Run(in <-chan nog.Message, out chan<- nog.Message) {
+	options := nog.BitOptions{Name: "Schedule", Required: false}
+	if what, err := json.Marshal(&options); err == nil {
+		out <- nog.NewMessage("Schedule", string(what), "register")
+	} else {
+		log.Println("StateChanged err:", err)
+	}
+
 	var scheduledEventsChannel <-chan scheduler.Event
 
 	name := "schedule.html"

@@ -31,11 +31,17 @@ func (sentence Sentence) String() string {
 }
 
 type Actions struct {
-	nog.InOut
 	Actions map[string]string
 }
 
 func (a *Actions) Run(in <-chan nog.Message, out chan<- nog.Message) {
+	options := nog.BitOptions{Name: "Actions", Required: false}
+	if what, err := json.Marshal(&options); err == nil {
+		out <- nog.NewMessage("Actions", string(what), "register")
+	} else {
+		log.Println("StateChanged err:", err)
+	}
+
 	name := "actions.html"
 	if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
 		if b, err := ioutil.ReadAll(j); err == nil {

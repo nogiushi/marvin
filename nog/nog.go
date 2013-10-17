@@ -56,10 +56,6 @@ func (b *InOut) SendIn() chan<- Message {
 
 type Bit interface {
 	Run(in <-chan Message, out chan<- Message)
-	ReceiveOut() <-chan Message
-	SendIn() chan<- Message
-	ReceiveIn() <-chan Message
-	SendOut() chan<- Message
 }
 
 type BitOptions struct {
@@ -225,25 +221,27 @@ func (n *Nog) Save(path string) error {
 	return nil
 }
 
-func (n *Nog) Add(r Bit, options *BitOptions) {
-	n.Register(r.SendIn(), options)
-
-	go r.Run(r.ReceiveIn(), r.SendOut())
-
-	for m := range r.ReceiveOut() {
-
-		if m.Why == "template" {
-			n.state["templates"].(map[string]interface{})[options.Name] = m.What
-			n.StateChanged()
-			continue
-		}
-
-		if options != nil && n.isOn(options.Name) {
+func (n *Nog) Add(out <-chan Message, in chan<- Message) {
+	var options BitOptions
+	for m := range out {
+		if m.Why == "register" {
+			if err := json.Unmarshal([]byte(m.What), &options); err == nil {
+				n.Register(in, &options)
+			} else {
+				log.Println("error:", err)
+			}
+		} else if m.Why == "template" {
+			if options.Name != "" {
+				n.state["templates"].(map[string]interface{})[options.Name] = m.What
+				n.StateChanged()
+			} else {
+				log.Println("Warning: bit not yet registered. Ignoring template.")
+			}
+		} else if options.Required || (options.Name != "" && n.isOn(options.Name)) {
 			n.In <- m
 		}
 	}
-
-	n.Unregister(r.SendIn())
+	n.Unregister(in)
 }
 
 func (n *Nog) statechanged() *Message {
@@ -269,8 +267,11 @@ func (n *Nog) Register(c chan<- Message, options *BitOptions) {
 }
 
 func (n *Nog) Unregister(c chan<- Message) {
-	name := n.listeners.m[c].Name
-	delete(n.state["Bits"].(map[string]bool), name)
+	_, ok := n.listeners.m[c]
+	if ok {
+		name := n.listeners.m[c].Name
+		delete(n.state["Bits"].(map[string]bool), name)
+	}
 	n.listeners.Unregister(c)
 	n.StateChanged()
 }

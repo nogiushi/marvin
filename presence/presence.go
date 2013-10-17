@@ -21,11 +21,17 @@ func init() {
 }
 
 type Presence struct {
-	nog.InOut
 	Present map[string]bool
 }
 
 func (s *Presence) Run(in <-chan nog.Message, out chan<- nog.Message) {
+	options := nog.BitOptions{Name: "Presence", Required: false}
+	if what, err := json.Marshal(&options); err == nil {
+		out <- nog.NewMessage("Presence", string(what), "register")
+	} else {
+		log.Println("StateChanged err:", err)
+	}
+
 	var presenceChannel chan presence.Presence
 
 	name := "presence.html"

@@ -22,13 +22,19 @@ func init() {
 }
 
 type Motion struct {
-	nog.InOut
 	Motion        bool
 	Switch        map[string]bool
 	motionChannel <-chan bool
 }
 
 func (s *Motion) Run(in <-chan nog.Message, out chan<- nog.Message) {
+	options := nog.BitOptions{Name: "Motion", Required: false}
+	if what, err := json.Marshal(&options); err == nil {
+		out <- nog.NewMessage("Motion", string(what), "register")
+	} else {
+		log.Println("StateChanged err:", err)
+	}
+
 	name := "motion.html"
 	if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
 		if b, err := ioutil.ReadAll(j); err == nil {

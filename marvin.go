@@ -30,15 +30,11 @@ func main() {
 	log.Println("starting marvin")
 
 	if n, err := nog.NewNogFromFile(*config); err == nil {
-		go n.Add(&actions.Actions{}, &nog.BitOptions{Name: "Actions"})
-		go n.Add(&activity.Activity{}, &nog.BitOptions{Name: "Activity"})
-		go n.Add(&schedule.Schedule{}, &nog.BitOptions{Name: "Schedule"})
-		go n.Add(&hue.Hue{}, &nog.BitOptions{Name: "Lights"})
-		go n.Add(&lightstates.Lightstates{}, &nog.BitOptions{Name: "Light States"})
-		go n.Add(&presence.Presence{}, &nog.BitOptions{Name: "Presence"})
-		go n.Add(&motion.Motion{}, &nog.BitOptions{Name: "Motion"})
-		go n.Add(&nouns.Nouns{}, &nog.BitOptions{Name: "Nouns"})
-		go n.Add(&ambientlight.AmbientLight{}, &nog.BitOptions{Name: "Ambient Light"})
+		for _, b := range []nog.Bit{&actions.Actions{}, &activity.Activity{}, &schedule.Schedule{}, &hue.Hue{}, &lightstates.Lightstates{}, &presence.Presence{}, &motion.Motion{}, &nouns.Nouns{}, &ambientlight.AmbientLight{}} {
+			c := nog.InOut{}
+			go n.Add(c.ReceiveOut(), c.SendIn())
+			go b.Run(c.ReceiveIn(), c.SendOut())
+		}
 
 		web.AddHandlers(n)
 		addresses := strings.Split(*address, ",")

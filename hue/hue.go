@@ -22,7 +22,6 @@ func init() {
 }
 
 type Hue struct {
-	nog.InOut
 	Hue         hue.Hue
 	Nouns       map[string]string
 	States      map[string]interface{}
@@ -36,6 +35,13 @@ type Hue struct {
 }
 
 func (h *Hue) Run(in <-chan nog.Message, out chan<- nog.Message) {
+	options := nog.BitOptions{Name: "Lights", Required: false}
+	if what, err := json.Marshal(&options); err == nil {
+		out <- nog.NewMessage("Lights", string(what), "register")
+	} else {
+		log.Println("StateChanged err:", err)
+	}
+
 	var createUserChan <-chan time.Time
 
 	name := "hue.html"

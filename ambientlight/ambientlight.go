@@ -22,7 +22,6 @@ func init() {
 }
 
 type AmbientLight struct {
-	nog.InOut
 	Switch      map[string]bool
 	DayLight    bool
 	lightSensor *tsl2561.TSL2561
@@ -31,6 +30,12 @@ type AmbientLight struct {
 }
 
 func (a *AmbientLight) Run(in <-chan nog.Message, out chan<- nog.Message) {
+	options := nog.BitOptions{Name: "Ambient Light", Required: false}
+	if what, err := json.Marshal(&options); err == nil {
+		out <- nog.NewMessage("Ambient Light", string(what), "register")
+	} else {
+		log.Println("StateChanged err:", err)
+	}
 
 	name := "ambientlight.html"
 	if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {

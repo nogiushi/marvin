@@ -111,50 +111,6 @@ func handleTemplate(prefix, name string, data templateData) {
 	})
 }
 
-type messageServer struct {
-	nog *nog.Nog
-}
-
-func (s messageServer) wsHandler(ws *websocket.Conn) {
-	messageChanges := make(chan nog.Message, 10)
-
-	go func() {
-		for message := range messageChanges {
-			if err := websocket.JSON.Send(ws, message); err != nil {
-				log.Println("Message Websocket send err:", err)
-				break
-			}
-		}
-	}()
-
-	for {
-		var msg nog.Message
-		if err := websocket.JSON.Receive(ws, &msg); err == nil {
-			if msg.Why == "register" {
-				var options nog.BitOptions
-				if err := json.Unmarshal([]byte(msg.What), &options); err == nil {
-					s.nog.Register(messageChanges, &options)
-				} else {
-					log.Println("error:", err)
-				}
-			}
-			req := ws.Request()
-			who := req.RemoteAddr
-			if req.TLS != nil {
-				for _, c := range req.TLS.PeerCertificates {
-					who = c.Subject.CommonName
-				}
-			}
-			s.nog.In <- nog.NewMessage(who, msg.What, msg.Why)
-		} else {
-			log.Println("Message Websocket receive err:", err)
-			break
-		}
-	}
-	s.nog.Unregister(messageChanges)
-	ws.Close()
-}
-
 func AddHandlers(m *nog.Nog) {
 	handleTemplate("/", "home", templateData{"Marvin": m})
 
@@ -182,6 +138,41 @@ func AddHandlers(m *nog.Nog) {
 		}
 	})
 
-	ms := &messageServer{nog: m}
-	http.Handle("/message", websocket.Handler(ms.wsHandler))
+	http.Handle("/message", websocket.Handler(func(ws *websocket.Conn) {
+		c := nog.InOut{}
+		in := c.ReceiveIn()
+		out := c.SendOut()
+
+		go m.Add(c.ReceiveOut(), c.SendIn())
+
+		go func() {
+			for {
+				var m nog.Message
+				if err := websocket.JSON.Receive(ws, &m); err == nil {
+					req := ws.Request()
+					who := req.RemoteAddr
+					if req.TLS != nil {
+						for _, c := range req.TLS.PeerCertificates {
+							who = c.Subject.CommonName
+						}
+					}
+					m.Who = who
+					out <- m
+				} else {
+					log.Println("Message Websocket receive err:", err)
+					return
+				}
+			}
+		}()
+
+		for m := range in {
+			if err := websocket.JSON.Send(ws, &m); err != nil {
+				log.Println("Message Websocket send err:", err)
+
+			}
+		}
+
+		ws.Close()
+
+	}))
 }
