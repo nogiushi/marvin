@@ -2,6 +2,7 @@ package hue
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -59,9 +60,9 @@ func (h *Hue) Run(in <-chan nog.Message, out chan<- nog.Message) {
 		select {
 		case <-createUserChan:
 			if err := h.Hue.CreateUser(h.Hue.Username, "Marvin"); err == nil {
-				createUserChan = nil
+				createUserChan.Stop()
 			} else {
-				out <- nog.NewMessage("Marvin", "press hue link button to authenticate", "Lights")
+				out <- nog.NewMessage("Marvin", fmt.Sprintf("%s: press hue link button to authenticate", err), "Lights")
 			}
 		case m := <-in:
 			if m.Why == "statechanged" {
