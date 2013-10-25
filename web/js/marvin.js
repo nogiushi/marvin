@@ -51,7 +51,7 @@ function MarvinCtrl($scope, $timeout) {
 
         connection.onopen = function () {
             $scope.connection = connection;
-            $scope.sendMessage(JSON.stringify({"Name": "Web", "Required": true}), "register");
+            //$scope.sendMessage(JSON.stringify({"Name": "Web", "Required": true}), "register");
         };
 
         connection.onclose = function (e) {
@@ -246,7 +246,11 @@ function MarvinCtrl($scope, $timeout) {
     };
 
     $scope.bitClass = function(name) {
-        return "c" + (Object.keys($scope.state.Bits).indexOf(name) % 6 + 1);
+        if ($scope.state.Bits) {
+            return "c" + (Object.keys($scope.state.Bits).indexOf(name) % 6 + 1);
+        } else {
+            return "default";
+        }
     };
 
 }

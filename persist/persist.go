@@ -1,4 +1,4 @@
-package nog
+package persist
 
 import (
 	"log"
@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/eikeon/dynamodb"
+	"github.com/nogiushi/marvin/nog"
 )
 
 var messageTableName string = "MarvinMessage"
@@ -18,10 +19,10 @@ func init() {
 	}
 }
 
-func (p *persist) initDB() dynamodb.DynamoDB {
+func (p *Persist) initDB() dynamodb.DynamoDB {
 	db := dynamodb.NewDynamoDB()
 	if db != nil {
-		t, err := db.Register(messageTableName, (*Message)(nil))
+		t, err := db.Register(messageTableName, (*nog.Message)(nil))
 		if err != nil {
 			panic(err)
 		}
@@ -44,12 +45,11 @@ func (p *persist) initDB() dynamodb.DynamoDB {
 	return db
 }
 
-type persist struct {
-	InOut
+type Persist struct {
 	db dynamodb.DynamoDB
 }
 
-func (p *persist) Run(in <-chan Message, out chan<- Message) {
+func (p *Persist) Handler(in <-chan nog.Message, out chan<- nog.Message) {
 	for {
 		select {
 		case m := <-in:
@@ -66,7 +66,7 @@ func (p *persist) Run(in <-chan Message, out chan<- Message) {
 	}
 }
 
-func (p *persist) Log() (messages []*Message) {
+func (p *Persist) Log() (messages []*nog.Message) {
 	if p.db != nil {
 		when := time.Now().Format(time.RFC3339Nano)
 		hash := when[0:10]
@@ -74,7 +74,7 @@ func (p *persist) Log() (messages []*Message) {
 		forward := false
 		if sr, err := p.db.Query(messageTableName, &dynamodb.QueryOptions{KeyConditions: conditions, ScanIndexForward: &forward}); err == nil {
 			for i := 0; i < sr.Count; i++ {
-				messages = append(messages, p.db.FromItem(messageTableName, sr.Items[i]).(*Message))
+				messages = append(messages, p.db.FromItem(messageTableName, sr.Items[i]).(*nog.Message))
 			}
 		} else {
 			log.Println("scan error:", err)

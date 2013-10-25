@@ -29,18 +29,12 @@ type AmbientLight struct {
 	lightChannel <-chan int
 }
 
-func (a *AmbientLight) Run(in <-chan nog.Message, out chan<- nog.Message) {
-	options := nog.BitOptions{Name: "Ambient Light", Required: false}
-	if what, err := json.Marshal(&options); err == nil {
-		out <- nog.NewMessage("Ambient Light", string(what), "register")
-	} else {
-		log.Println("StateChanged err:", err)
-	}
-
+func Handler(in <-chan nog.Message, out chan<- nog.Message) {
+	a := &AmbientLight{}
 	name := "ambientlight.html"
 	if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
 		if b, err := ioutil.ReadAll(j); err == nil {
-			out <- nog.NewMessage("Marvin", string(b), "template")
+			out <- nog.NewMessage("Ambient Light", string(b), "template")
 		} else {
 			log.Println("ERROR reading:", err)
 		}
@@ -55,7 +49,7 @@ func (a *AmbientLight) Run(in <-chan nog.Message, out chan<- nog.Message) {
 	} else {
 		log.Println("Warning: Light sensor off: ", err)
 		out <- nog.NewMessage("Marvin", "no light sensor found", "Ambient Light")
-		close(out)
+		//close(out)
 		return
 	}
 

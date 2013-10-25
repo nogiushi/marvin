@@ -35,28 +35,23 @@ type Hue struct {
 	}
 }
 
-func (h *Hue) Run(in <-chan nog.Message, out chan<- nog.Message) {
-	options := nog.BitOptions{Name: "Lights", Required: false}
-	if what, err := json.Marshal(&options); err == nil {
-		out <- nog.NewMessage("Lights", string(what), "register")
-	} else {
-		log.Println("StateChanged err:", err)
-	}
-
+func Handler(in <-chan nog.Message, out chan<- nog.Message) {
+	h := &Hue{}
 	var createUserChan <-chan time.Time
 
-	name := "hue.html"
-	if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
-		if b, err := ioutil.ReadAll(j); err == nil {
-			out <- nog.NewMessage("Marvin", string(b), "template")
+	go func() {
+		name := "hue.html"
+		if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
+			if b, err := ioutil.ReadAll(j); err == nil {
+				out <- nog.NewMessage("Lights", string(b), "template")
+			} else {
+				log.Println("ERROR reading:", err)
+			}
 		} else {
-			log.Println("ERROR reading:", err)
+			log.Println("WARNING: could not open ", name, err)
 		}
-	} else {
-		log.Println("WARNING: could not open ", name, err)
-	}
+	}()
 
-	first := true
 	for {
 		select {
 		case <-createUserChan:
@@ -71,14 +66,12 @@ func (h *Hue) Run(in <-chan nog.Message, out chan<- nog.Message) {
 				if err := dec.Decode(h); err != nil {
 					log.Println("hue decode err:", err)
 				}
-				if first {
-					first = false
-					if err := h.Hue.GetState(); err != nil {
-						createUserChan = time.NewTicker(1 * time.Second).C
-					} else {
-						// TODO:
-					}
+				if err := h.Hue.GetState(); err != nil {
+					createUserChan = time.NewTicker(1 * time.Second).C
+				} else {
+					createUserChan = nil
 				}
+				continue
 			}
 			const SETHUE = "set hue address "
 			if strings.HasPrefix(m.What, SETHUE) {

@@ -27,18 +27,12 @@ type Motion struct {
 	motionChannel <-chan bool
 }
 
-func (s *Motion) Run(in <-chan nog.Message, out chan<- nog.Message) {
-	options := nog.BitOptions{Name: "Motion", Required: false}
-	if what, err := json.Marshal(&options); err == nil {
-		out <- nog.NewMessage("Motion", string(what), "register")
-	} else {
-		log.Println("StateChanged err:", err)
-	}
-
+func Handler(in <-chan nog.Message, out chan<- nog.Message) {
+	s := &Motion{}
 	name := "motion.html"
 	if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
 		if b, err := ioutil.ReadAll(j); err == nil {
-			out <- nog.NewMessage("Marvin", string(b), "template")
+			out <- nog.NewMessage("Motion", string(b), "template")
 		} else {
 			log.Println("ERROR reading:", err)
 		}
@@ -51,7 +45,7 @@ func (s *Motion) Run(in <-chan nog.Message, out chan<- nog.Message) {
 	} else {
 		log.Println("Warning: Motion sensor off:", err)
 		out <- nog.NewMessage("Marvin", "no motion sensor found", "Motion")
-		close(out)
+		//close(out)
 		return
 	}
 	var motionTimer *time.Timer

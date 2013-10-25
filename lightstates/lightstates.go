@@ -23,24 +23,20 @@ type Lightstates struct {
 	Lightstates map[string][]string
 }
 
-func (a *Lightstates) Run(in <-chan nog.Message, out chan<- nog.Message) {
-	options := nog.BitOptions{Name: "Light States", Required: false}
-	if what, err := json.Marshal(&options); err == nil {
-		out <- nog.NewMessage("Light States", string(what), "register")
-	} else {
-		log.Println("StateChanged err:", err)
-	}
-
-	name := "lightstates.html"
-	if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
-		if b, err := ioutil.ReadAll(j); err == nil {
-			out <- nog.NewMessage("Marvin", string(b), "template")
+func Handler(in <-chan nog.Message, out chan<- nog.Message) {
+	a := &Lightstates{}
+	go func() {
+		name := "lightstates.html"
+		if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
+			if b, err := ioutil.ReadAll(j); err == nil {
+				out <- nog.NewMessage("Light States", string(b), "template")
+			} else {
+				log.Println("ERROR reading:", err)
+			}
 		} else {
-			log.Println("ERROR reading:", err)
+			log.Println("WARNING: could not open ", name, err)
 		}
-	} else {
-		log.Println("WARNING: could not open ", name, err)
-	}
+	}()
 
 	for {
 		select {

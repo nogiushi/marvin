@@ -15,6 +15,7 @@ import (
 
 	"code.google.com/p/go.net/websocket"
 	"github.com/nogiushi/marvin/nog"
+	"github.com/nogiushi/marvin/persist"
 )
 
 var pkg struct {
@@ -111,19 +112,54 @@ func handleTemplate(prefix, name string, data templateData) {
 	})
 }
 
-func AddHandlers(m *nog.Nog) {
-	handleTemplate("/", "home", templateData{"Marvin": m})
+func AddHandlers(n *nog.Nog) {
+	handleTemplate("/", "home", templateData{"Marvin": n})
 
 	fs := longExpire(http.FileServer(http.Dir(path.Join(Root, "static/"))))
 	http.Handle("/"+pkg.Version+"/", fs)
 
+	http.Handle("/message", websocket.Handler(func(ws *websocket.Conn) {
+		b := n.Register(func(in <-chan nog.Message, out chan<- nog.Message) {
+			go func() {
+				for {
+					var m nog.Message
+					if err := websocket.JSON.Receive(ws, &m); err == nil {
+						req := ws.Request()
+						who := req.RemoteAddr
+						if req.TLS != nil {
+							for _, c := range req.TLS.PeerCertificates {
+								who = c.Subject.CommonName
+							}
+						}
+						m.Who = who
+						out <- m
+					} else {
+						log.Println("Message Websocket receive err:", err)
+						return
+					}
+				}
+			}()
+
+			for m := range in {
+				if err := websocket.JSON.Send(ws, &m); err != nil {
+					log.Println("Message Websocket send err:", err)
+					break
+				}
+			}
+		})
+		b.Run()
+		ws.Close()
+	}))
+}
+
+func AddPersistenceHandlers(p *persist.Persist) {
 	http.HandleFunc("/messages", func(w http.ResponseWriter, req *http.Request) {
 		if req.Method == "GET" {
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			if err := req.ParseForm(); err == nil {
 				_, ok := req.Form["since"]
 				if true || ok {
-					log := m.Log()
+					log := p.Log()
 					ec := json.NewEncoder(w)
 					if err := ec.Encode(log); err != nil {
 						return
@@ -137,43 +173,4 @@ func AddHandlers(m *nog.Nog) {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
-
-	http.Handle("/message", websocket.Handler(func(ws *websocket.Conn) {
-		c := nog.InOut{}
-		in := c.ReceiveIn()
-		out := c.SendOut()
-
-		go m.Add(c.ReceiveOut(), c.SendIn())
-
-		go func() {
-			for {
-				var m nog.Message
-				if err := websocket.JSON.Receive(ws, &m); err == nil {
-					req := ws.Request()
-					who := req.RemoteAddr
-					if req.TLS != nil {
-						for _, c := range req.TLS.PeerCertificates {
-							who = c.Subject.CommonName
-						}
-					}
-					m.Who = who
-					out <- m
-				} else {
-					log.Println("Message Websocket receive err:", err)
-					close(out)
-					return
-				}
-			}
-		}()
-
-		for m := range in {
-			if err := websocket.JSON.Send(ws, &m); err != nil {
-				log.Println("Message Websocket send err:", err)
-				break
-			}
-		}
-
-		ws.Close()
-
-	}))
 }
