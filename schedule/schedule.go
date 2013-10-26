@@ -22,10 +22,10 @@ func init() {
 
 type Schedule struct {
 	Schedule scheduler.Schedule
-	Switch   map[string]bool
 }
 
 func Handler(in <-chan nog.Message, out chan<- nog.Message) {
+	out <- nog.Message{What: "started"}
 	s := &Schedule{}
 	var scheduledEventsChannel <-chan scheduler.Event
 
@@ -33,7 +33,7 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 		name := "schedule.html"
 		if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
 			if b, err := ioutil.ReadAll(j); err == nil {
-				out <- nog.NewMessage("Schedule", string(b), "template")
+				out <- nog.Message{What: string(b), Why: "template"}
 			} else {
 				log.Println("ERROR reading:", err)
 			}
@@ -45,10 +45,11 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 	for {
 		select {
 		case e := <-scheduledEventsChannel:
-			if s.Switch["Schedule"] {
-				out <- nog.NewMessage("Marvin", e.What, "Schedule")
+			out <- nog.Message{What: e.What}
+		case m, ok := <-in:
+			if !ok {
+				goto done
 			}
-		case m := <-in:
 			if m.Why == "statechanged" {
 				dec := json.NewDecoder(strings.NewReader(m.What))
 				if err := dec.Decode(s); err != nil {
@@ -64,4 +65,7 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 			}
 		}
 	}
+done:
+	out <- nog.Message{What: "stopped"}
+	close(out)
 }

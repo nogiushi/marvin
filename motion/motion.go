@@ -23,16 +23,16 @@ func init() {
 
 type Motion struct {
 	Motion        bool
-	Switch        map[string]bool
 	motionChannel <-chan bool
 }
 
 func Handler(in <-chan nog.Message, out chan<- nog.Message) {
+	out <- nog.Message{What: "started"}
 	s := &Motion{}
 	name := "motion.html"
 	if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
 		if b, err := ioutil.ReadAll(j); err == nil {
-			out <- nog.NewMessage("Motion", string(b), "template")
+			out <- nog.Message{What: string(b), Why: "template"}
 		} else {
 			log.Println("ERROR reading:", err)
 		}
@@ -40,20 +40,23 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 		log.Println("WARNING: could not open ", name, err)
 	}
 
+	var motionTimer *time.Timer
+	var motionTimeout <-chan time.Time
+
 	if c, err := gpio.GPIOInterrupt(7); err == nil {
 		s.motionChannel = c
 	} else {
 		log.Println("Warning: Motion sensor off:", err)
-		out <- nog.NewMessage("Marvin", "no motion sensor found", "Motion")
-		//close(out)
-		return
+		out <- nog.Message{What: "no motion sensor found"}
+		goto done
 	}
-	var motionTimer *time.Timer
-	var motionTimeout <-chan time.Time
 
 	for {
 		select {
-		case m := <-in:
+		case m, ok := <-in:
+			if !ok {
+				goto done
+			}
 			if m.Why == "statechanged" {
 				dec := json.NewDecoder(strings.NewReader(m.What))
 				if err := dec.Decode(s); err != nil {
@@ -62,10 +65,7 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 			}
 		case motion := <-s.motionChannel:
 			if motion {
-				out <- nog.NewMessage("Marvin", "motion detected", "Motion")
-				if s.Switch["Nightlights"] {
-					out <- nog.NewMessage("Marvin", "do nightlights on", "motion detected")
-				}
+				out <- nog.Message{What: "motion detected"}
 				const duration = 60 * time.Second
 				if motionTimer == nil {
 					s.Motion = true
@@ -79,11 +79,13 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 			s.Motion = false
 			motionTimer = nil
 			motionTimeout = nil
-			if s.Switch["Nightlights"] {
-				out <- nog.NewMessage("Marvin", "set light All to off", "motion timeout")
-			}
+			out <- nog.Message{What: "motion detected timeout"}
 		}
 	}
+done:
+	out <- nog.Message{What: "stopped"}
+	close(out)
+
 }
 
 func (m *Motion) MotionSensor() bool {

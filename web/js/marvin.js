@@ -56,6 +56,7 @@ function MarvinCtrl($scope, $timeout) {
 
         connection.onclose = function (e) {
             $scope.connection = null;
+            $scope.NewConnection();
         };
 
         connection.onerror = function (error) {

@@ -7,7 +7,7 @@
 	</h4>
       </div>
       <ul id="messages" class="list-group">
-	<li ng-repeat="message in nowMessages" ng-animate=" 'animate' " class="list-group-item message">[[message.Who]]: <span class="what [[bitClass(message.Why)]]">[[message.What]]</span>
+	<li ng-repeat="message in nowMessages" ng-animate=" 'animate' " class="list-group-item message [[bitClass(message.Who)]]">[[message.Who]]: <span class="what">[[message.What]]</span>
 	</li>
 	<li class="list-group-item">
 	  <form xclass="form-inline" ng-submit="sendMessage(message, 'input')" autocomplete="off">
@@ -29,7 +29,7 @@
 	</h4>
       </div>
       <ul class="list-group">
-	<li ng-repeat="message in thenMessages" ng-animate=" 'animate' " class="list-group-item message">[[message.Who]]: <span class="what [[bitClass(message.Why)]]">[[message.What]]</span>
+	<li ng-repeat="message in thenMessages" ng-animate=" 'animate' " class="list-group-item message [[bitClass(message.Who)]]">[[message.Who]]: <span class="what">[[message.What]]</span>
 	</li>
       </ul>
     </div>

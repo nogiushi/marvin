@@ -13,9 +13,11 @@ import (
 	"github.com/nogiushi/marvin/actions"
 	"github.com/nogiushi/marvin/activity"
 	"github.com/nogiushi/marvin/ambientlight"
+	"github.com/nogiushi/marvin/daylights"
 	"github.com/nogiushi/marvin/hue"
 	"github.com/nogiushi/marvin/lightstates"
 	"github.com/nogiushi/marvin/motion"
+	"github.com/nogiushi/marvin/nightlights"
 	"github.com/nogiushi/marvin/nog"
 	"github.com/nogiushi/marvin/nouns"
 	"github.com/nogiushi/marvin/persist"
@@ -43,19 +45,26 @@ func main() {
 		log.Println("ERROR: could not open config:", err)
 	}
 
-	go n.Run()
-	for _, handler := range []nog.Handler{actions.Handler, activity.Handler, schedule.Handler, hue.Handler, lightstates.Handler, presence.Handler, motion.Handler, nouns.Handler, ambientlight.Handler} {
-		b := n.Register(handler)
-		go b.Run()
-
-	}
+	n.Register("Actions", actions.Handler)
+	n.Register("Activity", activity.Handler)
+	n.Register("Ambient Light", ambientlight.Handler)
+	n.Register("Daylights", daylights.Handler)
+	n.Register("Schedule", schedule.Handler)
+	n.Register("Lights", hue.Handler)
+	n.Register("Light States", lightstates.Handler)
+	n.Register("Presence", presence.Handler)
+	n.Register("Motion", motion.Handler)
+	n.Register("Nightlights", nightlights.Handler)
+	n.Register("Nouns", nouns.Handler)
 
 	p := &persist.Persist{}
-	b := n.Register(p.Handler)
-	b.Run()
-	web.AddPersistenceHandlers(p)
+	go n.Register("Persist", p.Handler)
 
+	web.AddPersistenceHandlers(p)
 	web.AddHandlers(n)
+
+	go n.Run()
+
 	addresses := strings.Split(*address, ",")
 	for i, addr := range addresses {
 		if i == 1 || (len(addresses) == 1 && (*cert != "" || *key != "")) {

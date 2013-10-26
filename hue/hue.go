@@ -39,11 +39,13 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 	h := &Hue{}
 	var createUserChan <-chan time.Time
 
+	out <- nog.Message{What: "started"}
+
 	go func() {
 		name := "hue.html"
 		if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
 			if b, err := ioutil.ReadAll(j); err == nil {
-				out <- nog.NewMessage("Lights", string(b), "template")
+				out <- nog.Message{What: string(b), Why: "template"}
 			} else {
 				log.Println("ERROR reading:", err)
 			}
@@ -58,9 +60,12 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 			if err := h.Hue.CreateUser(h.Hue.Username, "Marvin"); err == nil {
 				createUserChan = nil
 			} else {
-				out <- nog.NewMessage("Marvin", fmt.Sprintf("%s: press hue link button to authenticate", err), "Lights")
+				out <- nog.Message{What: fmt.Sprintf("%s: press hue link button to authenticate", err)}
 			}
-		case m := <-in:
+		case m, ok := <-in:
+			if !ok {
+				goto done
+			}
 			if m.Why == "statechanged" {
 				dec := json.NewDecoder(strings.NewReader(m.What))
 				if err := dec.Decode(h); err != nil {
@@ -90,7 +95,7 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 							log.Println("ERROR:", err)
 						}
 						if what, err := json.Marshal(h); err == nil {
-							out <- nog.NewMessage("Marvin", string(what), "statechanged")
+							out <- nog.Message{What: string(what), Why: "statechanged"}
 						} else {
 							log.Println("StateChanged err:", err)
 						}
@@ -116,7 +121,7 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 						log.Println("ERROR:", err)
 					}
 					if what, err := json.Marshal(h); err == nil {
-						out <- nog.NewMessage("Marvin", string(what), "statechanged")
+						out <- nog.Message{What: string(what), Why: "statechanged"}
 					} else {
 						log.Println("StateChanged err:", err)
 					}
@@ -126,4 +131,8 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 			}
 		}
 	}
+done:
+	out <- nog.Message{What: "stopped"}
+	close(out)
+
 }

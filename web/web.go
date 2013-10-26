@@ -119,19 +119,20 @@ func AddHandlers(n *nog.Nog) {
 	http.Handle("/"+pkg.Version+"/", fs)
 
 	http.Handle("/message", websocket.Handler(func(ws *websocket.Conn) {
-		b := n.Register(func(in <-chan nog.Message, out chan<- nog.Message) {
+		req := ws.Request()
+		name := fmt.Sprintf("web-%s", req.RemoteAddr)
+		// who := req.RemoteAddr
+		// if req.TLS != nil {
+		// 	for _, c := range req.TLS.PeerCertificates {
+		// 		who = c.Subject.CommonName
+		// 	}
+		// }
+		n.Register(name, func(in <-chan nog.Message, out chan<- nog.Message) {
 			go func() {
 				for {
 					var m nog.Message
 					if err := websocket.JSON.Receive(ws, &m); err == nil {
-						req := ws.Request()
-						who := req.RemoteAddr
-						if req.TLS != nil {
-							for _, c := range req.TLS.PeerCertificates {
-								who = c.Subject.CommonName
-							}
-						}
-						m.Who = who
+						//m.Who = who
 						out <- m
 					} else {
 						log.Println("Message Websocket receive err:", err)
@@ -146,8 +147,11 @@ func AddHandlers(n *nog.Nog) {
 					break
 				}
 			}
+			out <- nog.Message{What: "stopped"}
+			close(out)
 		})
-		b.Run()
+		n.Start(name)
+		n.Unregister(name)
 		ws.Close()
 	}))
 }

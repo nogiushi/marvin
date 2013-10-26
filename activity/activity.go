@@ -60,12 +60,13 @@ func (m *Activity) UpdateActivity(name string) {
 }
 
 func Handler(in <-chan nog.Message, out chan<- nog.Message) {
+	out <- nog.Message{What: "started"}
 	a := &Activity{}
 	go func() {
 		name := "activity.html"
 		if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
 			if b, err := ioutil.ReadAll(j); err == nil {
-				out <- nog.NewMessage("Activity", string(b), "template")
+				out <- nog.Message{What: string(b), Why: "template"}
 			} else {
 				log.Println("ERROR reading:", err)
 			}
@@ -74,29 +75,29 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 		}
 	}()
 
-	for {
-		select {
-		case m := <-in:
-			if m.Why == "statechanged" {
-				dec := json.NewDecoder(strings.NewReader(m.What))
-				if err := dec.Decode(a); err != nil {
-					log.Println("activity decode err:", err)
+	for m := range in {
+		if m.Why == "statechanged" {
+			dec := json.NewDecoder(strings.NewReader(m.What))
+			if err := dec.Decode(a); err != nil {
+				log.Println("activity decode err:", err)
+			}
+		} else {
+			const IAM = "I am "
+			what := m.What
+			if strings.HasPrefix(m.What, IAM) {
+				what = m.What[len(IAM):]
+				a.UpdateActivity(what)
+				if what, err := json.Marshal(a); err == nil {
+					out <- nog.Message{What: string(what), Why: "statechanged"}
+				} else {
+					log.Println("StateChanged err:", err)
 				}
-			} else {
-				const IAM = "I am "
-				what := m.What
-				if strings.HasPrefix(m.What, IAM) {
-					what = m.What[len(IAM):]
-					a.UpdateActivity(what)
-					if what, err := json.Marshal(a); err == nil {
-						out <- nog.NewMessage("Marvin", string(what), "statechanged")
-					} else {
-						log.Println("StateChanged err:", err)
-					}
 
-					out <- nog.NewMessage("Marvin", "do "+what, "Activity")
-				}
+				out <- nog.Message{What: "do " + what}
 			}
 		}
 	}
+	out <- nog.Message{What: "stopped"}
+	close(out)
+
 }

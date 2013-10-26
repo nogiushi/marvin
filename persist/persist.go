@@ -50,20 +50,22 @@ type Persist struct {
 }
 
 func (p *Persist) Handler(in <-chan nog.Message, out chan<- nog.Message) {
-	for {
-		select {
-		case m := <-in:
-			if p.db == nil {
-				if db := p.initDB(); db != nil {
-					p.db = db
-				} else {
-					log.Println("WARNING: could not create database to persist messages.")
-					return
-				}
+	out <- nog.Message{What: "started"}
+	for m := range in {
+		if p.db == nil {
+			if db := p.initDB(); db != nil {
+				p.db = db
+			} else {
+				log.Println("WARNING: could not create database to persist messages.")
+				out <- nog.Message{What: "could not create database to persist messages"}
+				break
 			}
-			p.db.PutItem(messageTableName, p.db.ToItem(&m), nil)
 		}
+		m.Hash = m.When[0:10]
+		p.db.PutItem(messageTableName, p.db.ToItem(&m), nil)
 	}
+	out <- nog.Message{What: "stopped"}
+	close(out)
 }
 
 func (p *Persist) Log() (messages []*nog.Message) {

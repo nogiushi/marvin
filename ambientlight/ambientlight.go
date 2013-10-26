@@ -30,11 +30,12 @@ type AmbientLight struct {
 }
 
 func Handler(in <-chan nog.Message, out chan<- nog.Message) {
+	out <- nog.Message{What: "started"}
 	a := &AmbientLight{}
 	name := "ambientlight.html"
 	if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
 		if b, err := ioutil.ReadAll(j); err == nil {
-			out <- nog.NewMessage("Ambient Light", string(b), "template")
+			out <- nog.Message{What: string(b), Why: "template"}
 		} else {
 			log.Println("ERROR reading:", err)
 		}
@@ -48,14 +49,17 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 		a.lightChannel = t.Broadband()
 	} else {
 		log.Println("Warning: Light sensor off: ", err)
-		out <- nog.NewMessage("Marvin", "no light sensor found", "Ambient Light")
-		//close(out)
+		out <- nog.Message{What: "no light sensor found"}
+		goto done
 		return
 	}
 
 	for {
 		select {
-		case m := <-in:
+		case m, ok := <-in:
+			if !ok {
+				goto done
+			}
 			if m.Why == "statechanged" {
 				dec := json.NewDecoder(strings.NewReader(m.What))
 				if err := dec.Decode(a); err != nil {
@@ -67,21 +71,19 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 				if light > 5000 && (a.DayLight != true) {
 					a.DayLight = true
 					dayLightTime = time.Now()
-					out <- nog.NewMessage("Marvin", "it is light", "Ambient Light")
-					if a.Switch["Daylights"] {
-						out <- nog.NewMessage("Marvin", "do daylights off", "Ambient Light")
-					}
+					out <- nog.Message{What: "it is light"}
 				} else if light < 4900 && (a.DayLight != false) {
 					a.DayLight = false
 					dayLightTime = time.Now()
-					out <- nog.NewMessage("Marvin", "it is dark", "Ambient Light")
-					if a.Switch["Daylights"] {
-						out <- nog.NewMessage("Marvin", "do daylights on", "Ambient Light")
-					}
+					out <- nog.Message{What: "it is dark"}
 				}
 			}
 		}
 	}
+done:
+	out <- nog.Message{What: "stopped"}
+	close(out)
+
 }
 
 func (a *AmbientLight) LightSensor() bool {
