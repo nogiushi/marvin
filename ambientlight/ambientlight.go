@@ -66,7 +66,10 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 					log.Println("ambientlight decode err:", err)
 				}
 			}
-		case light := <-a.lightChannel:
+		case light, ok := <-a.lightChannel:
+			if !ok {
+				goto done
+			}
 			if time.Since(dayLightTime) > time.Duration(60*time.Second) {
 				if light > 5000 && (a.DayLight != true) {
 					a.DayLight = true
