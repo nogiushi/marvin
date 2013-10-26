@@ -49,6 +49,8 @@ func NewNog() *Nog {
 	n.in = make(chan Message)
 	n.bits = make(map[string]*bit)
 	n.state = make(map[string]interface{})
+	n.state["Switch"] = make(map[string]interface{})
+	n.state["templates"] = make(map[string]interface{})
 	return n
 }
 
