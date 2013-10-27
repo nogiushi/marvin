@@ -7,7 +7,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="(name, para) in state.Actions">
+      <tr ng-repeat="(name, para) in state.Actions track by $index">
 	<td>[[name]]</td>
 	<td>
 	  <p>[[para]]</p>
