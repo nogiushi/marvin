@@ -1,88 +1,139 @@
 {
+    "Actions": {
+        "awake": "turn on Daylights. turn off Nightlights. turn on Schedule. set light All to sun.",
+        "chime": "set light All to blink.",
+        "couch sun": "set light CouchL to sun. set light CouchR to sun.",
+        "dusk": "set light Corner to sun (dim). set light Bedroom to sun (dim). set light Kitchen to sun. set light CouchL to off. set light CouchR to off. set light Den to sun (dim).",
+        "eating dinner": "set light Corner to sun. set light Bedroom to sun (dim). set light Kitchen to sun. set light CouchL to sun (dim). set light CouchR to sun (dim).",
+        "hacking": "set light All to deep blue.",
+        "meditating": "set light All to green.",
+        "nightlights off": "set light All to off.",
+        "nightlights on": "set light All to nightlight.",
+        "sleeping": "turn off Daylights. turn on Nightlights. turn on Schedule. set light All to off.",
+        "sunset": "set light Corner to sun. set light Kitchen to sun. set light CouchL to sun (dim). set light CouchR to sun (dim). set light Den to sun (dim).",
+        "twilight": "set light Corner to sun (dim). set light Bedroom to sun (dim). set light Kitchen to sun. set light CouchL to sun (dim). set light CouchR to sun (dim). set light Den to sun (dim).",
+        "waking": "turn off Daylights. turn off Nightlights. turn on Schedule. set light Corner to sunrise. set light Bedroom to sunrise. set light Kitchen to sunrise. set light Den to sunrise.",
+        "watching a movie": "turn off Daylights. turn off Nightlights. turn off Schedule. set light All to off. set light Kitchen to sunset. set light Den to sunset."
+    },
     "Activities": {
         "awake": {
             "Name": "awake",
             "Next": {
+                "awake": true,
                 "cleaning": true,
-                "movie": true,
+                "eating dinner": true,
+                "hacking": true,
                 "relaxing": true,
                 "sleeping": true,
+                "watching a movie": true,
                 "working": true
             }
         },
         "cleaning": {
             "Name": "cleaning",
             "Next": {
-                "awake": true
+                "awake": true,
+                "sleeping": true
             }
         },
-        "movie": {
-            "Name": "movie",
+        "eating dinner": {
+            "Name": "eating dinner",
             "Next": {
-                "awake": true
+                "awake": true,
+                "hacking": true,
+                "meditating": true,
+                "sleeping": true
+            }
+        },
+        "hacking": {
+            "Name": "hacking",
+            "Next": {
+                "awake": true,
+                "eating dinner": true,
+                "hacking": true,
+                "meditating": true,
+                "relaxing": true,
+                "sleeping": true,
+                "working": true
+            }
+        },
+        "meditating": {
+            "Name": "meditating",
+            "Next": {
+                "awake": true,
+                "hacking": true,
+                "sleeping": true,
+                "watching a movie": true
             }
         },
         "relaxing": {
             "Name": "relaxing",
             "Next": {
                 "awake": true,
-                "sleeping": true
+                "hacking": true,
+                "relaxing": true,
+                "sleeping": true,
+                "working": true
             }
         },
         "sleeping": {
             "Name": "sleeping",
             "Next": {
+                "all nightlight": true,
                 "awake": true,
-                "wake": true
+                "cleaning": true,
+                "eating dinner": true,
+                "hacking": true,
+                "nightlights": true,
+                "nightlights on": true,
+                "sleeping": true,
+                "waking": true,
+                "working": true
             }
         },
-        "wake": {
-            "Name": "wake",
+        "waking": {
+            "Name": "waking",
             "Next": {
-                "awake": true
+                "awake": true,
+                "eating dinner": true,
+                "sleeping": true,
+                "watching a movie": true
+            }
+        },
+        "watching a movie": {
+            "Name": "watching a movie",
+            "Next": {
+                "awake": true,
+                "hacking": true,
+                "sleeping": true
             }
         },
         "working": {
             "Name": "working",
             "Next": {
-                "awake": true
+                "all nightlight": true,
+                "awake": true,
+                "cleaning": true,
+                "eating dinner": true,
+                "hacking": true,
+                "nightlights on": true,
+                "relaxing": true,
+                "sleeping": true,
+                "waking": true,
+                "watching a movie": true,
+                "working": true
             }
         }
     },
-    "Activity": "cleaning",
-    "DayLight": false,
-    "Hue": {
-        "Datastore": {
-            "groups": {
-                "0": {
-                    "action": {
-                        "alert": "",
-                        "bri": 254,
-                        "colormode": "ct",
-                        "ct": 351,
-                        "effect": "none",
-                        "hue": 0,
-                        "on": true,
-                        "reachable": false,
-                        "sat": 0,
-                        "xy": [
-                            0.5787,
-                            0.3872
-                        ]
-                    },
-                    "lights": [],
-                    "name": "Lightset 0"
-                }
-            },
-            "lights": {
-            }
-        },
-        "Errors": null
-    },
-    "LastTransition": "wake",
-    "Messages": [],
-    "Motion": true,
-    "Present": {
+    "Activity": "awake",
+    "Nouns": {
+        "All": "/groups/0",
+        "Bedroom": "/lights/3",
+        "Corner": "/lights/1",
+        "CouchL": "/lights/5",
+        "CouchR": "/lights/2",
+        "Den": "/lights/6",
+        "Kitchen": "/lights/4"
     },
     "Schedule": [
         {
@@ -90,7 +141,7 @@
             "ExceptOn": "holidays",
             "Interval": "24h",
             "On": "weekdays",
-            "What": "wake",
+            "What": "I am waking",
             "When": "7:15AM"
         },
         {
@@ -98,7 +149,7 @@
             "ExceptOn": "",
             "Interval": "24h",
             "On": "weekends",
-            "What": "wake",
+            "What": "I am waking",
             "When": "9:00AM"
         },
         {
@@ -106,7 +157,7 @@
             "ExceptOn": "",
             "Interval": "24h",
             "On": "",
-            "What": "chime",
+            "What": "do chime",
             "When": "8:45AM"
         },
         {
@@ -114,7 +165,7 @@
             "ExceptOn": "",
             "Interval": "24h",
             "On": "",
-            "What": "couch sun",
+            "What": "do couch sun",
             "When": "6:00PM"
         },
         {
@@ -122,7 +173,7 @@
             "ExceptOn": "",
             "Interval": "24h",
             "On": "",
-            "What": "dinner",
+            "What": "I am eating dinner",
             "When": "7:30PM"
         },
         {
@@ -130,7 +181,7 @@
             "ExceptOn": "",
             "Interval": "24h",
             "On": "",
-            "What": "meditation",
+            "What": "I am meditating",
             "When": "9:00PM"
         },
         {
@@ -146,7 +197,7 @@
             "ExceptOn": "",
             "Interval": "24h",
             "On": "",
-            "What": "twilight",
+            "What": "do twilight",
             "When": "10:15PM"
         },
         {
@@ -154,7 +205,7 @@
             "ExceptOn": "",
             "Interval": "24h",
             "On": "",
-            "What": "dusk",
+            "What": "do dusk",
             "When": "10:45PM"
         },
         {
@@ -162,11 +213,10 @@
             "ExceptOn": "",
             "Interval": "24h",
             "On": "",
-            "What": "sleeping",
+            "What": "I am sleeping",
             "When": "11:00PM"
         }
     ],
-    "StatHatUserKey": "",
     "States": {
         "alert": {
             "alert": "lselect"
@@ -202,6 +252,7 @@
         },
         "green": {
             "bri": 254,
+            "on": true,
             "transitiontime": 10,
             "xy": [
                 0.402,
@@ -239,24 +290,6 @@
                 0.1762
             ]
         },
-        "pink alert": {
-            "bri": 1,
-            "on": true,
-            "transitiontime": 10,
-            "xy": [
-                0.6484,
-                0.3309
-            ]
-        },
-        "red alert": {
-            "bri": 16,
-            "on": true,
-            "transitiontime": 30,
-            "xy": [
-                0.6484,
-                0.3309
-            ]
-        },
         "sun": {
             "bri": 254,
             "on": true,
@@ -292,496 +325,6 @@
                 0.5787,
                 0.3872
             ]
-        }
-    },
-    "Switch": {
-        "Daylights": false,
-        "Nightlights": false,
-        "Schedule": true
-    },
-    "Transitions": {
-        "alert": {
-            "Commands": [
-                {
-                    "Address": "/groups/0",
-                    "State": "alert"
-                }
-            ],
-            "Switch": null
-        },
-        "all green": {
-            "Commands": [
-                {
-                    "Address": "/groups/0",
-                    "State": "green"
-                }
-            ],
-            "Switch": null
-        },
-        "all nightlight": {
-            "Commands": [
-                {
-                    "Address": "/lights/1",
-                    "State": "nightlight"
-                },
-                {
-                    "Address": "/lights/3",
-                    "State": "nightlight (dim)"
-                },
-                {
-                    "Address": "/lights/4",
-                    "State": "nightlight"
-                },
-                {
-                    "Address": "/lights/2",
-                    "State": "nightlight"
-                },
-                {
-                    "Address": "/lights/5",
-                    "State": "nightlight"
-                },
-                {
-                    "Address": "/lights/6",
-                    "State": "nightlight"
-                }
-            ],
-            "Switch": null
-        },
-        "all off": {
-            "Commands": [
-                {
-                    "Address": "/groups/0",
-                    "State": "off"
-                }
-            ],
-            "Switch": null
-        },
-        "awake": {
-            "Commands": [
-                {
-                    "Address": "/groups/0",
-                    "State": "sun"
-                }
-            ],
-            "Switch": {
-                "Daylights": true,
-                "Nightlights": false,
-                "Schedule": true
-            }
-        },
-        "chime": {
-            "Commands": [
-                {
-                    "Address": "/groups/0",
-                    "State": "blink"
-                }
-            ],
-            "Switch": null
-        },
-        "cleaning": {
-            "Commands": [
-                {
-                    "Address": "/groups/0",
-                    "State": "energize"
-                }
-            ],
-            "Switch": {
-                "Daylights": false,
-                "Nightlights": false,
-                "Schedule": true
-            }
-        },
-        "couch sun": {
-            "Commands": [
-                {
-                    "Address": "/lights/2",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/5",
-                    "State": "sun"
-                }
-            ],
-            "Switch": null
-        },
-        "daylight": {
-            "Commands": [
-                {
-                    "Address": "/lights/1",
-                    "State": "off"
-                },
-                {
-                    "Address": "/lights/3",
-                    "State": "off"
-                }
-            ],
-            "Switch": null
-        },
-        "daylight off": {
-            "Commands": [
-                {
-                    "Address": "/lights/1",
-                    "State": "on"
-                },
-                {
-                    "Address": "/lights/3",
-                    "State": "on"
-                }
-            ],
-            "Switch": null
-        },
-        "dinner": {
-            "Commands": [
-                {
-                    "Address": "/lights/1",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/3",
-                    "State": "sun (dim)"
-                },
-                {
-                    "Address": "/lights/4",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/2",
-                    "State": "sun (dim)"
-                },
-                {
-                    "Address": "/lights/5",
-                    "State": "sun (dim)"
-                },
-                {
-                    "Address": "/lights/6",
-                    "State": "sun (dim)"
-                }
-            ],
-            "Switch": null
-        },
-        "dusk": {
-            "Commands": [
-                {
-                    "Address": "/lights/1",
-                    "State": "sun (dim)"
-                },
-                {
-                    "Address": "/lights/3",
-                    "State": "sun (dim)"
-                },
-                {
-                    "Address": "/lights/4",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/2",
-                    "State": "off"
-                },
-                {
-                    "Address": "/lights/5",
-                    "State": "off"
-                }
-            ],
-            "Switch": null
-        },
-        "dusk corner": {
-            "Commands": [
-                {
-                    "Address": "/lights/4",
-                    "State": "sun (dim)"
-                },
-                {
-                    "Address": "/lights/6",
-                    "State": "sun (dim)"
-                }
-            ],
-            "Switch": null
-        },
-        "floor lamps green": {
-            "Commands": [
-                {
-                    "Address": "/lights/1",
-                    "State": "green"
-                },
-                {
-                    "Address": "/lights/3",
-                    "State": "green"
-                }
-            ],
-            "Switch": null
-        },
-        "floor lamps sun": {
-            "Commands": [
-                {
-                    "Address": "/lights/1",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/3",
-                    "State": "sun"
-                }
-            ],
-            "Switch": null
-        },
-        "green": {
-            "Commands": [
-                {
-                    "Address": "/lights/1",
-                    "State": "green"
-                },
-                {
-                    "Address": "/lights/3",
-                    "State": "green"
-                },
-                {
-                    "Address": "/lights/4",
-                    "State": "green"
-                },
-                {
-                    "Address": "/lights/2",
-                    "State": "green"
-                },
-                {
-                    "Address": "/lights/5",
-                    "State": "green"
-                }
-            ],
-            "Switch": null
-        },
-        "hack": {
-            "Commands": [
-                {
-                    "Address": "/lights/6",
-                    "State": "deep blue"
-                }
-            ],
-            "Switch": null
-        },
-        "jazz": {
-            "Commands": [
-                {
-                    "Address": "/lights/1",
-                    "State": "deep blue (dim)"
-                },
-                {
-                    "Address": "/lights/3",
-                    "State": "deep blue (dim)"
-                },
-                {
-                    "Address": "/lights/4",
-                    "State": "deep blue (dim)"
-                },
-                {
-                    "Address": "/lights/2",
-                    "State": "deep blue (dim)"
-                },
-                {
-                    "Address": "/lights/5",
-                    "State": "deep blue (dim)"
-                }
-            ],
-            "Switch": null
-        },
-        "kitchen sun": {
-            "Commands": [
-                {
-                    "Address": "/lights/4",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/6",
-                    "State": "sun"
-                }
-            ],
-            "Switch": null
-        },
-        "meditation": {
-            "Commands": [
-                {
-                    "Address": "/lights/1",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/3",
-                    "State": "red alert"
-                },
-                {
-                    "Address": "/lights/4",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/2",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/5",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/6",
-                    "State": "deep blue"
-                }
-            ],
-            "Switch": null
-        },
-        "movie": {
-            "Commands": [
-                {
-                    "Address": "/lights/1",
-                    "State": "off"
-                },
-                {
-                    "Address": "/lights/3",
-                    "State": "off"
-                },
-                {
-                    "Address": "/lights/4",
-                    "State": "sun (dim)"
-                },
-                {
-                    "Address": "/lights/2",
-                    "State": "off"
-                },
-                {
-                    "Address": "/lights/5",
-                    "State": "off"
-                }
-            ],
-            "Switch": {
-                "Daylights": false,
-                "Nightlights": false,
-                "Schedule": false
-            }
-        },
-        "sleeping": {
-            "Commands": [
-                {
-                    "Address": "/groups/0",
-                    "State": "off"
-                }
-            ],
-            "Switch": {
-                "Daylights": false,
-                "Nightlights": true,
-                "Schedule": true
-            }
-        },
-        "startup": {
-            "Commands": [
-                {
-                    "Address": "/groups/0",
-                    "State": "blink"
-                }
-            ],
-            "Switch": null
-        },
-        "sun": {
-            "Commands": [
-                {
-                    "Address": "/lights/1",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/3",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/4",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/6",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/2",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/5",
-                    "State": "sun"
-                }
-            ],
-            "Switch": {
-                "Daylights": false,
-                "Nightlights": false,
-                "Schedule": true
-            }
-        },
-        "sunset": {
-            "Commands": [
-                {
-                    "Address": "/lights/1",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/4",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/2",
-                    "State": "sun (dim)"
-                },
-                {
-                    "Address": "/lights/5",
-                    "State": "sun (dim)"
-                },
-                {
-                    "Address": "/lights/6",
-                    "State": "sun (dim)"
-                }
-            ],
-            "Switch": null
-        },
-        "twilight": {
-            "Commands": [
-                {
-                    "Address": "/lights/1",
-                    "State": "sun (dim)"
-                },
-                {
-                    "Address": "/lights/3",
-                    "State": "sun (dim)"
-                },
-                {
-                    "Address": "/lights/4",
-                    "State": "sun"
-                },
-                {
-                    "Address": "/lights/2",
-                    "State": "sun (dim)"
-                },
-                {
-                    "Address": "/lights/5",
-                    "State": "sun (dim)"
-                }
-            ],
-            "Switch": null
-        },
-        "wake": {
-            "Commands": [
-                {
-                    "Address": "/lights/1",
-                    "State": "sunrise"
-                },
-                {
-                    "Address": "/lights/3",
-                    "State": "sunrise"
-                },
-                {
-                    "Address": "/lights/4",
-                    "State": "sunrise"
-                },
-                {
-                    "Address": "/lights/6",
-                    "State": "sunrise"
-                }
-            ],
-            "Switch": {
-                "Daylights": false,
-                "Nightlights": false,
-                "Schedule": true
-            }
         }
     }
 }
