@@ -47,8 +47,7 @@ in your ~/.profile.
     sudo mv go /opt/go
     cd /opt/go
     ./all.bash
-    mkdir $HOME/go
-    export GOPATH=$HOME/go
+    export GOPATH=$HOME
     export GOROOT=/opt/go
 
 ### install latest nodejs
@@ -71,10 +70,10 @@ dependencies using [Bower](https://github.com/bower/bower).
 
     go get -v -u github.com/nogiushi/marvin
     pushd `go list -f '{{.Dir}}' github.com/nogiushi/marvin/web`; npm install; bower install; grunt
-    sudo cp conf/marvin.json /etc/marvin.json
-    sudo cp conf/marvin.conf /etc/init/marvin.conf
+    sudo cp ../conf/marvin.json /etc/marvin.json
+    sudo cp ../conf/marvin.conf /etc/init/marvin.conf
     sudo start marvin
-    # point browser at http://{your-hostname}:8000
+    # point browser at http://{your-hostname}/
 
 ### Other Marvin channels
 
