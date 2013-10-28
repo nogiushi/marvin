@@ -56,13 +56,15 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 				goto done
 			}
 			if time.Since(dayLightTime) > time.Duration(60*time.Second) {
-				dayLightTime = time.Now()
 				if light > 5000 && (description != "light") {
 					description = "light"
+					dayLightTime = time.Now()
+					out <- nog.Message{What: "it is " + description}
 				} else if light < 4900 && (description != "dark") {
 					description = "dark"
+					dayLightTime = time.Now()
+					out <- nog.Message{What: "it is " + description}
 				}
-				out <- nog.Message{What: "it is " + description}
 			}
 		}
 	}
