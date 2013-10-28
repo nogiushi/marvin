@@ -33,7 +33,7 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 		log.Println("WARNING: could not open ", name, err)
 	}
 
-	var DayLight bool
+	var description string
 	var lightChannel <-chan int
 	var dayLightTime time.Time
 	if t, err := tsl2561.NewTSL2561(1, tsl2561.ADDRESS_FLOAT); err == nil {
@@ -56,15 +56,13 @@ func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 				goto done
 			}
 			if time.Since(dayLightTime) > time.Duration(60*time.Second) {
-				if light > 5000 && (DayLight != true) {
-					DayLight = true
-					dayLightTime = time.Now()
-					out <- nog.Message{What: "it is light"}
-				} else if light < 4900 && (DayLight != false) {
-					DayLight = false
-					dayLightTime = time.Now()
-					out <- nog.Message{What: "it is dark"}
+				dayLightTime = time.Now()
+				if light > 5000 && (description != "light") {
+					description = "light"
+				} else if light < 4900 && (description != "dark") {
+					description = "dark"
 				}
+				out <- nog.Message{What: "it is " + description}
 			}
 		}
 	}
