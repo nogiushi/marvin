@@ -31,7 +31,7 @@ This github repository contains Marvin's software. Marvin currently has the foll
 
 ### get ubuntu 
 
-If you are installing Marvin on your BeagleBone we've been using 13.04 from [ARMhf](http://www.armhf.com/index.php/boards/beaglebone-black/).
+If you are installing Marvin on your BeagleBone we are using 13.10 via [rcn-ee.net](https://rcn-ee.net/deb/flasher/saucy/BBB-eMMC-flasher-ubuntu-13.10-2013-10-25.img.xz).
 
 ### install build tools
 
