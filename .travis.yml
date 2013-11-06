@@ -8,6 +8,8 @@ script:
   - sudo apt-get --yes update
   - sudo apt-get install --yes nodejs
   - npm install -g grunt-cli bower
-  - pushd web; npm install; bower install; grunt; popd
+  - npm install
+  - bower install
+  - grunt
   - go list -f '{{range .XTestImports}}{{.}}{{"\n"}}{{end}}' | xargs go get
   - go test ./...

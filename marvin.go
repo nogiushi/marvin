@@ -23,7 +23,6 @@ import (
 	"github.com/nogiushi/marvin/persist"
 	"github.com/nogiushi/marvin/presence"
 	"github.com/nogiushi/marvin/schedule"
-	"github.com/nogiushi/marvin/web"
 )
 
 func main() {
@@ -60,8 +59,8 @@ func main() {
 	p := &persist.Persist{}
 	go n.Register("Persist", p.Handler)
 
-	web.AddPersistenceHandlers(p)
-	web.AddHandlers(n)
+	AddPersistenceHandlers(p)
+	AddHandlers(n)
 
 	go n.Run()
 

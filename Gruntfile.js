@@ -14,10 +14,10 @@ module.exports = function(grunt) {
                     failOnError: true,
                     stdout: true,
                     execOptions: {
-			cwd: '..'
+			cwd: '.'
                     }
 		},
-		command: 'go install -v ./...'
+		command: 'go build -v .'
             }
 	},
         clean: {
@@ -36,7 +36,7 @@ module.exports = function(grunt) {
             },
             marvin: {
                 src: ['bower_components/jquery/jquery.min.js', 'bower_components/angularjs/index.js', 'bower_components/angular-ui-bootstrap/index.js', 'build/js/colorconverter.js',  'js/marvin.js', 'bower_components/bootstrap/dist/js/bootstrap.min.js'],
-                dest: 'static/<%= bower.version %>/js/<%= bower.name %>.js'
+                dest: 'dest/usr/share/marvin/static/<%= bower.version %>/js/<%= bower.name %>.js'
             }
         },
         uglify: {
@@ -45,7 +45,7 @@ module.exports = function(grunt) {
             },
             marvin: {
                 files: {
-                    'static/<%= bower.version %>/js/<%= bower.name %>.min.js': ['<%= concat.marvin.dest %>']
+                    'dest/usr/share/marvin/static/<%= bower.version %>/js/<%= bower.name %>.min.js': ['<%= concat.marvin.dest %>']
                 }
             }
         },
@@ -69,7 +69,7 @@ module.exports = function(grunt) {
             },
             marvin: {
                 files: {
-                    'static/<%= bower.version %>/css/<%= bower.name %>.css': ['less/marvin.less']
+                    'dest/usr/share/marvin/static/<%= bower.version %>/css/<%= bower.name %>.css': ['less/marvin.less']
                 }
             },
             min: {
@@ -77,7 +77,7 @@ module.exports = function(grunt) {
                     compress: true
                 },
                 files: {
-                    'static/<%= bower.version %>/css/<%= bower.name %>.min.css': ['less/marvin.less']
+                    'dest/usr/share/marvin/static/<%= bower.version %>/css/<%= bower.name %>.min.css': ['less/marvin.less']
                 }
             }
         },
@@ -90,18 +90,42 @@ module.exports = function(grunt) {
         copy: {
             images: {
                 files: [
+                    {src: 'bower.json', dest: 'dest/usr/share/marvin/'
+                    },
                     {
                         src: 'images/*',
-                        dest: 'static/<%= bower.version %>/'
+                        dest: 'dest/usr/share/marvin/static/<%= bower.version %>/'
                     },
                     {
 			expand: true,
 			cwd: 'bower_components/bootstrap/dist/',
                         src: ['fonts/*'],
-                        dest: 'static/<%= bower.version %>/'
+                        dest: 'dest/usr/share/marvin/static/<%= bower.version %>/'
                     }
                 ]
+            },
+            templates: {
+                files: [
+                    {src: ['*/*.html'], dest: 'dest/usr/share/marvin/'}
+                ]
+            },
+            json: {
+                files: [
+                    {src: ['conf/marvin.json'], dest: 'dest/etc/marvin.json'}
+                ]
+            },
+            conf: {
+                files: [
+                    {src: ['conf/marvin.conf'], dest: 'dest/etc/init/marvin.conf'}
+                ]
+            },
+            bin: {
+                files: [
+                    {src: ['marvin'], dest: 'dest/usr/bin/'}
+                ]
             }
+
+
         }
     });
 

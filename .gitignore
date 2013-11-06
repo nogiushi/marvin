@@ -6,12 +6,13 @@
 # Folders
 _obj
 _test
+dest
 tmp
-web/components
-web/bower_components
-web/static
-web/build
-web/node_modules/
+components
+bower_components
+static
+build
+node_modules/
 
 # Architecture specific extensions/prefixes
 *.[568vq]

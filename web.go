@@ -1,11 +1,10 @@
-package web
+package main
 
 import (
 	"bytes"
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
-	"go/build"
 	"html/template"
 	"io"
 	"log"
@@ -26,11 +25,7 @@ var site *template.Template
 var templates = make(map[string]*template.Template)
 
 func init() {
-	if p, err := build.Default.Import("github.com/nogiushi/marvin/web", "", build.FindOnly); err == nil {
-		Root = p.Dir
-	} else {
-		log.Println("WARNING: could not import package:", err)
-	}
+	Root = "/usr/share/marvin"
 
 	if j, err := os.OpenFile(path.Join(Root, "bower.json"), os.O_RDONLY, 0666); err == nil {
 		dec := json.NewDecoder(j)
