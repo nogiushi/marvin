@@ -161,7 +161,7 @@ module.exports = function(grunt) {
     grunt.registerTask('static', ['clean', 'static-css', 'static-js', 'static-images']);
 
     // Default task.
-    grunt.registerTask('default', ['shell:goinstall', 'test', 'static', 'shell:fpm']);
+    grunt.registerTask('default', ['shell:goinstall', 'test', 'static']);
 
     // Default task.
     grunt.registerTask('fpm', ['default', 'shell:fpm']);
