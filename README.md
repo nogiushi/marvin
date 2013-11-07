@@ -32,6 +32,14 @@ This github repository contains Marvin's software. Marvin currently has the foll
 
 If you are installing Marvin on your BeagleBone we are using 13.10 via [rcn-ee.net](https://rcn-ee.net/deb/flasher/saucy/BBB-eMMC-flasher-ubuntu-13.10-2013-10-25.img.xz).
 
+### install from package
+
+	sudo apt-add-repository http://nogiushi.com/ubuntu
+	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8FDDF7F3B7904A2A
+
+	sudo apt-get update
+	sudo apt-get install marvin
+
 ### install build tools
 
     sudo apt-get install gcc g++ make mercurial

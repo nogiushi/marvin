@@ -18,8 +18,18 @@ module.exports = function(grunt) {
                     }
 		},
 		command: 'go build -v .'
+            },
+            fpm: {
+                options: {
+                    failOnError: true,
+                    stdout: true,
+                    execOptions: {
+                        cwd: '.'
+                    }
+                },
+                command: 'fpm -s dir -t deb -n marvin -v <%= bower.version %>-1 -C dest --deb-user root --deb-group root --deb-compression xz --description "Marvin is ..." --category "home" --url http://nogiushi.com/ -m "info<info@nogiushi.com>"  --architecture armhf -p marvin-<%= bower.version %>-1_armhf.deb -d "golang (>= 1.1.2)" etc usr'
             }
-	},
+        },
         clean: {
             static: ['static', 'build']
         },
@@ -114,11 +124,6 @@ module.exports = function(grunt) {
                     {src: ['conf/marvin.json'], dest: 'dest/etc/marvin.json'}
                 ]
             },
-            conf: {
-                files: [
-                    {src: ['conf/marvin.conf'], dest: 'dest/etc/init/marvin.conf'}
-                ]
-            },
             bin: {
                 files: [
                     {src: ['marvin'], dest: 'dest/usr/bin/'}
@@ -156,6 +161,9 @@ module.exports = function(grunt) {
     grunt.registerTask('static', ['clean', 'static-css', 'static-js', 'static-images']);
 
     // Default task.
-    grunt.registerTask('default', ['shell', 'test', 'static']);
+    grunt.registerTask('default', ['shell:goinstall', 'test', 'static', 'shell:fpm']);
+
+    // Default task.
+    grunt.registerTask('fpm', ['default', 'shell:fpm']);
 
 };
