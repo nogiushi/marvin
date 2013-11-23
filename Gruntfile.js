@@ -119,9 +119,9 @@ module.exports = function(grunt) {
                     {src: ['*/*.html'], dest: 'dest/usr/share/marvin/'}
                 ]
             },
-            json: {
+            conf: {
                 files: [
-                    {src: ['conf/marvin.json'], dest: 'dest/etc/marvin.json'}
+                    {src: ['conf/marvin.conf'], dest: 'dest/etc/init/marvin.conf'}
                 ]
             },
             bin: {
