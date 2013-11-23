@@ -26,7 +26,7 @@ This github repository contains Marvin's software. Marvin currently has the foll
 * marvin - program containing the server daemon
 * marvin/nog - package containing the message center
 
-## Install [![Build Status](https://api.travis-ci.org/nogiushi/marvin.png?branch=master)](https://travis-ci.org/nogiushi/marvin) [node dev deps](https://david-dm.org/nogiushi/marvin#dev-badge-embed) ##
+## Install [![Build Status](https://api.travis-ci.org/nogiushi/marvin.png?branch=master)](https://travis-ci.org/nogiushi/marvin) [![node dev deps](https://david-dm.org/nogiushi/marvin/dev-status.png)](https://david-dm.org/nogiushi/marvin#dev-badge-embed) ##
 
 ### get ubuntu 
 
