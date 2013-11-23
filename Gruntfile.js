@@ -129,12 +129,20 @@ module.exports = function(grunt) {
                     {src: ['marvin'], dest: 'dest/usr/bin/'}
                 ]
             }
-
-
+        },
+        chmod: {
+            options: {
+                mode: '755'
+            },
+            marvin: {
+                // Target-specific file/dir lists and/or options go here.
+                src: ['dest/usr/bin/marvin']
+            }
         }
     });
 
     // These plugins provide necessary tasks.
+    grunt.loadNpmTasks('grunt-chmod');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-clean');
@@ -164,6 +172,6 @@ module.exports = function(grunt) {
     grunt.registerTask('default', ['shell:goinstall', 'test', 'static']);
 
     // Default task.
-    grunt.registerTask('fpm', ['default', 'shell:fpm']);
+    grunt.registerTask('fpm', ['default', 'chmod:marvin', 'shell:fpm']);
 
 };
