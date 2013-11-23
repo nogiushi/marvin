@@ -48,7 +48,7 @@ func longExpire(h http.Handler) http.Handler {
 }
 
 func (le *longExpireHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ttl := int64(86400)
+	ttl := int64(365 * 86400)
 	w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d", ttl))
 	le.h.ServeHTTP(w, r)
 }
