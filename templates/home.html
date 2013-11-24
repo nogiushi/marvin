@@ -10,10 +10,20 @@
 	<li ng-repeat="message in nowMessages" ng-animate=" 'animate' " class="list-group-item message [[bitClass(message.Who)]]">[[message.Who]]: <span class="what">[[message.What]]</span>
 	</li>
 	<li class="list-group-item">
-	  <form xclass="form-inline" ng-submit="sendMessage(message, 'input')" autocomplete="off">
-	    <input id="iAm" class="form-control" type="text" typeahead="activity for activity in allMessages() | filter:$viewValue" ng-model="message" placeholder="message to Marvin">
-	    <input type="hidden" ng-model="state.Activity">
-	    <!--<button type="submit" class="btn">Add</button>-->
+	  <form class="form-inline" ng-submit="sendMessage(message, 'input')" autocomplete="off">
+	    <div class="row">
+	      <div class="col-xs-9">
+		<input id="iAm" class="form-control" type="text"
+                       typeahead-on-select="sendMessage($item, 'input')"
+                       typeahead-editable="true"
+                       typeahead="activity for activity in allMessages() | filter:$viewValue"
+                       ng-model="message" placeholder="message to Marvin">
+		<input type="hidden" ng-model="state.Activity">
+	      </div>
+	      <div class="col-xs-3">
+		<button type="submit" class="btn btn-default btn-block">Send</button>
+	      </div>
+	    </div>
 	  </form>
 	</li>
       </ul>
