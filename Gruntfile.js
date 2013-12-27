@@ -27,7 +27,7 @@ module.exports = function(grunt) {
                         cwd: '.'
                     }
                 },
-                command: 'fpm -s dir -t deb -n marvin -v <%= bower.version %>-1 -C dest --deb-user root --deb-group root --deb-compression xz --description "Marvin is ..." --category "home" --url http://nogiushi.com/ -m "info<info@nogiushi.com>"  --architecture armhf -p marvin-<%= bower.version %>-1_armhf.deb -d "golang (>= 1.1.2)" etc usr'
+                command: 'fpm -s dir -t deb -n marvin -v <%= bower.version %>-1 -C dest --deb-user root --deb-group root --deb-compression xz --description "Marvin is ..." --category "home" --url http://nogiushi.com/ -m "info<info@nogiushi.com>"  --architecture armhf -p marvin-<%= bower.version %>-1_armhf.deb -d "golang (>= 1.1.2)" --config-files etc/init/marvin.conf usr'
             }
         },
         clean: {
