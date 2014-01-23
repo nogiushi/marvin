@@ -39,6 +39,8 @@ function MarvinCtrl($scope, $timeout) {
     $scope.connection = null;
     $scope.nowMessages = [];
     $scope.thenMessages = [];
+    $scope.messages = $scope.nowMessages;
+    $scope.messagesLabel = "Now";
 
     $scope.NewConnection = function() {
         var wsproto = "";
@@ -243,7 +245,13 @@ function MarvinCtrl($scope, $timeout) {
     };
 
     $scope.nowThenFlip = function() {
-        $("#nowthen").toggleClass("flip");
+        if ($scope.messages == $scope.nowMessages) {
+            $scope.messages = $scope.thenMessages;
+            $scope.messagesLabel = "Then";
+        } else {
+            $scope.messages = $scope.nowMessages;
+            $scope.messagesLabel = "Now";
+        }
     };
 
     $scope.bitClass = function(name) {
@@ -255,3 +263,13 @@ function MarvinCtrl($scope, $timeout) {
     };
 
 }
+
+(function($) {
+    function initPage() {
+        $('ul.nav > li > a[href="' + document.location.pathname + '"]').parent().addClass('active');
+        $('a').tooltip();
+    }
+    $(initPage);
+
+})(jQuery);
+

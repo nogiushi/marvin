@@ -1,132 +1,24 @@
- {{define "html"}}<!DOCTYPE html>
- <html lang="en" ng-app="MarvinApp">
-   <head>
-     <script src="/{{.Version}}/js/marvin.js"></script>
+{{define "html"}}<!DOCTYPE html>
+<html lang="en" ng-app="MarvinApp">
+  <head>
+    <script src="/{{.Version}}/js/marvin.js"></script>
 
-     <meta charset="utf-8">
-     <title>{{if .}}{{with .Title}}{{.}} « {{end}}Marvin{{else}}Not Found{{end}}</title>
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <title>{{if .}}{{with .Title}}{{.}} « {{end}}Marvin{{else}}Not Found{{end}}</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
 
-     <link href="/{{.Version}}/css/marvin.min.css" rel="stylesheet">
-     <link href="/{{.Version}}/images/robot.png" rel="icon" type="image/png">
-     <link href="/{{.Version}}/images/robot.png" rel="apple-touch-icon">
-     <style>
-       body {
-         padding-top: 20px;
-       }
-
-       .bits {
-         padding-bottom: 20px;
-       }
-
-       #brand {
-           background-image: url('{{.Version}}/images/robot.svg');
-           opacity:0.2;
-           background-size: 100% auto;
-           background-repeat:no-repeat;
-           position: fixed;
-           top: 10;
-           left: 0;
-           width: 100%;
-           height: 100%;
-           -webkit-filter: blur(5px);
-           -webkit-transform: translateZ(0);
-           filter: blur(5px);
-           z-index: -1000;
-       }
-       
-       .flip-container {
-           -webkit-perspective: 1000;
-           perspective: 1000;
-       }
-       .flip-container.flip .flipper {
-           -webkit-transform: rotateY(180deg);
-           transform: rotateY(180deg);
-       }
-       .flip-container, .front, .back {
-           width: 100%;
-           height: 350px;
-       }
-       .flipper {
-           -webkit-transition: 0.6s;
-           transition: 0.6s;
-           -webkit-transform-style: preserve-3d;
-           transform-style: preserve-3d;
-
-           position: relative;
-       }
-       .front, .back {
-           -webkit-backface-visibility: hidden;
-           backface-visibility: hidden;
-           position: absolute;
-           top: 0;
-           left: 0;
-           overflow-y: scroll;
-           overflow-x: hidden;
-       }
-       .front {
-           z-index: 2;
-       }
-       .back {
-           -webkit-transform: rotateY(180deg);
-           transform: rotateY(180deg);
-       }
-
-    </style>
-    <style>
-@media (max-width: 767px) {
-  .dl-horizontal dt {
-      float: left;
-      width: 120px;
-      clear: left;
-      text-align: right;
-
-  }
-  .dl-horizontal dd {
-      margin-left: 135px;
-  }
-  .col-xs-12 {
-      padding-right: 0px;
-      padding-left: 0px;
-  }
-}
-    </style>
-    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <link href="/{{.Version}}/css/marvin.min.css" rel="stylesheet">
+    <link href="/{{.Version}}/images/robot.png" rel="icon" type="image/png">
+    <link href="/{{.Version}}/images/robot.png" rel="apple-touch-icon">
   </head>
 
   <body>
-
     <div id="brand"></div>
-
-<!-- Wrap all page content here -->
-    <div id="wrap">
-
-      <div class="container">
-	{{if .}}{{template "content" .}}{{else}}<h1>Not Found</h1>{{end}}
-      </div>
-
-      <div id="footer">
-	<div class="container">
-          <p class="text-muted credit"><a href="http://github.com/eikeon/Marvin">Marvin</a> {{.Version}}. Glyphicons by <a href="http://glyphicons.com">GLYPHICONS</a>.</p>
-	</div>
-      </div>
-
-    </div>
-
-    <script>
-(function($) {
-    function initPage() {
-        $('ul.nav > li > a[href="' + document.location.pathname + '"]').parent().addClass('active');
-        $('a').tooltip()
-    }
-    $(initPage);
-
-})(jQuery)
-
-    </script>
+    {{if .}}{{template "content" .}}{{else}}<h1>Not Found</h1>{{end}}
+    <footer>
+      <p class="text-muted credit"><a href="http://github.com/eikeon/Marvin">Marvin</a> {{.Version}}.</p>
+      <p class="text-muted credit">Glyphicons by <a href="http://glyphicons.com">GLYPHICONS</a>.</p>
+    </footer>
   </body>
 </html>{{end}}
 

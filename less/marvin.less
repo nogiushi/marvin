@@ -5,11 +5,86 @@
 
 @message:         rgba(200,200,200,0.3);
 
-#footer {
-    background-color: rgba(200,200,200,0.3);
-    padding: 10px;
+body {
+    padding-bottom: 50px;
 }
 
+footer {
+    background-color: rgba(255,255,255,0.9);
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 50px;
+    display: -webkit-flex;
+    -webkit-flex-flow: column;
+    -webkit-align-items: center;
+    -webkit-justify-content: stretch;
+}
+
+footer p {
+    margin: 10px;
+}
+
+.form-inline {
+    display: -webkit-flex;
+    -webkit-flex-flow: row;
+    -webkit-align-items: center;
+    -webkit-justify-content: center;
+}
+
+#iAm {
+    width: auto;
+    -webkit-flex: 1 1 0;
+}
+.form-inline button {
+    max-width: 5em;
+    margin-left: 5px;
+}
+
+.flex{
+    display: -webkit-flex;
+    -webkit-flex-flow: row wrap;
+    -webkit-align-items: flex-start;
+    -webkit-justify-content: center;
+}
+
+.flex > *{
+    min-width: 300px;
+    margin: 5px;
+    flex: 1 1 0;
+}
+
+.bits {
+    padding-bottom: 20px;
+}
+
+#brand {
+    background-image: url('../images/robot.svg');
+    opacity:0.2;
+    background-size: 100% auto;
+    background-repeat:no-repeat;
+    position: fixed;
+    top: 10;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-filter: blur(5px);
+    -webkit-transform: translateZ(0);
+    filter: blur(5px);
+    z-index: -1000;
+}
+
+@media (max-width: 767px) {
+    .dl-horizontal dt {
+        float: left;
+        width: 120px;
+        clear: left;
+        text-align: right;
+    }
+    .dl-horizontal dd {
+        margin-left: 135px;
+    }
+}
 
 @panel-message-text:          @gray-dark;
 @panel-message-border:        darken(@message, 5%);
@@ -84,10 +159,7 @@ li.message {
 }
 
 .message span {
-  xmargin :7px;
-  xpadding: 7px;
   border-radius: 5px;
-  xfont-size: 14pt;  
 }
 
 .c1 {
@@ -114,20 +186,14 @@ li.message {
   background-color: @c2;
 }
 
-.overflowvisible {
-  .panel {
-    overflow: visible;
-  }
-}
-
 .animate-enter, .animate-leave {
-	-webkit-transition: 1s linear all; /* Chrome */
-	transition: 1s linear all;
-	opacity: 0;
+    -webkit-transition: 1s linear all; /* Chrome */
+    transition: 1s linear all;
+    opacity: 0;
 }
  
 .animate-enter.animate-enter-active {
-	opacity: 1;
+    opacity: 1;
 }
 
 .animate-leave.animate-leave-active {
