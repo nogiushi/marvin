@@ -8,16 +8,16 @@ module.exports = function(grunt) {
                 '* <%= bower.name %>.js v<%= bower.version %> \n' +
                 '* <%= grunt.template.today("yyyy/mm/dd") %> \n' +
                 '*/\n',
-	shell: {
+        shell: {
             goinstall: {
                 options: {
                     failOnError: true,
                     stdout: true,
                     execOptions: {
-			cwd: '.'
+                        cwd: '.'
                     }
-		},
-		command: 'go build -v .'
+                },
+                command: 'go build -v .'
             },
             fpm: {
                 options: {
@@ -73,21 +73,39 @@ module.exports = function(grunt) {
                 src: ['js/tests/unit/*.js']
             }
         },
-        recess: {
-            options: {
-                compile: true
-            },
-            marvin: {
+        less: {
+            compileCore: {
+                options: {
+                    strictMath: true,
+                    sourceMap: true,
+                    outputSourceFiles: true,
+                    sourceMapURL: '<%= pkg.name %>.css.map',
+                    sourceMapFilename: 'dist/css/<%= pkg.name %>.css.map'
+                },
                 files: {
                     'dest/usr/share/marvin/static/<%= bower.version %>/css/<%= bower.name %>.css': ['less/marvin.less']
                 }
             },
-            min: {
+            compileTheme: {
                 options: {
-                    compress: true
+                    strictMath: true,
+                    sourceMap: true,
+                    outputSourceFiles: true,
+                    sourceMapURL: '<%= pkg.name %>-theme.css.map',
+                    sourceMapFilename: 'dist/css/<%= pkg.name %>-theme.css.map'
                 },
                 files: {
-                    'dest/usr/share/marvin/static/<%= bower.version %>/css/<%= bower.name %>.min.css': ['less/marvin.less']
+                    'dist/css/<%= pkg.name %>-theme.css': 'less/theme.less'
+                }
+            },
+            minify: {
+                options: {
+                    cleancss: true,
+                    report: 'min'
+                },
+                files: {
+                    'dest/usr/share/marvin/static/<%= bower.version %>/css/<%= bower.name %>.min.css': 'dest/usr/share/marvin/static/<%= bower.version %>/css/<%= bower.name %>.css',
+                    'dist/css/<%= pkg.name %>-theme.min.css': 'dist/css/<%= pkg.name %>-theme.css'
                 }
             }
         },
@@ -107,8 +125,8 @@ module.exports = function(grunt) {
                         dest: 'dest/usr/share/marvin/static/<%= bower.version %>/'
                     },
                     {
-			expand: true,
-			cwd: 'bower_components/bootstrap/dist/',
+                        expand: true,
+                        cwd: 'bower_components/bootstrap/dist/',
                         src: ['fonts/*'],
                         dest: 'dest/usr/share/marvin/static/<%= bower.version %>/'
                     }
@@ -141,17 +159,7 @@ module.exports = function(grunt) {
         }
     });
 
-    // These plugins provide necessary tasks.
-    grunt.loadNpmTasks('grunt-chmod');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-ngmin');
-    grunt.loadNpmTasks('grunt-recess');
-    grunt.loadNpmTasks('grunt-shell');
-    grunt.loadNpmTasks('grunt-typescript');
-    grunt.loadNpmTasks('grunt-contrib-copy');
+    require('load-grunt-tasks')(grunt, {scope: 'devDependencies'});
 
     // Test task.
     grunt.registerTask('test', ['jshint']);
@@ -160,7 +168,7 @@ module.exports = function(grunt) {
     grunt.registerTask('static-js', ['typescript', 'ngmin', 'concat', 'uglify']); 
 
     // CSS distribution task.
-    grunt.registerTask('static-css', ['recess']);
+    grunt.registerTask('static-css', ['less']);
 
     // Images distribution task
     grunt.registerTask('static-images', ['copy']);

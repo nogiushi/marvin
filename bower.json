@@ -1,9 +1,9 @@
 {
   "name": "marvin",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "dependencies": {
-    "bootstrap": "git://github.com/twbs/bootstrap.git#3.0.3",
-    "angularjs": "https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.min.js",
+    "bootstrap": "git://github.com/twbs/bootstrap.git#3.1.0",
+    "angularjs": "https://ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.min.js",
     "hue-color-converter": "git://github.com/eikeon/hue-color-converter.git",
     "angular-ui-bootstrap": "https://raw.github.com/angular-ui/bootstrap/gh-pages/ui-bootstrap-tpls-0.10.0.min.js"
   }

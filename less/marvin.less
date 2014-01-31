@@ -186,7 +186,15 @@ li.message {
   background-color: @c2;
 }
 
-.animate-enter, .animate-leave {
+.bits {
+  .panel-group {
+    .panel {
+      overflow: visible;
+    }
+  }
+}
+
+ .animate-enter, .animate-leave {
     -webkit-transition: 1s linear all; /* Chrome */
     transition: 1s linear all;
     opacity: 0;
