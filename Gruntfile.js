@@ -45,7 +45,7 @@ module.exports = function(grunt) {
                 stripBanners: false
             },
             marvin: {
-                src: ['bower_components/jquery/jquery.min.js', 'bower_components/angularjs/index.js', 'bower_components/angular-ui-bootstrap/index.js', 'build/js/colorconverter.js',  'js/marvin.js', 'bower_components/bootstrap/dist/js/bootstrap.min.js'],
+                src: ['bower_components/jquery/jquery.min.js', 'bower_components/angular/angular.min.js', 'bower_components/angular-animate/angular-animate.min.js', 'bower_components/angular-ui-bootstrap/index.js', 'build/js/colorconverter.js',  'js/marvin.js', 'bower_components/bootstrap/dist/js/bootstrap.min.js'],
                 dest: 'dest/usr/share/marvin/static/<%= bower.version %>/js/<%= bower.name %>.js'
             }
         },

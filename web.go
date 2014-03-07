@@ -20,14 +20,11 @@ import (
 var pkg struct {
 	Version string `json:"version"`
 }
-var Root string
 var site *template.Template
 var templates = make(map[string]*template.Template)
 
-func init() {
-	Root = "/usr/share/marvin"
-
-	if j, err := os.OpenFile(path.Join(Root, "bower.json"), os.O_RDONLY, 0666); err == nil {
+func ReadVersion() {
+	if j, err := os.OpenFile(path.Join(*Root, "bower.json"), os.O_RDONLY, 0666); err == nil {
 		dec := json.NewDecoder(j)
 		if err = dec.Decode(&pkg); err != nil {
 			log.Println("WARNING: could not decode bower.json", err)
@@ -58,13 +55,13 @@ func getTemplate(name string) *template.Template {
 		return t
 	} else {
 		if site == nil {
-			site = template.Must(template.ParseFiles(path.Join(Root, "templates/site.html")))
+			site = template.Must(template.ParseFiles(path.Join(*Root, "templates/site.html")))
 		}
 		t, err := site.Clone()
 		if err != nil {
 			log.Fatal("cloning site: ", err)
 		}
-		t = template.Must(t.ParseFiles(path.Join(Root, name)))
+		t = template.Must(t.ParseFiles(path.Join(*Root, name)))
 		templates[name] = t
 		return t
 	}
@@ -110,7 +107,7 @@ func handleTemplate(prefix, name string, data templateData) {
 func AddHandlers(n *nog.Nog) {
 	handleTemplate("/", "home", templateData{"Marvin": n})
 
-	fs := longExpire(http.FileServer(http.Dir(path.Join(Root, "static/"))))
+	fs := longExpire(http.FileServer(http.Dir(path.Join(*Root, "static/"))))
 	http.Handle("/"+pkg.Version+"/", fs)
 
 	http.Handle("/message", websocket.Handler(func(ws *websocket.Conn) {

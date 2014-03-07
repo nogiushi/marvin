@@ -194,16 +194,32 @@ li.message {
   }
 }
 
- .animate-enter, .animate-leave {
-    -webkit-transition: 1s linear all; /* Chrome */
-    transition: 1s linear all;
-    opacity: 0;
-}
- 
-.animate-enter.animate-enter-active {
-    opacity: 1;
+.message.ng-enter {
+  -webkit-animation:2s message-fade-in;
+  animation:2s message-fade-in;
 }
 
-.animate-leave.animate-leave-active {
-    opacity: 0;
+.message.ng-leave {
+  -webkit-animation:2s message-fade-out;
+  animation:2s message-fade-out;
+}
+
+@keyframes message-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@-webkit-keyframes message-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes message-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@-webkit-keyframes message-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }

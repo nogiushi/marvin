@@ -1,4 +1,4 @@
-var myModule = angular.module('MarvinApp', ['ui.bootstrap'], function ($interpolateProvider) {
+var myModule = angular.module('MarvinApp', ['ngAnimate', 'ui.bootstrap'], function ($interpolateProvider) {
   $interpolateProvider.startSymbol('[[');
   $interpolateProvider.endSymbol(']]');
 });

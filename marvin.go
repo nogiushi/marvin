@@ -25,12 +25,17 @@ import (
 	"github.com/nogiushi/marvin/schedule"
 )
 
+var Root *string
+
 func main() {
 	config := flag.String("config", "/etc/marvin.json", "file path to configuration file")
 	address := flag.String("address", ":9999", "http service address")
 	cert := flag.String("cert", "", "certificate file")
 	key := flag.String("key", "", "key file")
+	Root = flag.String("root", "/usr/share/marvin", "...")
 	flag.Parse()
+
+	ReadVersion()
 
 	log.Println("starting marvin")
 
