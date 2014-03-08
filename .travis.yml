@@ -5,11 +5,9 @@ go:
 - tip
 
 script:
-  - sudo add-apt-repository --yes ppa:chris-lea/node.js
-  - sudo apt-get --yes update
-  - sudo apt-get install --yes nodejs
   - npm install -g grunt-cli bower
   - npm install
+  - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
   - bower install
   - grunt
   - go list -f '{{range .XTestImports}}{{.}}{{"\n"}}{{end}}' | xargs go get
