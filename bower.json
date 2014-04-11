@@ -1,10 +1,10 @@
 {
   "name": "marvin",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "dependencies": {
     "bootstrap": "git://github.com/twbs/bootstrap.git#3.1.1",
-    "angular": "git://github.com/angular/bower-angular.git#1.2.15",
-    "angular-animate": "git://github.com/angular/bower-angular-animate.git#1.2.15",
+    "angular": "git://github.com/angular/bower-angular.git#1.2.16",
+    "angular-animate": "git://github.com/angular/bower-angular-animate.git#1.2.16",
     "hue-color-converter": "git://github.com/eikeon/hue-color-converter.git",
     "angular-ui-bootstrap": "https://raw.github.com/angular-ui/bootstrap/gh-pages/ui-bootstrap-tpls-0.10.0.min.js"
   }
