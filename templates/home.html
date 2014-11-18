@@ -34,7 +34,7 @@
       <div ng-repeat="(k, v) in state.Bits track by $index" class="panel panel-default panel-[[bitClass(k)]]">
 	<div class="panel-heading">
 	  <h4 class="panel-title">
-            <a data-toggle="collapse" data-target="#collapse[[k.replace(' ', '')]]">
+            <a ng-click="isCollapsed = !isCollapsed">
 	      [[k]]
             </a>
 	    <span ng-switch on="state.Switch[k]" class="pull-right">
@@ -43,7 +43,7 @@
 	    </span>
 	  </h4>
 	</div>
-	<div id="collapse[[k.replace(' ', '')]]" class="panel-collapse collapse">
+	<div collapse="isCollapsed">
 	  <div compile="state.templates[k]"></div>
 	</div>
       </div>

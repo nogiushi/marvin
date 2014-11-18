@@ -32,8 +32,7 @@ myModule.config(function($compileProvider) {
   });
 });
 
-
-function MarvinCtrl($scope, $timeout) {
+myModule.controller('MarvinCtrl', function ($scope, $timeout) {
     $scope.state = {};
     $scope.errors = [];
     $scope.connection = null;
@@ -41,6 +40,7 @@ function MarvinCtrl($scope, $timeout) {
     $scope.thenMessages = [];
     $scope.messages = $scope.nowMessages;
     $scope.messagesLabel = "Now";
+    $scope.isCollapsed = true;
 
     $scope.NewConnection = function() {
         var wsproto = "";
@@ -262,7 +262,7 @@ function MarvinCtrl($scope, $timeout) {
         }
     };
 
-}
+})
 
 (function($) {
     function initPage() {

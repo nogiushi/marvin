@@ -9,7 +9,7 @@
     <tr ng-repeat="(name, group) in state.Hue.Datastore.groups">
       <td>[[group.name]]</td>
       <td>
-	<div ng-switch on="group.action.on" class="btn-group">
+	<div ng-switch on="group.action.on" class="btn-group" dropdown>
 	  <button
 	     ng-switch-when="true"
 	     type="button" class="btn btn-default btn-lg"
@@ -19,7 +19,7 @@
 	     ng-switch-when="false"
 	     type="button" class="btn btn-default btn-lg"
 	     ng-click="setHue('/groups/'+name+'/action', ON, 'lightgroups')">Off</button>
-	  <button type="button" class="btn btn-default btn-lg dropdown-toggle" data-toggle="dropdown">
+	  <button type="button" class="btn btn-default btn-lg dropdown-toggle" dropdown-toggle>
 	    <span class="caret"></span>
 	  </button>
 	  <ul class="dropdown-menu" role="menu">
@@ -34,7 +34,7 @@
     <tr ng-repeat="(name, light) in state.Hue.Datastore.lights">
       <td>[[light.name]]</td>
       <td>
-	<div ng-switch on="light.state.on" class="btn-group">
+	<div ng-switch on="light.state.on" class="btn-group" dropdown>
 	  <button
 	     ng-switch-when="true"
 	     type="button" class="btn btn-default btn-lg"
@@ -44,8 +44,7 @@
 	     ng-switch-when="false"
 	     type="button" class="btn btn-default btn-lg"
 	     ng-click="setHue('/lights/'+name+'/state', ON, 'lightbulbs')">Off</button>
-	  <button type="button" class="btn btn-default btn-lg dropdown-toggle" data-toggle="dropdown"
-		  style="color: black; background-color: [[getColor(light.state)]]">
+	  <button type="button" class="btn btn-default btn-lg dropdown-toggle" dropdown-toggle style="color: black; background-color: [[getColor(light.state)]]">
 	    <span class="caret"></span>
 	  </button>
 	  <ul class="dropdown-menu" role="menu">
