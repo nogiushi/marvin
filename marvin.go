@@ -35,6 +35,8 @@ func main() {
 	Root = flag.String("root", "/usr/share/marvin", "...")
 	flag.Parse()
 
+	nog.Root = *Root
+
 	ReadVersion()
 
 	log.Println("starting marvin")

@@ -8,7 +8,12 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"os"
+	"path"
+	"io/ioutil"
 )
+
+var Root = ""
 
 type Message struct {
 	Hash string `db:"HASH"`
@@ -42,6 +47,20 @@ type Nog struct {
 	bits  map[string]*bit
 	state map[string]interface{}
 	sync.Mutex
+}
+
+func Template(name string) Message {
+	if j, err := os.OpenFile(path.Join(Root, name, name+".html"), os.O_RDONLY, 0666); err == nil {
+		if b, err := ioutil.ReadAll(j); err == nil {
+			return Message{What: string(b), Why: "template"}
+		} else {
+			log.Println("ERROR reading:", err)
+			return Message{What: "ERROR reading:"+err.Error()}
+		}
+	} else {
+		log.Println("WARNING: could not open ", name, err)
+		return Message{What: "WARNING: could not open " +  name}
+	}
 }
 
 func NewNog() *Nog {

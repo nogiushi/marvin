@@ -62,9 +62,9 @@ in your ~/.profile.
 Marvin's needs a nodejs environment for managing external javascript and css
 dependencies using [Bower](https://github.com/bower/bower).
 
-    wget http://nodejs.org/dist/v0.10.21/node-v0.10.21.tar.gz
-    tar xvfz node-v0.10.21.tar.gz
-    cd node-v0.10.21
+    wget http://nodejs.org/dist/v0.10.33/node-v0.10.33.tar.gz
+    tar xvfz node-v0.10.33.tar.gz
+    cd node-v0.10.33
     ./configure --without-snapshot
     sudo make install
 

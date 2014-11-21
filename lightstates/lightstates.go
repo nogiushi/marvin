@@ -2,9 +2,7 @@ package lightstates
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
-	"os"
 	"path"
 	"runtime"
 	"strings"
@@ -26,17 +24,9 @@ type Lightstates struct {
 func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 	out <- nog.Message{What: "started"}
 	a := &Lightstates{}
+
 	go func() {
-		name := "lightstates.html"
-		if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
-			if b, err := ioutil.ReadAll(j); err == nil {
-				out <- nog.Message{What: string(b), Why: "template"}
-			} else {
-				log.Println("ERROR reading:", err)
-			}
-		} else {
-			log.Println("WARNING: could not open ", name, err)
-		}
+		out <- nog.Template("lightstates")
 	}()
 
 	for m := range in {

@@ -2,9 +2,7 @@ package nouns
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
-	"os"
 	"path"
 	"runtime"
 	"strings"
@@ -26,19 +24,11 @@ type Nouns struct {
 func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 	out <- nog.Message{What: "started"}
 	a := &Nouns{}
-	go func() {
-		name := "nouns.html"
-		if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
-			if b, err := ioutil.ReadAll(j); err == nil {
-				out <- nog.Message{What: string(b), Why: "template"}
-			} else {
-				log.Println("ERROR reading:", err)
-			}
-		} else {
-			log.Println("WARNING: could not open ", name, err)
-		}
-	}()
 
+	go func() {
+		out <- nog.Template("nouns")
+	}()
+	
 	for m := range in {
 		if m.Why == "statechanged" {
 			dec := json.NewDecoder(strings.NewReader(m.What))

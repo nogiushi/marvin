@@ -1,9 +1,7 @@
 package ambientlight
 
 import (
-	"io/ioutil"
 	"log"
-	"os"
 	"path"
 	"runtime"
 	"time"
@@ -22,16 +20,9 @@ func init() {
 func Handler(in <-chan nog.Message, out chan<- nog.Message) {
 	out <- nog.Message{What: "started"}
 
-	name := "ambientlight.html"
-	if j, err := os.OpenFile(path.Join(Root, name), os.O_RDONLY, 0666); err == nil {
-		if b, err := ioutil.ReadAll(j); err == nil {
-			out <- nog.Message{What: string(b), Why: "template"}
-		} else {
-			log.Println("ERROR reading:", err)
-		}
-	} else {
-		log.Println("WARNING: could not open ", name, err)
-	}
+	go func() {
+		out <- nog.Template("ambientlight")
+	}()
 
 	var description string
 	var lightChannel <-chan int
